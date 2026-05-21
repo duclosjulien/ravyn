@@ -1,41 +1,23 @@
 package com.ravyn.chat.chat;
 
-public class ChatMessage {
+import lombok.Getter;
+import lombok.Setter;
 
+@Setter
+@Getter
+public class ChatMessage {
+    private Long conversationId;
+    private Long senderId;
     private String content;
-    private String sender;
     private MessageType type;
 
     public ChatMessage() {
     }
 
-    public ChatMessage(String content, String sender, MessageType type) {
+    public ChatMessage(Long conversationId, Long senderId, String content, MessageType type) {
+        this.conversationId = conversationId;
+        this.senderId = senderId;
         this.content = content;
-        this.sender = sender;
-        this.type = type;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    public String getSender() {
-        return sender;
-    }
-
-    public void setSender(String sender) {
-        this.sender = sender;
-    }
-
-    public MessageType getType() {
-        return type;
-    }
-
-    public void setType(MessageType type) {
         this.type = type;
     }
 
@@ -45,17 +27,23 @@ public class ChatMessage {
 
     public static class ChatMessageBuilder {
 
+        private Long conversationId;
+        private Long senderId;
         private String content;
-        private String sender;
         private MessageType type;
 
-        public ChatMessageBuilder content(String content) {
-            this.content = content;
+        public ChatMessageBuilder conversationId(Long conversationId) {
+            this.conversationId = conversationId;
             return this;
         }
 
-        public ChatMessageBuilder sender(String sender) {
-            this.sender = sender;
+        public ChatMessageBuilder senderId(Long senderId) {
+            this.senderId = senderId;
+            return this;
+        }
+
+        public ChatMessageBuilder content(String content) {
+            this.content = content;
             return this;
         }
 
@@ -65,7 +53,7 @@ public class ChatMessage {
         }
 
         public ChatMessage build() {
-            return new ChatMessage(content, sender, type);
+            return new ChatMessage(conversationId, senderId, content, type);
         }
     }
 }
