@@ -1,34 +1,40 @@
 package com.ravyn.chat.conversation;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Component;
+import com.ravyn.chat.repository.ConversationRepository;
+import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
-@Component
+@Service
 public class ConversationService {
-    Long numbersOfIds = 1L;
-    private final Map<Long, Conversation> conversations = new HashMap<>();
 
-    public Conversation getOrCreateConversation(Long user1, Long user2) {
-        Long id = makeConversationId();
+    private final ConversationRepository conversationRepository;
 
-        if (!conversations.containsKey(id))
-            conversations.put(id, new Conversation(id, user1, user2));
-
-        return conversations.get(id);
+    public ConversationService(ConversationRepository conversationRepository) {
+        this.conversationRepository = conversationRepository;
     }
 
-    public interface ConversationRepository
-            extends JpaRepository<Conversation, Long> {
+    public Conversation getConversation(Long user1Id, Long user2Id) {
+        Optional<Conversation> conversation = conversationRepository.findByUser1IdAndUser2Id(user1Id, user2Id);
+
+        if(conversation.isEmpty())
+            return createConversation(user1Id, user2Id);
+
+        return conversation.get();
+
     }
 
-    private Long makeConversationId() {
-        return numbersOfIds++;
+    private Conversation createConversation(Long user1Id, Long user2Id){
+        return conversationRepository.save(new Conversation(user1Id, user2Id));
     }
 
     public boolean validateUserInConversation(Long userId, Long conversationId){
-        conversations.get(conversationId);
+      Optional<Conversation> conversation = conversationRepository.findById(conversationId);
+      if(conversation.isEmpty())
+          return false;
+
+      Conversation c = conversation.get();
+      return Objects.equals(c.getUser1Id(), userId) || Objects.equals(c.getUser2Id(), userId);
     }
 }
