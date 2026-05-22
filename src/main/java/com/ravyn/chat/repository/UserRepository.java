@@ -1,4 +1,7 @@
 package com.ravyn.chat.repository;
 
-public class UserRepository {
+import com.ravyn.chat.user.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface UserRepository extends JpaRepository<User, Long> {
 }
