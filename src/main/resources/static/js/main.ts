@@ -1,11 +1,9 @@
 'use strict';
 
-type MessageType = 'CHAT' | 'JOIN' | 'LEAVE';
-
 interface ChatMessage {
-    sender: string;
+    senderId: number;
+    conversationId: number;
     content: string;
-    type: MessageType;
 }
 
 interface StompPayload {
@@ -38,8 +36,7 @@ const colors: string[] = [
 ];
 
 function connect(event: SubmitEvent): void {
-
-    username = (document.querySelector('#name') as HTMLInputElement).value.trim();
+    username =  (document.querySelector('#name') as HTMLInputElement).value.trim();
 
     if(username) {
         usernamePage.classList.add('hidden');
@@ -53,7 +50,6 @@ function connect(event: SubmitEvent): void {
 }
 
 function onConnected(): void {
-
     if(!stompClient)
         return;
 
@@ -71,7 +67,7 @@ function sendMessage(event: SubmitEvent): void {
     const messageContent = messageInput.value.trim();
 
     if(messageContent && stompClient && username) {
-        const chatMessage: ChatMessage = {sender: username, content: messageContent, type: 'CHAT'};
+        const chatMessage: ChatMessage = {senderId: username, content: messageContent, type: 'CHAT'};
 
         stompClient.send("/app/chat.send", {}, JSON.stringify(chatMessage));
         messageInput.value = '';
@@ -80,34 +76,21 @@ function sendMessage(event: SubmitEvent): void {
     event.preventDefault();
 }
 
-function onMessageReceived(
-    payload: StompPayload
-): void {
+function onMessageReceived(payload: StompPayload): void {
 
     const message: ChatMessage = JSON.parse(payload.body);
-
     const messageElement = document.createElement('li');
 
-    if(message.type === 'JOIN') {
-        messageElement.classList.add('event-message');
-        message.content = message.sender + ' joined!';
+    messageElement.classList.add('chat-message');
+    const avatarElement = document.createElement('i');
+    const avatarText = document.createTextNode(message.senderId[0]);
+    avatarElement.appendChild(avatarText);
+    avatarElement.style.backgroundColor = getAvatarColor(message.senderId);
+    messageElement.appendChild(avatarElement);
 
-    } else if(message.type === 'LEAVE') {
-        messageElement.classList.add('event-message');
-        message.content = message.sender + ' left!';
-
-    } else {
-        messageElement.classList.add('chat-message');
-        const avatarElement = document.createElement('i');
-        const avatarText = document.createTextNode(message.sender[0]);
-        avatarElement.appendChild(avatarText);
-        avatarElement.style.backgroundColor = getAvatarColor(message.sender);
-        messageElement.appendChild(avatarElement);
-
-        const usernameElement = document.createElement('span');
-        usernameElement.appendChild(document.createTextNode(message.sender));
-        messageElement.appendChild(usernameElement);
-    }
+    const usernameElement = document.createElement('span');
+    usernameElement.appendChild(document.createTextNode(message.senderId));
+    messageElement.appendChild(usernameElement);
 
     const textElement = document.createElement('p');
 
@@ -118,7 +101,7 @@ function onMessageReceived(
     messageArea.scrollTop = messageArea.scrollHeight;
 }
 
-function getAvatarColor(messageSender: string): string {
+function getAvatarColor(messageSender: number): string {
     let hash = 0;
 
     for(let i = 0; i < messageSender.length; i++) {
