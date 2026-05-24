@@ -6,6 +6,11 @@ interface ChatMessage {
     content: string;
 }
 
+interface User {
+    id: number;
+    username: string;
+}
+
 interface StompPayload {
     body: string;
 }
@@ -41,7 +46,6 @@ function connect(event: SubmitEvent): void {
     if(username) {
         usernamePage.classList.add('hidden');
         chatPage.classList.remove('hidden');
-
         const socket = new SockJS('/ws');
         stompClient = Stomp.over(socket);
         stompClient.connect({}, onConnected, onError);
@@ -53,8 +57,6 @@ function onConnected(): void {
     if(!stompClient)
         return;
 
-    stompClient.subscribe('/topic/public', onMessageReceived);
-    stompClient.send("/app/chat.addUser", {}, JSON.stringify({sender: username, type: 'JOIN'}));
     connectingElement.classList.add('hidden');
 }
 
@@ -67,7 +69,7 @@ function sendMessage(event: SubmitEvent): void {
     const messageContent = messageInput.value.trim();
 
     if(messageContent && stompClient && username) {
-        const chatMessage: ChatMessage = {senderId: username, content: messageContent, type: 'CHAT'};
+        const chatMessage: ChatMessage = {senderId: username, content: messageContent};
 
         stompClient.send("/app/chat.send", {}, JSON.stringify(chatMessage));
         messageInput.value = '';
@@ -77,7 +79,6 @@ function sendMessage(event: SubmitEvent): void {
 }
 
 function onMessageReceived(payload: StompPayload): void {
-
     const message: ChatMessage = JSON.parse(payload.body);
     const messageElement = document.createElement('li');
 
@@ -101,14 +102,8 @@ function onMessageReceived(payload: StompPayload): void {
     messageArea.scrollTop = messageArea.scrollHeight;
 }
 
-function getAvatarColor(messageSender: number): string {
-    let hash = 0;
-
-    for(let i = 0; i < messageSender.length; i++) {
-        hash = 31 * hash +
-            messageSender.charCodeAt(i);
-    }
-    const index = Math.abs(hash % colors.length);
+function getAvatarColor(userId: number): string {
+    const index = userId % colors.length;
     return colors[index];
 }
 
