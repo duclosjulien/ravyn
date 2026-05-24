@@ -15,16 +15,16 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public User userLogin(@RequestBody LoginRequest request){
+    public ChatUser userLogin(@RequestBody LoginRequest request){
         String username = request.getUsername();
-        Optional<User> user = userRepository.findByUsername(username);
+        Optional<ChatUser> user = userRepository.findByUsername(username);
         if(user.isEmpty())
             return createUser(username);
         return user.get();
     }
 
-    private User createUser(String username){
-        return userRepository.save(new User(username));
+    private ChatUser createUser(String username){
+        return userRepository.save(new ChatUser(username));
     }
 
 }

@@ -1,19 +1,6 @@
 'use strict';
 
-interface ChatMessage {
-    senderId: number;
-    conversationId: number;
-    content: string;
-}
-
-interface User {
-    id: number;
-    username: string;
-}
-
-interface StompPayload {
-    body: string;
-}
+import { User, ChatMessage, StompPayload } from './types';
 
 declare var SockJS: any;
 declare var Stomp: any;
