@@ -1,12 +1,14 @@
 'use strict';
 
 import { User, ChatMessage, StompPayload } from './types';
+import { userLogin } from './api';
 
 declare var SockJS: any;
 declare var Stomp: any;
 
 let stompClient: any = null;
-let username: string | null = null;
+let currentUser: User | null = null;
+let currentConversationId: number | null = null;
 
 const usernamePage = document.querySelector('#username-page') as HTMLElement;
 const chatPage = document.querySelector('#chat-page') as HTMLElement;
@@ -27,10 +29,13 @@ const colors: string[] = [
     '#39bbb0'
 ];
 
-function connect(event: SubmitEvent): void {
-    username =  (document.querySelector('#name') as HTMLInputElement).value.trim();
+async function connect(event: SubmitEvent): Promise<void> {
+    let username: string = (document.querySelector('#name') as HTMLInputElement).value.trim();
+    if(!username)
+        return;
 
-    if(username) {
+    currentUser = await userLogin(username);
+    if(currentUser) {
         usernamePage.classList.add('hidden');
         chatPage.classList.remove('hidden');
         const socket = new SockJS('/ws');
@@ -43,7 +48,6 @@ function connect(event: SubmitEvent): void {
 function onConnected(): void {
     if(!stompClient)
         return;
-
     connectingElement.classList.add('hidden');
 }
 
@@ -55,8 +59,8 @@ function onError(error: unknown): void {
 function sendMessage(event: SubmitEvent): void {
     const messageContent = messageInput.value.trim();
 
-    if(messageContent && stompClient && username) {
-        const chatMessage: ChatMessage = {senderId: username, content: messageContent};
+    if(messageContent && stompClient && currentUser && currentConversationId != null) {
+        const chatMessage: ChatMessage = {senderId: currentUser.id, conversationId: currentConversationId,  content: messageContent};
 
         stompClient.send("/app/chat.send", {}, JSON.stringify(chatMessage));
         messageInput.value = '';

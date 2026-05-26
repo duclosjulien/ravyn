@@ -3,7 +3,9 @@
   "compilerOptions": {
     // File Layout
     // "rootDir": "./src",
+    "rootDir": "./frontend",
     // "outDir": "./dist",
+    "outDir": "./src/main/resources/static/js",
 
     // Environment Settings
     // See also https://aka.ms/tsconfig/module
@@ -35,7 +37,7 @@
     // Recommended Options
     "strict": true,
     "jsx": "react-jsx",
-    "verbatimModuleSyntax": true,
+    "verbatimModuleSyntax": false,
     "isolatedModules": true,
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",

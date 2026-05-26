@@ -1,6 +1,6 @@
 import { User } from './types';
 
-async function userLogin(username: string): Promise<User> {
+export async function userLogin(username: string): Promise<User> {
     const response = await fetch("/users/login", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
