@@ -1,6 +1,7 @@
-POST http://localhost:8080/users/login
+POST http://localhost:8080/conversations/create
 Content-Type: application/json
 
 {
-  "username": "julien"
+"user1Id": 2,
+"user2Id": 1
 }
