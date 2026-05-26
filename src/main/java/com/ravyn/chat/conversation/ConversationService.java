@@ -17,12 +17,10 @@ public class ConversationService {
 
     public Conversation getConversation(Long user1Id, Long user2Id) {
         Optional<Conversation> conversation = conversationRepository.findByUser1IdAndUser2Id(user1Id, user2Id);
-
         if(conversation.isEmpty())
             return createConversation(user1Id, user2Id);
 
         return conversation.get();
-
     }
 
     private Conversation createConversation(Long user1Id, Long user2Id){
