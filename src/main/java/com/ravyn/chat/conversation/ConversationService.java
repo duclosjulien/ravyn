@@ -16,15 +16,18 @@ public class ConversationService {
     }
 
     public Conversation getConversation(Long user1Id, Long user2Id) {
-        Optional<Conversation> conversation = conversationRepository.findByUser1IdAndUser2Id(user1Id, user2Id);
+        Long participantAId = Math.min(user1Id, user2Id);
+        Long participantBId = Math.max(user1Id, user2Id);
+
+        Optional<Conversation> conversation = conversationRepository.findByUser1IdAndUser2Id(participantAId, participantBId);
         if(conversation.isEmpty())
-            return createConversation(user1Id, user2Id);
+            return createConversation(participantAId, participantBId);
 
         return conversation.get();
     }
 
-    private Conversation createConversation(Long user1Id, Long user2Id){
-        return conversationRepository.save(new Conversation(user1Id, user2Id));
+    private Conversation createConversation(Long participantAId, Long participantBId){
+        return conversationRepository.save(new Conversation(participantAId, participantBId));
     }
 
     public boolean validateUserInConversation(Long userId, Long conversationId){
