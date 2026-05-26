@@ -9,16 +9,13 @@ public class ChatMessage {
     private Long conversationId;
     private Long senderId;
     private String content;
-    private MessageType type;
 
-    public ChatMessage() {
-    }
+    public ChatMessage() {}
 
-    public ChatMessage(Long conversationId, Long senderId, String content, MessageType type) {
+    public ChatMessage(Long conversationId, Long senderId, String content) {
         this.conversationId = conversationId;
         this.senderId = senderId;
         this.content = content;
-        this.type = type;
     }
 
     public static ChatMessageBuilder builder() {
@@ -26,34 +23,12 @@ public class ChatMessage {
     }
 
     public static class ChatMessageBuilder {
-
         private Long conversationId;
         private Long senderId;
         private String content;
-        private MessageType type;
+    }
 
-        public ChatMessageBuilder conversationId(Long conversationId) {
-            this.conversationId = conversationId;
-            return this;
-        }
-
-        public ChatMessageBuilder senderId(Long senderId) {
-            this.senderId = senderId;
-            return this;
-        }
-
-        public ChatMessageBuilder content(String content) {
-            this.content = content;
-            return this;
-        }
-
-        public ChatMessageBuilder type(MessageType type) {
-            this.type = type;
-            return this;
-        }
-
-        public ChatMessage build() {
-            return new ChatMessage(conversationId, senderId, content, type);
-        }
+    public ChatMessage build() {
+        return new ChatMessage(conversationId, senderId, content);
     }
 }
