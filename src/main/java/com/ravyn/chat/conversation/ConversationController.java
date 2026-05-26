@@ -1,8 +1,8 @@
 package com.ravyn.chat.conversation;
 
 import com.ravyn.chat.repository.ConversationRepository;
-import com.ravyn.chat.repository.UserRepository;
-import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -14,4 +14,11 @@ public class ConversationController {
     public ConversationController(ConversationRepository conversationRepository) {
         this.conversationRepository = conversationRepository;
     }
+
+    @PostMapping("/create")
+    public Conversation getConversation(Long user1Id, Long user2Id){
+
+
+    }
+
 }
