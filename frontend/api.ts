@@ -11,9 +11,11 @@ export async function userLogin(username: string): Promise<User> {
 }
 
 export async function createConversation(user1Id: number, user2Id: number): Promise<Conversation> {
-    const response = await fetch("conversations/create", {
+    const response = await fetch("/conversations/create", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ username: username })
-    }
+        body: JSON.stringify({ user1Id: user1Id, user2Id: user2Id })
+    });
+    const conversation = await response.json();
+    return conversation as Conversation;
 }
