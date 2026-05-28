@@ -2,9 +2,10 @@
 
 import {ChatMessage, Conversation, StompPayload, User} from './types';
 import {createConversation, getConversationsByUserId, userLogin} from './api';
+import {StompSubscription} from "@stomp/stompjs";
 
-declare var SockJS: any;
-declare var Stomp: any;
+import { Client } from '@stomp/stompjs';
+import SockJS from 'sockjs-client';
 
 let stompClient: any = null;
 let currentUser: User | null = null;
@@ -37,9 +38,13 @@ async function connect(event: SubmitEvent): Promise<void> {
         chatPage.classList.remove('hidden');
         renderConversations();
 
-        const socket = new SockJS('/ws');
-        stompClient = Stomp.over(socket);
-        stompClient.connect({}, onConnected, onError);
+        stompClient = new Client({
+            webSocketFactory: () => new SockJS('/ws'),
+            reconnectDelay: 5000,
+        });
+        stompClient.onConnect = onConnected;
+        stompClient.onStompError = onError;
+        stompClient.activate();
 
     } catch (error) {
         console.error(error);
