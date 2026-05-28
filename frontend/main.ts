@@ -19,6 +19,7 @@ const messageInput = document.querySelector('#message') as HTMLInputElement;
 const messageArea = document.querySelector('#messageArea') as HTMLElement;
 const connectingElement = document.querySelector('.connecting') as HTMLElement;
 const recipientIdInput = document.querySelector('#recipientId') as HTMLInputElement;
+const conversationList = document.querySelector('#conversationList') as HTMLElement;
 
 async function connect(event: SubmitEvent): Promise<void> {
     event.preventDefault();
@@ -91,6 +92,10 @@ async function startConversation(event: MouseEvent): Promise<void> {
     currentConversationId = conversation.id;
 
     event.preventDefault();
+}
+
+function renderConversations(): void {
+
 }
 
 usernameForm.addEventListener('submit', connect, true);
