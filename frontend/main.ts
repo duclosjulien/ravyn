@@ -10,6 +10,7 @@ let stompClient: any = null;
 let currentUser: User | null = null;
 let currentConversationId: number | null = null;
 let conversations: Conversation[] = [];
+let currentSubscription: StompSubscription | null = null;
 
 const usernamePage = document.querySelector('#username-page') as HTMLElement;
 const chatPage = document.querySelector('#chat-page') as HTMLElement;
@@ -34,6 +35,8 @@ async function connect(event: SubmitEvent): Promise<void> {
 
         usernamePage.classList.add('hidden');
         chatPage.classList.remove('hidden');
+        renderConversations();
+
         const socket = new SockJS('/ws');
         stompClient = Stomp.over(socket);
         stompClient.connect({}, onConnected, onError);
@@ -95,7 +98,15 @@ async function startConversation(event: MouseEvent): Promise<void> {
 }
 
 function renderConversations(): void {
-
+    conversationList.innerHTML = '';
+    for (const conversation of conversations) {
+        const conversationElement = document.createElement('button');
+        conversationElement.textContent = `Conversation ${conversation.id}`;
+        conversationList.appendChild(conversationElement);
+        conversationElement.addEventListener('click', () => {
+            currentConversationId = conversation.id;
+        });
+    }
 }
 
 usernameForm.addEventListener('submit', connect, true);
