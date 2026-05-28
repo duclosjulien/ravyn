@@ -2,9 +2,8 @@
 
 import {ChatMessage, Conversation, StompPayload, User} from './types';
 import {createConversation, getConversationsByUserId, userLogin} from './api';
-import {StompSubscription} from "@stomp/stompjs";
 
-import { Client } from '@stomp/stompjs';
+import { Client, StompSubscription } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 
 let stompClient: any = null;
@@ -107,10 +106,25 @@ function renderConversations(): void {
     for (const conversation of conversations) {
         const conversationElement = document.createElement('button');
         conversationElement.textContent = `Conversation ${conversation.id}`;
-        conversationList.appendChild(conversationElement);
+
+        // click handler
         conversationElement.addEventListener('click', () => {
+            if (!stompClient)
+                return;
+
+            if (currentSubscription !== null)
+                currentSubscription.unsubscribe();
+
+
             currentConversationId = conversation.id;
+
+            currentSubscription = stompClient.subscribe(
+                `/topic/conversations/${conversation.id}`,
+                onMessageReceived
+            );
+
         });
+        conversationList.appendChild(conversationElement);
     }
 }
 
