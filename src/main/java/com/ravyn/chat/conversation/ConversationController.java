@@ -1,12 +1,9 @@
 package com.ravyn.chat.conversation;
 
-import com.ravyn.chat.repository.ConversationRepository;
-import com.ravyn.chat.conversation.ConversationService;
+import com.ravyn.chat.user.ChatUser;
+import org.springframework.web.bind.annotation.*;
 
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import java.util.List;
 
 @RestController
 @RequestMapping("/conversations")
@@ -22,8 +19,12 @@ public class ConversationController {
     public Conversation getConversation(@RequestBody ConversationRequest request){
         Long user1Id = request.getUser1Id();
         Long user2Id = request.getUser2Id();
-        return conversationService.getConversation(user1Id, user2Id);
+        return conversationService.getOrCreateConversation(user1Id, user2Id);
     }
 
+    @GetMapping("/user/{userId}")
+    public List<Conversation> getConversationsById(@PathVariable Long userId){
+       return conversationService.getConversationsByUserId(userId);
+    }
 
 }

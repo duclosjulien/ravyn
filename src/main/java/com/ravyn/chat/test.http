@@ -1,7 +1,1 @@
-POST http://localhost:8080/conversations/create
-Content-Type: application/json
-
-{
-"user1Id": 2,
-"user2Id": 1
-}
+GET http://localhost:8080/conversations/user/1

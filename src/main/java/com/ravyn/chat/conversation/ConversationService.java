@@ -3,6 +3,7 @@ package com.ravyn.chat.conversation;
 import com.ravyn.chat.repository.ConversationRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -15,7 +16,7 @@ public class ConversationService {
         this.conversationRepository = conversationRepository;
     }
 
-    public Conversation getConversation(Long user1Id, Long user2Id) {
+    public Conversation getOrCreateConversation(Long user1Id, Long user2Id) {
         Long participantAId = Math.min(user1Id, user2Id);
         Long participantBId = Math.max(user1Id, user2Id);
 
@@ -37,5 +38,10 @@ public class ConversationService {
 
       Conversation c = conversation.get();
       return Objects.equals(c.getUser1Id(), userId) || Objects.equals(c.getUser2Id(), userId);
+    }
+
+    public List<Conversation> getConversationsByUserId(Long userId){
+        return conversationRepository.findByUser1IdOrUser2Id(userId, userId);
+
     }
 }

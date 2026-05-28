@@ -19,3 +19,11 @@ export async function createConversation(user1Id: number, user2Id: number): Prom
     const conversation = await response.json();
     return conversation as Conversation;
 }
+
+export async function getConversationsByUserId(userId: number) : Promise<Conversation[]>{
+    const response = await fetch(`/conversations/user/${userId}`, {
+        method: "GET"
+    });
+    const conversations = await response.json();
+    return conversations as Conversation[];
+}

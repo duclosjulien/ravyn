@@ -1,7 +1,7 @@
 'use strict';
 
 import {ChatMessage, Conversation, StompPayload, User} from './types';
-import {createConversation, userLogin} from './api';
+import {createConversation, getConversationsByUserId, userLogin} from './api';
 
 declare var SockJS: any;
 declare var Stomp: any;
@@ -9,6 +9,7 @@ declare var Stomp: any;
 let stompClient: any = null;
 let currentUser: User | null = null;
 let currentConversationId: number | null = null;
+let conversations: Conversation[] = [];
 
 const usernamePage = document.querySelector('#username-page') as HTMLElement;
 const chatPage = document.querySelector('#chat-page') as HTMLElement;
@@ -20,19 +21,25 @@ const connectingElement = document.querySelector('.connecting') as HTMLElement;
 const recipientIdInput = document.querySelector('#recipientId') as HTMLInputElement;
 
 async function connect(event: SubmitEvent): Promise<void> {
-    let username: string = (document.querySelector('#name') as HTMLInputElement).value.trim();
+    event.preventDefault();
+
+    const username: string = (document.querySelector('#name') as HTMLInputElement).value.trim();
     if(!username)
         return;
 
-    currentUser = await userLogin(username);
-    if(currentUser) {
+    try {
+        currentUser = await userLogin(username);
+        conversations = await getConversationsByUserId(currentUser.id);
+
         usernamePage.classList.add('hidden');
         chatPage.classList.remove('hidden');
         const socket = new SockJS('/ws');
         stompClient = Stomp.over(socket);
         stompClient.connect({}, onConnected, onError);
+
+    } catch (error) {
+        console.error(error);
     }
-    event.preventDefault();
 }
 
 function onConnected(): void {
