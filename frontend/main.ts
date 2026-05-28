@@ -1,7 +1,7 @@
 'use strict';
 
-import { User, ChatMessage, StompPayload } from './types';
-import { userLogin } from './api';
+import {ChatMessage, Conversation, StompPayload, User} from './types';
+import {createConversation, userLogin} from './api';
 
 declare var SockJS: any;
 declare var Stomp: any;
@@ -17,17 +17,7 @@ const messageForm = document.querySelector('#messageForm') as HTMLFormElement;
 const messageInput = document.querySelector('#message') as HTMLInputElement;
 const messageArea = document.querySelector('#messageArea') as HTMLElement;
 const connectingElement = document.querySelector('.connecting') as HTMLElement;
-
-const colors: string[] = [
-    '#2196F3',
-    '#32c787',
-    '#00BCD4',
-    '#ff5652',
-    '#ffc107',
-    '#ff85af',
-    '#FF9800',
-    '#39bbb0'
-];
+const recipientIdInput = document.querySelector('#recipientId') as HTMLInputElement;
 
 async function connect(event: SubmitEvent): Promise<void> {
     let username: string = (document.querySelector('#name') as HTMLInputElement).value.trim();
@@ -71,31 +61,29 @@ function sendMessage(event: SubmitEvent): void {
 
 function onMessageReceived(payload: StompPayload): void {
     const message: ChatMessage = JSON.parse(payload.body);
+
     const messageElement = document.createElement('li');
-
     messageElement.classList.add('chat-message');
-    const avatarElement = document.createElement('i');
-    const avatarText = document.createTextNode(message.senderId[0]);
-    avatarElement.appendChild(avatarText);
-    avatarElement.style.backgroundColor = getAvatarColor(message.senderId);
-    messageElement.appendChild(avatarElement);
-
-    const usernameElement = document.createElement('span');
-    usernameElement.appendChild(document.createTextNode(message.senderId));
-    messageElement.appendChild(usernameElement);
 
     const textElement = document.createElement('p');
-
-    textElement.appendChild(document.createTextNode(message.content));
+    textElement.appendChild(
+        document.createTextNode(`User ${message.senderId}: ${message.content}`)
+    );
 
     messageElement.appendChild(textElement);
     messageArea.appendChild(messageElement);
     messageArea.scrollTop = messageArea.scrollHeight;
 }
 
-function getAvatarColor(userId: number): string {
-    const index = userId % colors.length;
-    return colors[index];
+async function startConversation(event: MouseEvent): Promise<void> {
+    if(!currentUser)
+        return;
+
+    const recipientId = Number(recipientIdInput.value);
+    let conversation =  await createConversation(currentUser.id, recipientId);
+    currentConversationId = conversation.id;
+
+    event.preventDefault();
 }
 
 usernameForm.addEventListener('submit', connect, true);
