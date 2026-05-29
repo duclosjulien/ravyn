@@ -93,22 +93,18 @@ function onMessageReceived(payload: StompPayload): void {
 }
 
 async function startConversation(event: MouseEvent): Promise<void> {
-    console.log("Start conversation clicked");
-    if(!currentUser)
-        return;
+    event.preventDefault();
+    if(!currentUser) return;
 
     const recipientId = Number(recipientIdInput.value);
-    console.log("currentUser", currentUser);
-    console.log("recipientId", recipientId);
     let conversation =  await createConversation(currentUser.id, recipientId);
-    console.log("created conversation", conversation);
 
     currentConversationId = conversation.id;
-    conversations.push(conversation);
-    renderConversations();
+    if(!conversations.some(c => c.id === conversation.id)){
+        conversations.push(conversation);
+        renderConversations();
+    }
     selectConversation(conversation);
-
-    event.preventDefault();
 }
 
 function renderConversations(): void {
