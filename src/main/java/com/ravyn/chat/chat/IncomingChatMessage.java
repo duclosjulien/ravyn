@@ -5,14 +5,14 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public class ChatMessage {
+public class IncomingChatMessage {
     private Long conversationId;
     private Long senderId;
     private String content;
 
-    public ChatMessage() {}
+    public IncomingChatMessage() {}
 
-    public ChatMessage(Long conversationId, Long senderId, String content) {
+    public IncomingChatMessage(Long conversationId, Long senderId, String content) {
         this.conversationId = conversationId;
         this.senderId = senderId;
         this.content = content;
@@ -28,7 +28,7 @@ public class ChatMessage {
         private String content;
     }
 
-    public ChatMessage build() {
-        return new ChatMessage(conversationId, senderId, content);
+    public IncomingChatMessage build() {
+        return new IncomingChatMessage(conversationId, senderId, content);
     }
 }

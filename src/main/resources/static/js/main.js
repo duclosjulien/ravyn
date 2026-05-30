@@ -66,19 +66,17 @@ function onMessageReceived(payload) {
     messageArea.scrollTop = messageArea.scrollHeight;
 }
 async function startConversation(event) {
-    console.log("Start conversation clicked");
+    event.preventDefault();
     if (!currentUser)
         return;
     const recipientId = Number(recipientIdInput.value);
-    console.log("currentUser", currentUser);
-    console.log("recipientId", recipientId);
     let conversation = await createConversation(currentUser.id, recipientId);
-    console.log("created conversation", conversation);
     currentConversationId = conversation.id;
-    conversations.push(conversation);
-    renderConversations();
+    if (!conversations.some(c => c.id === conversation.id)) {
+        conversations.push(conversation);
+        renderConversations();
+    }
     selectConversation(conversation);
-    event.preventDefault();
 }
 function renderConversations() {
     conversationList.innerHTML = '';
