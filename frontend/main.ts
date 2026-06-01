@@ -1,12 +1,10 @@
 'use strict';
 
-import { ChatMessage, Conversation, StompPayload, User } from './types.js';
+import { OutgoingChatMessage, IncomingChatMessage, Conversation, StompPayload, User } from './types.js';
 import { createConversation, getConversationsByUserId, userLogin } from './api.js';
 
 declare var SockJS: any;
 declare var Stomp: any;
-
-
 
 let stompClient: any = null;
 let currentUser: User | null = null;
@@ -65,8 +63,7 @@ function sendMessage(event: SubmitEvent): void {
     const messageContent = messageInput.value.trim();
 
     if(messageContent && stompClient && currentUser && currentConversationId != null) {
-        const chatMessage: ChatMessage = {senderId: currentUser.id, conversationId: currentConversationId,  content: messageContent};
-        console.log("sending message", chatMessage);
+        const chatMessage: IncomingChatMessage = {senderId: currentUser.id, conversationId: currentConversationId,  content: messageContent};
 
         stompClient.send("/app/chat.send", {}, JSON.stringify(chatMessage));
         messageInput.value = '';
@@ -77,14 +74,14 @@ function sendMessage(event: SubmitEvent): void {
 
 function onMessageReceived(payload: StompPayload): void {
     console.log("received payload", payload);
-    const message: ChatMessage = JSON.parse(payload.body);
+    const message: OutgoingChatMessage = JSON.parse(payload.body);
 
     const messageElement = document.createElement('li');
     messageElement.classList.add('chat-message');
 
     const textElement = document.createElement('p');
     textElement.appendChild(
-        document.createTextNode(`User ${message.senderId}: ${message.content}`)
+        document.createTextNode(`${message.senderUsername}: ${message.content}`)
     );
 
     messageElement.appendChild(textElement);
