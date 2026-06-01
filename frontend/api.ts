@@ -1,4 +1,4 @@
-import { User, Conversation } from './types';
+import { User, Conversation, UserSummary } from './types';
 
 export async function userLogin(username: string): Promise<User> {
     const response = await fetch("/users/login", {
@@ -26,4 +26,12 @@ export async function getConversationsByUserId(userId: number) : Promise<Convers
     });
     const conversations = await response.json();
     return conversations as Conversation[];
+}
+
+export async function findUserByUsername(username: string): Promise<UserSummary | null> {
+    const response = await fetch(`/users/search?username=${username}`, {
+        method: "GET"
+    });
+    const userSummary = await response.json();
+    return userSummary as UserSummary;
 }

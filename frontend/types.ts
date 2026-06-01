@@ -25,3 +25,8 @@ export interface Conversation {
     user1Id: number;
     user2Id: number;
 }
+
+export interface UserSummary {
+    id: number;
+    username: string;
+}

@@ -1,7 +1,7 @@
 'use strict';
 
-import { OutgoingChatMessage, IncomingChatMessage, Conversation, StompPayload, User } from './types.js';
-import { createConversation, getConversationsByUserId, userLogin } from './api.js';
+import { OutgoingChatMessage, IncomingChatMessage, Conversation, StompPayload, User, UserSummary } from './types.js';
+import {createConversation, findUserByUsername, getConversationsByUserId, userLogin} from './api.js';
 
 declare var SockJS: any;
 declare var Stomp: any;
@@ -19,9 +19,10 @@ const messageForm = document.querySelector('#messageForm') as HTMLFormElement;
 const messageInput = document.querySelector('#message') as HTMLInputElement;
 const messageArea = document.querySelector('#messageArea') as HTMLElement;
 const connectingElement = document.querySelector('.connecting') as HTMLElement;
-const recipientIdInput = document.querySelector('#recipientId') as HTMLInputElement;
+const recipientUsernameInput = document.querySelector('#recipientUsername') as HTMLInputElement;
 const conversationList = document.querySelector('#conversationList') as HTMLElement;
 const startConversationButton = document.querySelector('#startConversationButton') as HTMLInputElement;
+const recipientError = document.querySelector('#recipientError') as HTMLElement;
 
 async function connect(event: SubmitEvent): Promise<void> {
     event.preventDefault();
@@ -93,8 +94,16 @@ async function startConversation(event: MouseEvent): Promise<void> {
     event.preventDefault();
     if(!currentUser) return;
 
-    const recipientId = Number(recipientIdInput.value);
-    let conversation =  await createConversation(currentUser.id, recipientId);
+    const recipientUser = await findUserByUsername(recipientUsernameInput.value.trim());
+    if(recipientUser == null) {
+        recipientError.textContent = "User not found";
+        return;
+    }
+
+    recipientError.textContent = "";
+    recipientUsernameInput.value = "";
+    
+    let conversation =  await createConversation(currentUser.id, recipientUser.id);
 
     currentConversationId = conversation.id;
     if(!conversations.some(c => c.id === conversation.id)){

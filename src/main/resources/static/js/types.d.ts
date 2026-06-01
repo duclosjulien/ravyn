@@ -1,5 +1,11 @@
-export interface ChatMessage {
+export interface IncomingChatMessage {
     senderId: number;
+    conversationId: number;
+    content: string;
+}
+export interface OutgoingChatMessage {
+    senderId: number;
+    senderUsername: string;
     conversationId: number;
     content: string;
 }
@@ -14,5 +20,9 @@ export interface Conversation {
     id: number;
     user1Id: number;
     user2Id: number;
+}
+export interface UserSummary {
+    id: number;
+    username: string;
 }
 //# sourceMappingURL=types.d.ts.map

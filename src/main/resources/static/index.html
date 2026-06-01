@@ -37,10 +37,9 @@
         </div>
         <div class="conversation-controls">
             <input
-                    type="number"
-                    id="recipientId"
-                    placeholder="User ID to chat with"
-                    class="form-control"
+                    type="text"
+                    id="recipientUsername"
+                    placeholder="Username to chat with"
             />
             <button
                     type="button"
@@ -50,6 +49,7 @@
                 Start conversation
             </button>
         </div>
+        <p id="recipientError"></p>
         <ul id="messageArea">
 
         </ul>

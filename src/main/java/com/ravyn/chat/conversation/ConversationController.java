@@ -1,6 +1,5 @@
 package com.ravyn.chat.conversation;
 
-import com.ravyn.chat.user.ChatUser;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

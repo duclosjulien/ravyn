@@ -27,4 +27,12 @@ public class UserController {
         return userRepository.save(new ChatUser(username));
     }
 
+    @GetMapping("/search")
+    private UserSummary findUserByUsername(@RequestParam String username){
+        Optional<ChatUser> user = userRepository.findByUsername(username);
+        if(user.isEmpty())
+            return null;
+        ChatUser userFound = user.get();
+        return new UserSummary(userFound.getId(), userFound.getUsername());
+    }
 }

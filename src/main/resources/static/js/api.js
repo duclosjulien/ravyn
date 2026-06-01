@@ -23,4 +23,11 @@ export async function getConversationsByUserId(userId) {
     const conversations = await response.json();
     return conversations;
 }
+export async function findUserByUsername(username) {
+    const response = await fetch(`/users/search?username=${username}`, {
+        method: "GET"
+    });
+    const userSummary = await response.json();
+    return userSummary;
+}
 //# sourceMappingURL=api.js.map

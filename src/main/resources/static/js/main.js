@@ -1,5 +1,5 @@
 'use strict';
-import { createConversation, getConversationsByUserId, userLogin } from './api.js';
+import { createConversation, findUserByUsername, getConversationsByUserId, userLogin } from './api.js';
 let stompClient = null;
 let currentUser = null;
 let currentConversationId = null;
@@ -12,7 +12,7 @@ const messageForm = document.querySelector('#messageForm');
 const messageInput = document.querySelector('#message');
 const messageArea = document.querySelector('#messageArea');
 const connectingElement = document.querySelector('.connecting');
-const recipientIdInput = document.querySelector('#recipientId');
+const recipientUsernameInput = document.querySelector('#recipientUsername');
 const conversationList = document.querySelector('#conversationList');
 const startConversationButton = document.querySelector('#startConversationButton');
 async function connect(event) {
@@ -48,7 +48,6 @@ function sendMessage(event) {
     const messageContent = messageInput.value.trim();
     if (messageContent && stompClient && currentUser && currentConversationId != null) {
         const chatMessage = { senderId: currentUser.id, conversationId: currentConversationId, content: messageContent };
-        console.log("sending message", chatMessage);
         stompClient.send("/app/chat.send", {}, JSON.stringify(chatMessage));
         messageInput.value = '';
     }
@@ -60,7 +59,7 @@ function onMessageReceived(payload) {
     const messageElement = document.createElement('li');
     messageElement.classList.add('chat-message');
     const textElement = document.createElement('p');
-    textElement.appendChild(document.createTextNode(`User ${message.senderId}: ${message.content}`));
+    textElement.appendChild(document.createTextNode(`${message.senderUsername}: ${message.content}`));
     messageElement.appendChild(textElement);
     messageArea.appendChild(messageElement);
     messageArea.scrollTop = messageArea.scrollHeight;
@@ -69,8 +68,10 @@ async function startConversation(event) {
     event.preventDefault();
     if (!currentUser)
         return;
-    const recipientId = Number(recipientIdInput.value);
-    let conversation = await createConversation(currentUser.id, recipientId);
+    const recipientUser = await findUserByUsername(recipientUsernameInput.value.trim());
+    if (recipientUser == null)
+        return;
+    let conversation = await createConversation(currentUser.id, recipientUser.id);
     currentConversationId = conversation.id;
     if (!conversations.some(c => c.id === conversation.id)) {
         conversations.push(conversation);
