@@ -100,9 +100,9 @@ async function startConversation(event: MouseEvent): Promise<void> {
         return;
     }
 
-    recipientError.textContent = "";
+    recipientError.textContent = ""
     recipientUsernameInput.value = "";
-    
+
     let conversation =  await createConversation(currentUser.id, recipientUser.id);
 
     currentConversationId = conversation.id;
@@ -132,6 +132,8 @@ function selectConversation(conversation: Conversation) {
 
     if (currentSubscription !== null)
         currentSubscription.unsubscribe();
+
+    messageArea.textContent = "";
 
     currentConversationId = conversation.id;
     currentSubscription = stompClient.subscribe(`/topic/conversations/${conversation.id}`, onMessageReceived);

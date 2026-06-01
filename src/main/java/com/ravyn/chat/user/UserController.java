@@ -1,6 +1,8 @@
 package com.ravyn.chat.user;
 
 import com.ravyn.chat.repository.UserRepository;
+import jakarta.persistence.Entity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
@@ -28,11 +30,11 @@ public class UserController {
     }
 
     @GetMapping("/search")
-    private UserSummary findUserByUsername(@RequestParam String username){
+    public ResponseEntity<UserSummary> findUserByUsername(@RequestParam String username){
         Optional<ChatUser> user = userRepository.findByUsername(username);
         if(user.isEmpty())
-            return null;
+            return ResponseEntity.notFound().build();
         ChatUser userFound = user.get();
-        return new UserSummary(userFound.getId(), userFound.getUsername());
+        return ResponseEntity.ok(new UserSummary(userFound.getId(), userFound.getUsername()));
     }
 }

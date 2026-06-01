@@ -24,9 +24,13 @@ export async function getConversationsByUserId(userId) {
     return conversations;
 }
 export async function findUserByUsername(username) {
-    const response = await fetch(`/users/search?username=${username}`, {
+    const response = await fetch(`/users/search?username=${encodeURIComponent(username)}`, {
         method: "GET"
     });
+    if (response.status === 404)
+        return null;
+    if (!response.ok)
+        throw new Error("Failed to search user");
     const userSummary = await response.json();
     return userSummary;
 }

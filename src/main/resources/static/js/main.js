@@ -15,6 +15,7 @@ const connectingElement = document.querySelector('.connecting');
 const recipientUsernameInput = document.querySelector('#recipientUsername');
 const conversationList = document.querySelector('#conversationList');
 const startConversationButton = document.querySelector('#startConversationButton');
+const recipientError = document.querySelector('#recipientError');
 async function connect(event) {
     event.preventDefault();
     const username = document.querySelector('#name').value.trim();
@@ -69,8 +70,12 @@ async function startConversation(event) {
     if (!currentUser)
         return;
     const recipientUser = await findUserByUsername(recipientUsernameInput.value.trim());
-    if (recipientUser == null)
+    if (recipientUser == null) {
+        recipientError.textContent = "User not found";
         return;
+    }
+    recipientError.textContent = "";
+    recipientUsernameInput.value = "";
     let conversation = await createConversation(currentUser.id, recipientUser.id);
     currentConversationId = conversation.id;
     if (!conversations.some(c => c.id === conversation.id)) {
@@ -95,6 +100,7 @@ function selectConversation(conversation) {
         return;
     if (currentSubscription !== null)
         currentSubscription.unsubscribe();
+    messageArea.textContent = "";
     currentConversationId = conversation.id;
     currentSubscription = stompClient.subscribe(`/topic/conversations/${conversation.id}`, onMessageReceived);
 }
