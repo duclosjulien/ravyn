@@ -1,7 +1,13 @@
 'use strict';
 
-import { OutgoingChatMessage, IncomingChatMessage, Conversation, StompPayload, User, UserSummary } from './types.js';
-import {createConversation, findUserByUsername, getConversationsByUserId, userLogin} from './api.js';
+import { OutgoingChatMessage, IncomingChatMessage, Conversation, StompPayload, User, MessageResponse } from './types.js';
+import {
+    createConversation,
+    findUserByUsername,
+    getConversationsByUserId,
+    getMessagesForConversation,
+    userLogin
+} from './api.js';
 
 declare var SockJS: any;
 declare var Stomp: any;
@@ -74,9 +80,11 @@ function sendMessage(event: SubmitEvent): void {
 }
 
 function onMessageReceived(payload: StompPayload): void {
-    console.log("received payload", payload);
     const message: OutgoingChatMessage = JSON.parse(payload.body);
+    renderMessage(message);
+}
 
+function renderMessage(message: OutgoingChatMessage| MessageResponse): void {
     const messageElement = document.createElement('li');
     messageElement.classList.add('chat-message');
 
@@ -126,7 +134,7 @@ function renderConversations(): void {
     }
 }
 
-function selectConversation(conversation: Conversation) {
+async function selectConversation(conversation: Conversation) {
     if (!stompClient)
         return;
 
@@ -135,8 +143,23 @@ function selectConversation(conversation: Conversation) {
 
     messageArea.textContent = "";
 
-    currentConversationId = conversation.id;
-    currentSubscription = stompClient.subscribe(`/topic/conversations/${conversation.id}`, onMessageReceived);
+    const selectedConversationId = conversation.id;
+    currentConversationId = selectedConversationId;
+
+    currentSubscription = stompClient.subscribe(
+        `/topic/conversations/${selectedConversationId}`,
+        onMessageReceived
+    );
+    try {
+        const previousMessages = await getMessagesForConversation(selectedConversationId);
+
+        if (currentConversationId !== selectedConversationId)
+            return;
+
+        previousMessages.forEach(renderMessage);
+    } catch (error) {
+        console.error("Failed to load message history", error);
+    }
 }
 
 usernameForm.addEventListener('submit', connect, true);

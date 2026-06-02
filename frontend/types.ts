@@ -30,3 +30,12 @@ export interface UserSummary {
     id: number;
     username: string;
 }
+
+export interface MessageResponse{
+    id: number;
+    conversationId: number;
+    senderId: number;
+    senderUsername: string;
+    content: string;
+    createdAt: string;
+}

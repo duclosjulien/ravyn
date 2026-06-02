@@ -1,4 +1,4 @@
-import { User, Conversation, UserSummary } from './types';
+import {User, Conversation, UserSummary, MessageResponse} from './types';
 
 export async function userLogin(username: string): Promise<User> {
     const response = await fetch("/users/login", {
@@ -39,3 +39,16 @@ export async function findUserByUsername(username: string): Promise<UserSummary 
     const userSummary = await response.json();
     return userSummary as UserSummary;
 }
+
+export async function getMessagesForConversation(conversationId: number): Promise<MessageResponse[]> {
+    const response = await fetch(`/messages/conversation/${conversationId}`, {
+        method: "GET"
+    });
+
+    if (!response.ok)
+        throw new Error("Failed to load messages");
+
+    const messages = await response.json();
+    return messages as MessageResponse[];
+}
+
