@@ -28,10 +28,10 @@ public class MessageService {
         return messageRepository.save(message);
     }
 
-    public List<MessageResponse> getMessagesForConversation(Long conversationId){
+    public Optional<List<MessageResponse>> getMessagesForConversation(Long conversationId){
         Optional<Conversation> conversation = conversationRepository.findById(conversationId);
         if(conversation.isEmpty())
-            return List.of();
+            return Optional.empty();
         Conversation conversationFound = conversation.get();
 
         Long user1Id = conversationFound.getUser1Id();
@@ -39,7 +39,7 @@ public class MessageService {
         Optional<ChatUser> user1 = userRepository.findById(user1Id);
         Optional<ChatUser> user2 = userRepository.findById(user2Id);
         if(user1.isEmpty() || user2.isEmpty())
-            return List.of();
+            throw new IllegalStateException("Conversation references missing user");
 
         String user1Username = user1.get().getUsername();
         String user2Username = user2.get().getUsername();
@@ -53,7 +53,7 @@ public class MessageService {
         for(Message message: messageList)
             messageResponseList.add(toMessageResponse(message, usernameByUserId));
 
-        return messageResponseList;
+        return Optional.of(messageResponseList);
     }
 
     private MessageResponse toMessageResponse(Message message, Map<Long, String> usernameByUserId){
