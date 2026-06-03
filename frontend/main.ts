@@ -108,17 +108,24 @@ async function startConversation(event: MouseEvent): Promise<void> {
         return;
     }
 
-    recipientError.textContent = ""
-    recipientUsernameInput.value = "";
 
-    let conversation =  await createConversation(currentUser.id, recipientUser.id);
 
-    currentConversationId = conversation.id;
-    if(!conversations.some(c => c.id === conversation.id)){
-        conversations.push(conversation);
-        renderConversations();
+    try {
+        const conversation = await createConversation(currentUser.id, recipientUser.id);
+        recipientError.textContent = ""
+        recipientUsernameInput.value = "";
+        currentConversationId = conversation.id;
+        if(!conversations.some(c => c.id === conversation.id)){
+            conversations.push(conversation);
+            renderConversations();
+        }
+        selectConversation(conversation);
     }
-    selectConversation(conversation);
+    catch (error) {
+        if (error instanceof Error) {
+            recipientError.textContent = error.message;
+        }
+    }
 }
 
 function renderConversations(): void {

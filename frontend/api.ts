@@ -16,6 +16,15 @@ export async function createConversation(user1Id: number, user2Id: number): Prom
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({ user1Id: user1Id, user2Id: user2Id })
     });
+
+    if (response.status === 400){
+        const errorMessage = await response.text();
+        throw new Error(errorMessage);
+    }
+
+    if (!response.ok)
+        throw new Error("Failed to create conversation");
+
     const conversation = await response.json();
     return conversation as Conversation;
 }

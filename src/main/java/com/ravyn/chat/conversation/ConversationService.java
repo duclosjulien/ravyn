@@ -19,6 +19,12 @@ public class ConversationService {
     }
 
     public Conversation getOrCreateConversation(Long user1Id, Long user2Id) {
+        if(Objects.equals(user1Id, user2Id))
+            throw new IllegalArgumentException("Cannot create a conversation with yourself");
+
+        if (!userRepository.existsById(user1Id) || !userRepository.existsById(user2Id))
+            throw new IllegalArgumentException("User not found");
+
         Long participantAId = Math.min(user1Id, user2Id);
         Long participantBId = Math.max(user1Id, user2Id);
 
