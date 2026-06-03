@@ -22,8 +22,8 @@ export interface StompPayload {
 
 export interface Conversation {
     id: number;
-    user1Id: number;
-    user2Id: number;
+    otherUserId: number;
+    otherUsername: string;
 }
 
 export interface UserSummary {

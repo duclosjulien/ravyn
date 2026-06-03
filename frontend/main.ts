@@ -67,6 +67,8 @@ function onError(error: unknown): void {
 }
 
 function sendMessage(event: SubmitEvent): void {
+    event.preventDefault();
+
     const messageContent = messageInput.value.trim();
 
     if(messageContent && stompClient && currentUser && currentConversationId != null) {
@@ -75,8 +77,6 @@ function sendMessage(event: SubmitEvent): void {
         stompClient.send("/app/chat.send", {}, JSON.stringify(chatMessage));
         messageInput.value = '';
     }
-
-    event.preventDefault();
 }
 
 function onMessageReceived(payload: StompPayload): void {
@@ -125,7 +125,8 @@ function renderConversations(): void {
     conversationList.innerHTML = '';
     for (const conversation of conversations) {
         const conversationElement = document.createElement('button');
-        conversationElement.textContent = `Conversation ${conversation.id}`;
+
+        conversationElement.textContent = conversation.otherUsername;
 
         conversationElement.addEventListener('click', () => {
             selectConversation(conversation);

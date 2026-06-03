@@ -22,8 +22,8 @@ public class ConversationController {
     }
 
     @GetMapping("/user/{userId}")
-    public List<Conversation> getConversationsById(@PathVariable Long userId){
-       return conversationService.getConversationsByUserId(userId);
+    public List<ConversationResponse> getConversationsById(@PathVariable Long userId){
+       return conversationService.getConversationsForUser(userId);
     }
 
 }
