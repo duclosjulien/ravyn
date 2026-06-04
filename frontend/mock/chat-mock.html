@@ -3,33 +3,20 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
     <title>Ravyn Messenger</title>
-    <link rel="stylesheet" href="/css/main.css" />
+    <link rel="stylesheet" href="chat-mock.css" />
 </head>
 <body>
 <noscript>
     <h2>Sorry! Your browser doesn't support Javascript</h2>
 </noscript>
 
-<div id="username-page">
-    <div class="username-page-container">
-        <h1 class="title">Type your username to enter the Chatroom</h1>
-        <form id="usernameForm" name="usernameForm">
-            <div class="form-group">
-                <input type="text" id="name" placeholder="Username" autocomplete="off" class="form-control" />
-            </div>
-            <div class="form-group">
-                <button type="submit" class="accent username-submit">Start Chatting</button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<div id="chat-page" class="hidden">
+<div id="chat-page">
     <div class="app-shell">
         <aside class="sidebar">
             <div class="brand">
                 <div class="brand-row">
-                    <img src="/images/ravyn_icon_only.png" alt="Ravyn logo" class="brand-logo" />                    <h1>Ravyn</h1>
+                    <img src="ravyn_icon_only.png" alt="Ravyn logo" class="brand-logo" />
+                    <h1>Ravyn</h1>
                 </div>
                 <p>CHAT SIMPLY. CONNECT DEEPLY.</p>
             </div>
@@ -60,7 +47,7 @@
                     <p>Search Ravyn or choose someone from your conversations.</p>
                 </li>
             </ul>
-
+            
             <form id="messageForm" name="messageForm">
                 <div class="form-group">
                     <div class="input-group clearfix">
@@ -74,8 +61,5 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
-<script type="module" src="/js/main.js"></script>
 </body>
 </html>

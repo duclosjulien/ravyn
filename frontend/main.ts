@@ -130,16 +130,39 @@ async function startConversation(event: MouseEvent): Promise<void> {
 
 function renderConversations(): void {
     conversationList.innerHTML = '';
-    for (const conversation of conversations) {
-        const conversationElement = document.createElement('button');
+    for (const conversation of conversations)
+        createConversationButton(conversation);
+}
 
-        conversationElement.textContent = conversation.otherUsername;
+function createConversationButton(conversation: Conversation): void{
+    const conversationElement = document.createElement('button');
+    conversationElement.classList.add('conversation-item');
 
-        conversationElement.addEventListener('click', () => {
-            selectConversation(conversation);
-        });
-        conversationList.appendChild(conversationElement);
-    }
+    const avatarElement = document.createElement('div');
+    avatarElement.classList.add('conversation-avatar');
+    avatarElement.textContent = conversation.otherUsername.charAt(0).toUpperCase() || '?';
+
+    const textContainer = document.createElement('div');
+    textContainer.classList.add('conversation-text');
+
+    const nameElement = document.createElement('div');
+    nameElement.classList.add('conversation-name');
+    nameElement.textContent = conversation.otherUsername;
+
+    const previewElement = document.createElement('div');
+    previewElement.classList.add('conversation-preview');
+    previewElement.textContent = 'No messages yet';
+
+    textContainer.appendChild(nameElement);
+    textContainer.appendChild(previewElement);
+
+    conversationElement.appendChild(avatarElement);
+    conversationElement.appendChild(textContainer);
+
+    conversationElement.addEventListener('click', () => {
+        selectConversation(conversation);
+    });
+    conversationList.appendChild(conversationElement);
 }
 
 async function selectConversation(conversation: Conversation) {

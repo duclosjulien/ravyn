@@ -24,7 +24,7 @@ body {
    ========================================================= */
 
 .hidden {
-    display: none !important;
+    display: none;
 }
 
 /* =========================================================
@@ -211,42 +211,6 @@ button {
 
 #conversationList button:hover {
     background: #dfe6dc;
-}
-
-.conversation-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.conversation-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: #a7b8a6;
-    color: #fffaf2;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    flex-shrink: 0;
-}
-
-.conversation-text {
-    min-width: 0;
-}
-
-.conversation-name {
-    font-weight: 600;
-    color: #2f3e4a;
-}
-
-.conversation-preview {
-    font-size: 13px;
-    color: #7a8278;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 
 /* =========================================================
