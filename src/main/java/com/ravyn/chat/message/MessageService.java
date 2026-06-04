@@ -24,6 +24,9 @@ public class MessageService {
     }
 
     public Message saveMessage(Long conversationId, Long senderId, String messageContent){
+        if (messageContent == null || messageContent.isBlank())
+            throw new IllegalArgumentException("Message content cannot be blank");
+
         Message message = new Message(conversationId, senderId, messageContent);
         return messageRepository.save(message);
     }
