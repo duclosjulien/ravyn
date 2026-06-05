@@ -7,7 +7,6 @@ import com.ravyn.chat.repository.UserRepository;
 import com.ravyn.chat.user.ChatUser;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.util.*;
 
 @Service
@@ -31,42 +30,65 @@ public class MessageService {
         return messageRepository.save(message);
     }
 
-    public Optional<List<MessageResponse>> getMessagesForConversation(Long conversationId){
-        Optional<Conversation> conversation = conversationRepository.findById(conversationId);
-        if(conversation.isEmpty())
-            return Optional.empty();
-        Conversation conversationFound = conversation.get();
+    private List<MessageResponse> getMessagesForConversation(Long conversationId){
+        Conversation conversation = getConversationOrThrow(conversationId);
 
-        Long user1Id = conversationFound.getUser1Id();
-        Long user2Id = conversationFound.getUser2Id();
-        Optional<ChatUser> user1 = userRepository.findById(user1Id);
-        Optional<ChatUser> user2 = userRepository.findById(user2Id);
-        if(user1.isEmpty() || user2.isEmpty())
+        Map<Long, String> usernameByUserId = buildUsernameMap(conversation);
+        List<Message> messageList = messageRepository.findByConversationIdOrderByCreatedAtAsc(conversationId);
+
+        return toMessageResponses(messageList, usernameByUserId);
+    }
+
+    private Map<Long, String> buildUsernameMap(Conversation conversation){
+        Long user1Id = conversation.getUser1Id();
+        Long user2Id = conversation.getUser2Id();
+
+        ChatUser user1 = getUserOrThrow(user1Id);
+        ChatUser user2 = getUserOrThrow(user2Id);
+
+        Map<Long, String> usernameByUserId = new HashMap<>();
+
+        usernameByUserId.put(user1Id, user1.getUsername());
+        usernameByUserId.put(user2Id, user2.getUsername());
+
+        return usernameByUserId;
+    }
+
+    private ChatUser getUserOrThrow(Long userId){
+        Optional<ChatUser> user = userRepository.findById(userId);
+
+        if(user.isEmpty())
             throw new IllegalStateException("Conversation references missing user");
 
-        String user1Username = user1.get().getUsername();
-        String user2Username = user2.get().getUsername();
-        Map<Long, String> usernameByUserId = new HashMap<>();
-        usernameByUserId.put(user1Id, user1Username);
-        usernameByUserId.put(user2Id, user2Username);
+        return user.get();
+    }
 
-        List<Message> messageList = messageRepository.findByConversationIdOrderByCreatedAtAsc(conversationId);
+    private List<MessageResponse> toMessageResponses(List<Message> messageList, Map<Long, String> usernameByUserId){
         List<MessageResponse> messageResponseList = new ArrayList<>();
 
         for(Message message: messageList)
             messageResponseList.add(toMessageResponse(message, usernameByUserId));
 
-        return Optional.of(messageResponseList);
+        return messageResponseList;
     }
 
-    private MessageResponse toMessageResponse(Message message, Map<Long, String> usernameByUserId){
-        Long id = message.getId();
-        Long conversationId = message.getConversationId();
-        Long senderId = message.getSenderId();
-        String senderUsername = usernameByUserId.get(senderId);
-        String content = message.getContent();
-        Instant createdAt = message.getCreatedAt();
+    private Conversation getConversationOrThrow(Long conversationId){
+        Optional<Conversation> conversation = conversationRepository.findById(conversationId);
 
-        return new MessageResponse(id, conversationId, senderId, senderUsername, content, createdAt);
+        if(conversation.isEmpty())
+            throw new IllegalArgumentException("Conversation not found");
+
+        return conversation.get();
+    }
+
+    private MessageResponse toMessageResponse(Message message, Map<Long, String> usernameByUserId) {
+        return new MessageResponse(
+                message.getId(),
+                message.getConversationId(),
+                message.getSenderId(),
+                usernameByUserId.get(message.getSenderId()),
+                message.getContent(),
+                message.getCreatedAt()
+        );
     }
 }

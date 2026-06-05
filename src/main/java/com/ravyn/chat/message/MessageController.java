@@ -6,9 +6,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-import java.util.Optional;
-
 @RestController
 @RequestMapping("/messages")
 public class MessageController {
@@ -19,10 +16,11 @@ public class MessageController {
     }
 
     @GetMapping("/conversation/{conversationId}")
-    public ResponseEntity<List<MessageResponse>> getMessagesForConversation(@PathVariable Long conversationId){
-        Optional<List<MessageResponse>> messages = messageService.getMessagesForConversation(conversationId);
-        if(messages.isEmpty())
-            return ResponseEntity.notFound().build();
-        return ResponseEntity.ok(messages.get());
+    public ResponseEntity<?>  getMessagesForConversation(@PathVariable Long conversationId){
+        try {
+            return ResponseEntity.ok(getMessagesForConversation(conversationId));
+        } catch(IllegalArgumentException exception){
+            return ResponseEntity.status(404).body(exception.getMessage());
+        }
     }
 }

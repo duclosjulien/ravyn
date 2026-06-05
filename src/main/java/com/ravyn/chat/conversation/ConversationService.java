@@ -28,11 +28,8 @@ public class ConversationService {
         Long participantAId = Math.min(user1Id, user2Id);
         Long participantBId = Math.max(user1Id, user2Id);
 
-        Optional<Conversation> conversation = conversationRepository.findByUser1IdAndUser2Id(participantAId, participantBId);
-        if(conversation.isEmpty())
-            return createConversation(participantAId, participantBId);
-
-        return conversation.get();
+        return conversationRepository.findByUser1IdAndUser2Id(participantAId, participantBId)
+                .orElseGet(() -> createConversation(participantAId, participantBId));
     }
 
     private Conversation createConversation(Long participantAId, Long participantBId){
@@ -41,41 +38,67 @@ public class ConversationService {
 
     public boolean validateUserInConversation(Long userId, Long conversationId){
       Optional<Conversation> conversation = conversationRepository.findById(conversationId);
+
       if(conversation.isEmpty())
           return false;
 
-      Conversation c = conversation.get();
-      return Objects.equals(c.getUser1Id(), userId) || Objects.equals(c.getUser2Id(), userId);
+      return isParticipant(conversation.get(), userId);
+    }
+
+    private boolean isParticipant(Conversation conversation, Long userId){
+        return Objects.equals(conversation.getUser1Id(), userId) || Objects.equals(conversation.getUser2Id(), userId);
     }
 
     public List<ConversationResponse> getConversationsForUser(Long userId){
         List<Conversation> conversations = getConversationsByUserId(userId);
 
-        Set<Long> otherUserIds = new HashSet<>();
-        for(Conversation conversation: conversations){
-            Long otherUserId = Objects.equals(conversation.getUser1Id(), userId) ?  conversation.getUser2Id() : conversation.getUser1Id();
-            otherUserIds.add(otherUserId);
+        Set<Long> otherUserIds = collectOtherUserIds(conversations, userId);
+
+        Map<Long, String> usernameByUserId = buildUsernameMap(otherUserIds);
+
+        return toConversationResponses(usernameByUserId, conversations, userId);
+    }
+
+    private List<ConversationResponse> toConversationResponses(Map<Long, String> usernameByUserId, List<Conversation> conversations, Long userId){
+        List<ConversationResponse> conversationResponses = new ArrayList<>();
+
+        for(Conversation conversation: conversations) {
+            Long conversationId = conversation.getId();
+            String otherUsername = usernameByUserId.get(getOtherUserId(conversation, userId));
+
+            if (otherUsername == null)
+                continue;
+
+            conversationResponses.add(new ConversationResponse(conversationId, otherUserId, otherUsername));
         }
 
-        Iterable<ChatUser> users = userRepository.findAllById(otherUserIds);
+        return conversationResponses;
+    }
+
+    private Map<Long, String> buildUsernameMap(Set<Long> userIds){
+        Iterable<ChatUser> users = userRepository.findAllById(userIds);
+
         Map<Long, String> usernameByUserId = new HashMap<>();
         for(ChatUser user: users)
             usernameByUserId.put(user.getId(), user.getUsername());
 
-        List<ConversationResponse> conversationResponses = new ArrayList<>();
-        for(Conversation conversation: conversations) {
-            Long conversationId = conversation.getId();
-            Long otherUserId = Objects.equals(conversation.getUser1Id(), userId) ? conversation.getUser2Id() : conversation.getUser1Id();
-            String otherUsername = usernameByUserId.get(otherUserId);
-            if (otherUsername == null)
-                continue;
-            conversationResponses.add(new ConversationResponse(conversationId, otherUserId, otherUsername));
-        }
-        return conversationResponses;
+        return usernameByUserId;
+    }
+
+    private Set<Long> collectOtherUserIds(List<Conversation> conversations, Long userId){
+        Set<Long> otherUserIds = new HashSet<>();
+
+        for(Conversation conversation: conversations)
+            otherUserIds.add(getOtherUserId(conversation, userId));
+
+        return otherUserIds;
+    }
+
+    private Long getOtherUserId(Conversation conversation, Long currUserId){
+        return Objects.equals(conversation.getUser1Id(), currUserId) ?  conversation.getUser2Id() : conversation.getUser1Id();
     }
 
     public List<Conversation> getConversationsByUserId(Long userId){
         return conversationRepository.findByUser1IdOrUser2Id(userId, userId);
-
     }
 }
