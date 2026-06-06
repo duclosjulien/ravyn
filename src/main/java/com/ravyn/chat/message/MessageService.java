@@ -30,7 +30,7 @@ public class MessageService {
         return messageRepository.save(message);
     }
 
-    private List<MessageResponse> getMessagesForConversation(Long conversationId){
+    List<MessageResponse> getMessagesForConversation(Long conversationId){
         Conversation conversation = getConversationOrThrow(conversationId);
 
         Map<Long, String> usernameByUserId = buildUsernameMap(conversation);

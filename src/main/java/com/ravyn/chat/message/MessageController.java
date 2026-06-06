@@ -18,7 +18,7 @@ public class MessageController {
     @GetMapping("/conversation/{conversationId}")
     public ResponseEntity<?>  getMessagesForConversation(@PathVariable Long conversationId){
         try {
-            return ResponseEntity.ok(getMessagesForConversation(conversationId));
+            return ResponseEntity.ok(messageService.getMessagesForConversation(conversationId));
         } catch(IllegalArgumentException exception){
             return ResponseEntity.status(404).body(exception.getMessage());
         }
