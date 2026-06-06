@@ -64,7 +64,8 @@ public class ConversationService {
 
         for(Conversation conversation: conversations) {
             Long conversationId = conversation.getId();
-            String otherUsername = usernameByUserId.get(getOtherUserId(conversation, userId));
+            Long otherUserId = getOtherUserId(conversation, userId);
+            String otherUsername = usernameByUserId.get(otherUserId);
 
             if (otherUsername == null)
                 continue;
@@ -98,7 +99,7 @@ public class ConversationService {
         return Objects.equals(conversation.getUser1Id(), currUserId) ?  conversation.getUser2Id() : conversation.getUser1Id();
     }
 
-    public List<Conversation> getConversationsByUserId(Long userId){
+    private List<Conversation> getConversationsByUserId(Long userId){
         return conversationRepository.findByUser1IdOrUser2Id(userId, userId);
     }
 }
