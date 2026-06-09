@@ -1,0 +1,8 @@
+package com.ravyn.chat.exception;
+
+public enum ErrorCode {
+    CONVERSATION_NOT_FOUND,
+    USER_NOT_FOUND,
+    CONVERSATION_WITH_SELF,
+    CORRUPTED_DATA
+}

@@ -1,5 +1,8 @@
 package com.ravyn.chat.conversation;
 
+import com.ravyn.chat.exception.DataIntegrityException;
+import com.ravyn.chat.exception.SelfConversationException;
+import com.ravyn.chat.exception.UserNotFoundException;
 import com.ravyn.chat.repository.ConversationRepository;
 import com.ravyn.chat.repository.UserRepository;
 import com.ravyn.chat.user.ChatUser;
@@ -20,10 +23,12 @@ public class ConversationService {
 
     public Conversation getOrCreateConversation(Long user1Id, Long user2Id) {
         if(Objects.equals(user1Id, user2Id))
-            throw new IllegalArgumentException("Cannot create a conversation with yourself");
+            throw new SelfConversationException();
 
-        if (!userRepository.existsById(user1Id) || !userRepository.existsById(user2Id))
-            throw new IllegalArgumentException("User not found");
+        if (!userRepository.existsById(user1Id))
+            throw new UserNotFoundException(user1Id);
+        if (!userRepository.existsById(user2Id))
+            throw new UserNotFoundException(user2Id);
 
         Long participantAId = Math.min(user1Id, user2Id);
         Long participantBId = Math.max(user1Id, user2Id);
