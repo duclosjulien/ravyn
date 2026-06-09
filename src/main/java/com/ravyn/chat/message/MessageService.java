@@ -1,6 +1,9 @@
 package com.ravyn.chat.message;
 
 import com.ravyn.chat.conversation.Conversation;
+import com.ravyn.chat.exception.ConversationNotFoundException;
+import com.ravyn.chat.exception.DataIntegrityException;
+import com.ravyn.chat.exception.UserNotFoundException;
 import com.ravyn.chat.repository.ConversationRepository;
 import com.ravyn.chat.repository.MessageRepository;
 import com.ravyn.chat.repository.UserRepository;
@@ -30,7 +33,7 @@ public class MessageService {
         return messageRepository.save(message);
     }
 
-    List<MessageResponse> getMessagesForConversation(Long conversationId){
+    public List<MessageResponse> getMessagesForConversation(Long conversationId){
         Conversation conversation = getConversationOrThrow(conversationId);
 
         Map<Long, String> usernameByUserId = buildUsernameMap(conversation);
@@ -58,7 +61,7 @@ public class MessageService {
         Optional<ChatUser> user = userRepository.findById(userId);
 
         if(user.isEmpty())
-            throw new IllegalStateException("Conversation references missing user");
+            throw new DataIntegrityException();
 
         return user.get();
     }
@@ -76,7 +79,7 @@ public class MessageService {
         Optional<Conversation> conversation = conversationRepository.findById(conversationId);
 
         if(conversation.isEmpty())
-            throw new IllegalArgumentException("Conversation not found");
+            throw new ConversationNotFoundException(conversationId);
 
         return conversation.get();
     }
