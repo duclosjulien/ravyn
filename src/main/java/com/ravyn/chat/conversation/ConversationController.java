@@ -14,11 +14,12 @@ public class ConversationController {
     }
 
     @PostMapping("/create")
-    public Conversation getConversation(@RequestBody ConversationRequest request) {
-        Long user1Id = request.getUser1Id();
-        Long user2Id = request.getUser2Id();
+    public CreateConversationResponse getConversationOrCreateConversation(@RequestBody ConversationRequest request) {
+        Conversation conversation = conversationService.getOrCreateConversation(
+                request.getUser1Id(),
+                request.getUser2Id());
 
-        return conversationService.getOrCreateConversation(user1Id, user2Id);
+        return new CreateConversationResponse(conversation.getId());
     }
 
     @GetMapping("/user/{userId}")

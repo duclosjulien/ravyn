@@ -39,3 +39,19 @@ export interface MessageResponse{
     content: string;
     createdAt: string;
 }
+
+export interface CreateConversationResponse {
+    id: number;
+}
+
+type ErrorCode =
+    | "CONVERSATION_NOT_FOUND"
+    | "USER_NOT_FOUND"
+    | "CONVERSATION_WITH_SELF"
+    | "CORRUPTED_DATA"
+    | "UNKNOWN_ERROR";
+
+export interface ApiError {
+    message: string;
+    code: ErrorCode;
+}
