@@ -108,18 +108,16 @@ async function startConversation(event: MouseEvent): Promise<void> {
         return;
     }
 
-
-
     try {
-        const conversation = await createConversation(currentUser.id, recipientUser.id);
+        const conversationId = await createConversation(currentUser.id, recipientUser.id);
         recipientError.textContent = ""
         recipientUsernameInput.value = "";
-        currentConversationId = conversation.id;
-        if(!conversations.some(c => c.id === conversation.id)){
-            conversations.push(conversation);
+        currentConversationId = conversationId;
+        if(!conversations.some(c => c.id === conversationId)){
+            conversations.push({ id: conversationId, otherUserId: recipientUser.id, otherUsername: recipientUser.username});
             renderConversations();
         }
-        selectConversation(conversation);
+        selectConversation(conversationId);
     }
     catch (error) {
         if (error instanceof Error) {
@@ -160,12 +158,12 @@ function createConversationButton(conversation: Conversation): void{
     conversationElement.appendChild(textContainer);
 
     conversationElement.addEventListener('click', () => {
-        selectConversation(conversation);
+        selectConversation(conversation.id);
     });
     conversationList.appendChild(conversationElement);
 }
 
-async function selectConversation(conversation: Conversation) {
+async function selectConversation(conversationId: number) {
     if (!stompClient)
         return;
 
@@ -174,7 +172,7 @@ async function selectConversation(conversation: Conversation) {
 
     messageArea.textContent = "";
 
-    const selectedConversationId = conversation.id;
+    const selectedConversationId = conversationId;
     currentConversationId = selectedConversationId;
 
     currentSubscription = stompClient.subscribe(
