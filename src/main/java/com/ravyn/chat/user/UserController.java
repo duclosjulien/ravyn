@@ -1,5 +1,8 @@
 package com.ravyn.chat.user;
 
+import com.ravyn.chat.exception.InvalidCredentialsException;
+import com.ravyn.chat.exception.UserNotFoundException;
+import com.ravyn.chat.exception.UsernameTakenException;
 import com.ravyn.chat.repository.UserRepository;
 import jakarta.persistence.Entity;
 import org.springframework.http.ResponseEntity;
@@ -17,16 +20,31 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ChatUser userLogin(@RequestBody LoginRequest request){
+    public ChatUserResponse userLogin(@RequestBody LoginRequest request){
         String username = request.getUsername();
-        Optional<ChatUser> user = userRepository.findByUsername(username);
-        if(user.isEmpty())
-            return createUser(username);
-        return user.get();
+        ChatUser user = userRepository.findByUsername(username)
+                .orElseThrow(InvalidCredentialsException::new);
+        String passwordToHash = request.getPassword();
+        // TODO tomorrow: passwordEncoder.matches(request.getPassword(), user.getPasswordHash())
+        if(!passwordToHash.equals(user.getPasswordHash()))
+            throw new InvalidCredentialsException();
+
+        return new ChatUserResponse(user.getId(), user.getUsername());
     }
 
-    private ChatUser createUser(String username){
-        return userRepository.save(new ChatUser(username));
+    @PostMapping("/register")
+    public ChatUserResponse userRegister(@RequestBody RegisterRequest request){
+        String username = request.getUsername();
+        if(userRepository.findByUsername(username).isPresent())
+            throw new UsernameTakenException(username);
+
+        // to do, hash the password before creating the user
+        return createUser(username, request.getPassword());
+    }
+
+    private ChatUserResponse createUser(String username, String passwordHash){
+        ChatUser newUser = userRepository.save(new ChatUser(username, passwordHash));
+        return new ChatUserResponse(newUser.getId(), newUser.getUsername());
     }
 
     @GetMapping("/search")

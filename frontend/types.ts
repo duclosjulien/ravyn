@@ -49,7 +49,9 @@ type ErrorCode =
     | "USER_NOT_FOUND"
     | "CONVERSATION_WITH_SELF"
     | "CORRUPTED_DATA"
-    | "UNKNOWN_ERROR";
+    | "UNKNOWN_ERROR"
+    | "INVALID_CREDENTIALS"
+    | "USERNAME_TAKEN";
 
 export interface ApiError {
     message: string;
