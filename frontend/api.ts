@@ -1,10 +1,26 @@
 import {User, Conversation, UserSummary, MessageResponse, ApiError, CreateConversationResponse} from './types';
 
-export async function userLogin(username: string): Promise<User> {
+export async function userLogin(username: string, password: string): Promise<User> {
     const response = await fetch("/users/login", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ username: username })
+        body: JSON.stringify({ username, password })
+    });
+
+    if (!response.ok) {
+        const apiError =  await parseApiError(response);
+        throw new Error(apiError.message);
+    }
+
+    const user: User = await response.json();
+    return user;
+}
+
+export async function registerUser(username: string, password: string): Promise<User> {
+    const response = await fetch("/users/register", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ username, password })
     });
 
     if (!response.ok) {

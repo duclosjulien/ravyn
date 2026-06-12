@@ -5,7 +5,7 @@ import {
     createConversation,
     findUserByUsername,
     getConversationsByUserId,
-    getMessagesForConversation,
+    getMessagesForConversation, registerUser,
     userLogin
 } from './api.js';
 
@@ -19,45 +19,85 @@ let conversations: Conversation[] = [];
 let currentSubscription: any = null;
 
 const usernamePage = document.querySelector('#username-page') as HTMLElement;
+const registerPage = document.querySelector('#register-page') as HTMLElement;
 const chatPage = document.querySelector('#chat-page') as HTMLElement;
 const usernameForm = document.querySelector('#usernameForm') as HTMLFormElement;
+const registerForm = document.querySelector('#registerForm') as HTMLFormElement;
 const messageForm = document.querySelector('#messageForm') as HTMLFormElement;
 const messageInput = document.querySelector('#message') as HTMLInputElement;
 const messageArea = document.querySelector('#messageArea') as HTMLElement;
 const connectingElement = document.querySelector('.connecting') as HTMLElement;
 const recipientUsernameInput = document.querySelector('#recipientUsername') as HTMLInputElement;
 const conversationList = document.querySelector('#conversationList') as HTMLElement;
-const startConversationButton = document.querySelector('#startConversationButton') as HTMLInputElement;
+const startConversationButton = document.querySelector('#startConversationButton') as HTMLButtonElement;
+const goToRegister = document.querySelector('#goToRegister') as HTMLButtonElement;
+const goToLogin = document.querySelector('#goToLogin') as HTMLButtonElement;
 const recipientError = document.querySelector('#recipientError') as HTMLElement;
+const loginError = document.querySelector('#loginError') as HTMLElement;
+const registerError = document.querySelector('#registerError ') as HTMLElement;
+
+async function enterApp(currentUser: User): Promise<void> {
+    conversations = await getConversationsByUserId(currentUser.id);
+
+    usernamePage.classList.add('hidden');
+    registerPage.classList.add('hidden');
+    chatPage.classList.remove('hidden');
+
+    startConversationButton.addEventListener('click', startConversation);
+    renderConversations();
+
+    const socket = new SockJS('/ws');
+    stompClient = Stomp.over(socket);
+    stompClient.connect({}, onConnected, onError);
+}
 
 async function connect(event: SubmitEvent): Promise<void> {
     event.preventDefault();
+    loginError.textContent = "";
 
     const username: string = (document.querySelector('#name') as HTMLInputElement).value.trim();
-    if(!username)
+    const password: string = (document.querySelector('#password') as HTMLInputElement).value;
+    if(!username || !password)
         return;
 
     try {
-        currentUser = await userLogin(username);
-        conversations = await getConversationsByUserId(currentUser.id);
+        currentUser = await userLogin(username, password);
+    } catch (error) {
+        if(error instanceof Error)
+            loginError.textContent = error.message;
+        console.error(error);
+        return;
+    }
+    await enterApp(currentUser);
+}
 
-        usernamePage.classList.add('hidden');
-        chatPage.classList.remove('hidden');
-        startConversationButton.addEventListener('click', startConversation);
-        renderConversations();
+async function register(event: SubmitEvent): Promise<void>{
+    event.preventDefault();
+    registerError.textContent = "";
 
-        const socket = new SockJS('/ws');
-        stompClient = Stomp.over(socket);
-        stompClient.connect({}, onConnected, onError);
+    const username: string = (document.querySelector('#nameRegister') as HTMLInputElement).value.trim();
+    const password: string = (document.querySelector('#passwordRegister') as HTMLInputElement).value;
+
+    if(!username || !password)
+        return;
+
+    try {
+        currentUser = await registerUser(username, password);
 
     } catch (error) {
+        if(error instanceof Error)
+            registerError.textContent = error.message;
         console.error(error);
+        return;
     }
+    await enterApp(currentUser);
+
 }
 
 function onConnected(): void {
     if(!stompClient)
         return;
+
     connectingElement.classList.add('hidden');
 }
 
@@ -120,9 +160,8 @@ async function startConversation(event: MouseEvent): Promise<void> {
         selectConversation(conversationId);
     }
     catch (error) {
-        if (error instanceof Error) {
+        if (error instanceof Error)
             recipientError.textContent = error.message;
-        }
     }
 }
 
@@ -192,4 +231,14 @@ async function selectConversation(conversationId: number) {
 }
 
 usernameForm.addEventListener('submit', connect, true);
+registerForm.addEventListener('submit', register, true);
 messageForm.addEventListener('submit', sendMessage, true);
+
+goToRegister.addEventListener('click', () => {
+    usernamePage.classList.add('hidden');
+    registerPage.classList.remove('hidden');
+});
+goToLogin.addEventListener('click', () => {
+    registerPage.classList.add('hidden');
+    usernamePage.classList.remove('hidden');
+});

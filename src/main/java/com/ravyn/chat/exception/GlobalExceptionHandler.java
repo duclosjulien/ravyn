@@ -30,4 +30,16 @@ public class GlobalExceptionHandler {
     public ErrorResponse handleDataIntegrityException(DataIntegrityException exception){
         return new ErrorResponse(exception.getMessage(), ErrorCode.CORRUPTED_DATA);
     }
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ErrorResponse handleInvalidCredentialsException(InvalidCredentialsException exception){
+        return new ErrorResponse(exception.getMessage(), ErrorCode.INVALID_CREDENTIALS);
+    }
+
+    @ExceptionHandler(UsernameTakenException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleUsernameTakenException(UsernameTakenException exception){
+        return new ErrorResponse(exception.getMessage(), ErrorCode.USERNAME_TAKEN);
+    }
 }

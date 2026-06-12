@@ -15,10 +15,12 @@ public class ChatUser {
     private Long id;
 
     private String username;
+    private String passwordHash;
 
     public ChatUser(){}
 
-    public ChatUser(String username){
+    public ChatUser(String username, String passwordHash){
         this.username = username;
+        this.passwordHash = passwordHash;
     }
 }

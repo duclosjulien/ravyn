@@ -1,7 +1,6 @@
 package com.ravyn.chat.user;
 
 import com.ravyn.chat.repository.UserRepository;
-import jakarta.persistence.Entity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,22 +10,21 @@ import java.util.Optional;
 @RequestMapping("/users")
 public class UserController {
     private final UserRepository userRepository;
+    private final UserService userService;
 
-    public UserController(UserRepository userRepository) {
+    public UserController(UserRepository userRepository, UserService userService) {
         this.userRepository = userRepository;
+        this.userService = userService;
     }
 
     @PostMapping("/login")
-    public ChatUser userLogin(@RequestBody LoginRequest request){
-        String username = request.getUsername();
-        Optional<ChatUser> user = userRepository.findByUsername(username);
-        if(user.isEmpty())
-            return createUser(username);
-        return user.get();
+    public ChatUserResponse userLogin(@RequestBody LoginRequest request){
+        return userService.login(request.getUsername(), request.getPassword());
     }
 
-    private ChatUser createUser(String username){
-        return userRepository.save(new ChatUser(username));
+    @PostMapping("/register")
+    public ChatUserResponse userRegister(@RequestBody RegisterRequest request){
+        return userService.register(request.getUsername(), request.getPassword());
     }
 
     @GetMapping("/search")
