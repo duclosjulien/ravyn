@@ -33,6 +33,8 @@ const startConversationButton = document.querySelector('#startConversationButton
 const goToRegister = document.querySelector('#goToRegister') as HTMLButtonElement;
 const goToLogin = document.querySelector('#goToLogin') as HTMLButtonElement;
 const recipientError = document.querySelector('#recipientError') as HTMLElement;
+const loginError = document.querySelector('#loginError') as HTMLElement;
+const registerError = document.querySelector('#registerError ') as HTMLElement;
 
 async function enterApp(currentUser: User): Promise<void> {
     conversations = await getConversationsByUserId(currentUser.id);
@@ -51,6 +53,7 @@ async function enterApp(currentUser: User): Promise<void> {
 
 async function connect(event: SubmitEvent): Promise<void> {
     event.preventDefault();
+    loginError.textContent = "";
 
     const username: string = (document.querySelector('#name') as HTMLInputElement).value.trim();
     const password: string = (document.querySelector('#password') as HTMLInputElement).value;
@@ -59,15 +62,18 @@ async function connect(event: SubmitEvent): Promise<void> {
 
     try {
         currentUser = await userLogin(username, password);
-        await enterApp(currentUser);
-
     } catch (error) {
+        if(error instanceof Error)
+            loginError.textContent = error.message;
         console.error(error);
+        return;
     }
+    await enterApp(currentUser);
 }
 
 async function register(event: SubmitEvent): Promise<void>{
     event.preventDefault();
+    registerError.textContent = "";
 
     const username: string = (document.querySelector('#nameRegister') as HTMLInputElement).value.trim();
     const password: string = (document.querySelector('#passwordRegister') as HTMLInputElement).value;
@@ -77,11 +83,15 @@ async function register(event: SubmitEvent): Promise<void>{
 
     try {
         currentUser = await registerUser(username, password);
-        await enterApp(currentUser);
 
     } catch (error) {
+        if(error instanceof Error)
+            registerError.textContent = error.message;
         console.error(error);
+        return;
     }
+    await enterApp(currentUser);
+
 }
 
 function onConnected(): void {
@@ -150,9 +160,8 @@ async function startConversation(event: MouseEvent): Promise<void> {
         selectConversation(conversationId);
     }
     catch (error) {
-        if (error instanceof Error) {
+        if (error instanceof Error)
             recipientError.textContent = error.message;
-        }
     }
 }
 
