@@ -35,6 +35,8 @@ const goToLogin = document.querySelector('#goToLogin') as HTMLButtonElement;
 const recipientError = document.querySelector('#recipientError') as HTMLElement;
 const loginError = document.querySelector('#loginError') as HTMLElement;
 const registerError = document.querySelector('#registerError ') as HTMLElement;
+const registerButton = document.querySelector('#registerButton') as HTMLButtonElement;
+const loginButton = document.querySelector('#loginButton') as HTMLButtonElement;
 
 async function enterApp(currentUser: User): Promise<void> {
     conversations = await getConversationsByUserId(currentUser.id);
@@ -61,12 +63,15 @@ async function connect(event: SubmitEvent): Promise<void> {
         return;
 
     try {
+        loginButton.disabled = true;
         currentUser = await userLogin(username, password);
     } catch (error) {
         if(error instanceof Error)
             loginError.textContent = error.message;
         console.error(error);
         return;
+    } finally {
+        loginButton.disabled = false;
     }
     await enterApp(currentUser);
 }
@@ -82,16 +87,17 @@ async function register(event: SubmitEvent): Promise<void>{
         return;
 
     try {
+        registerButton.disabled = true;
         currentUser = await registerUser(username, password);
-
     } catch (error) {
         if(error instanceof Error)
             registerError.textContent = error.message;
         console.error(error);
         return;
+    } finally {
+        registerButton.disabled = false;
     }
     await enterApp(currentUser);
-
 }
 
 function onConnected(): void {

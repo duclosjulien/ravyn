@@ -1,10 +1,14 @@
 package com.ravyn.chat.user;
 
 import com.ravyn.chat.exception.InvalidCredentialsException;
+import com.ravyn.chat.exception.UserNotFoundException;
+import com.ravyn.chat.exception.UsernameNotFoundException;
 import com.ravyn.chat.exception.UsernameTakenException;
 import com.ravyn.chat.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 
 @Service
@@ -38,5 +42,11 @@ public class UserService {
             throw new InvalidCredentialsException();
 
         return new ChatUserResponse(user.getId(), user.getUsername());
+    }
+
+    public UserSummary findUserByUsername(String username){
+        ChatUser user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException(username));
+        return new UserSummary(user.getId(), username);
     }
 }

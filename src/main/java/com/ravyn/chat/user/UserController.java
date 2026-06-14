@@ -28,11 +28,7 @@ public class UserController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<UserSummary> findUserByUsername(@RequestParam String username){
-        Optional<ChatUser> user = userRepository.findByUsername(username);
-        if(user.isEmpty())
-            return ResponseEntity.notFound().build();
-        ChatUser userFound = user.get();
-        return ResponseEntity.ok(new UserSummary(userFound.getId(), userFound.getUsername()));
+    public UserSummary findUserByUsername(@RequestParam String username){
+        return userService.findUserByUsername(username);
     }
 }
