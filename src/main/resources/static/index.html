@@ -11,56 +11,65 @@
 </noscript>
 
 <div id="username-page" >
-    <div class="username-page-container auth-page-container">
-        <div class="auth-brand">
+    <div class="auth-page-container">
+        <h1 class="auth-brand">
             Ravyn
-        </div>
-        <h1 class="title">Welcome back</h1>
-        <p>Take a moment and continue the conversation.</p>
-        <form id="usernameForm" name="usernameForm">
-            <div class="form-group">
-                <input type="text" id="name" placeholder="Username" autocomplete="off" class="form-control" />
+        </h1>
+        <div class="auth-divider"></div>
+        <p class="auth-subtitle">Take a moment and continue the conversation.</p>
+        <div class="auth-form">
+         <form id="usernameForm" name="usernameForm">
+             <div class="form-group">
+                 <input type="text" id="name" placeholder="Username" autocomplete="off" class="form-control" />
+             </div>
+                <div class="form-group">
+                    <input type="password" id="password" placeholder="Password" autocomplete="off" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <button type="submit" id="loginButton" class="accent auth-submit">Log in</button>
+                </div>
+            </form>
+            <div id="loginError"></div>
+            <div>
+                Don't have an account? <button type="button" id="goToRegister"> Sign Up</button>
             </div>
-            <div class="form-group">
-                <input type="password" id="password" placeholder="Password" autocomplete="off" class="form-control" />
-            </div>
-            <div class="form-group">
-                <button type="submit" id="loginButton" class="accent username-submit">Log in</button>
-            </div>
-        </form>
-        <div id="loginError"></div>
-        <div>
-            Don't have an account? <button type="button" id="goToRegister"> Sign Up</button>
         </div>
     </div>
-    <div id="authBackgroundLogo">
+    <div class="auth-background-logo-wrapper">
         <div class="auth-background-logo">
-            <img src="images/ravyn_icon_only.png" alt="Ravyn background logo">
+            <img src="images/ravyn_background_logo.png" alt="Ravyn background logo">
         </div>
     </div>
 </div>
 
 <div id="register-page" class="hidden">
-    <div class="username-page-container auth-page-container">
-        <div class="auth-brand">
+    <div class="auth-page-container">
+        <h1 class="auth-brand">
             Ravyn
+        </h1>
+        <div class="auth-divider"></div>
+        <p class="auth-subtitle">Start a quieter way to chat.</p>
+        <div class="auth-form">
+            <form id="registerForm" name="registerForm">
+                <div class="form-group">
+                    <input type="text" id="nameRegister" placeholder="Username" autocomplete="off" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <input type="password" id="passwordRegister" placeholder="Password" autocomplete="off" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <button type="submit" id="registerButton" class="accent auth-submit">Sign Up</button>
+                </div>
+            </form>
+            <div id="registerError"></div>
+            <div>
+                Already have an account? <button type="button" id="goToLogin">Log In</button>
+            </div>
         </div>
-        <h1 class="title">Register</h1>
-        <p>Start a quieter way to chat.</p>
-        <form id="registerForm" name="registerForm">
-            <div class="form-group">
-                <input type="text" id="nameRegister" placeholder="Username" autocomplete="off" class="form-control" />
-            </div>
-            <div class="form-group">
-                <input type="password" id="passwordRegister" placeholder="Password" autocomplete="off" class="form-control" />
-            </div>
-            <div class="form-group">
-                <button type="submit" id="registerButton" class="accent username-submit">Sign Up</button>
-            </div>
-        </form>
-        <div id="registerError"></div>
-        <div>
-            Already have an account? <button type="button" id="goToLogin">Log In</button>
+    </div>
+    <div class="auth-background-logo-wrapper">
+        <div class="auth-background-logo">
+            <img src="images/ravyn_background_logo.png" alt="Ravyn background logo">
         </div>
     </div>
 </div>
@@ -70,7 +79,8 @@
         <aside class="sidebar">
             <div class="brand">
                 <div class="brand-row">
-                    <img src="/images/ravyn_icon_only.png" alt="Ravyn logo" class="brand-logo" />                    <h1>Ravyn</h1>
+                    <img src="/images/ravyn_icon_only.png" alt="Ravyn logo" class="brand-logo" />
+                    <h1>Ravyn</h1>
                 </div>
                 <p>CHAT SIMPLY. CONNECT DEEPLY.</p>
             </div>
