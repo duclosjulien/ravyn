@@ -2,7 +2,8 @@ package com.ravyn.chat.chat;
 
 import com.ravyn.chat.conversation.ConversationService;
 import com.ravyn.chat.message.Message;
-import com.ravyn.chat.repository.MessageRepository;
+import com.ravyn.chat.message.MessageRequest;
+import com.ravyn.chat.message.MessageResponse;
 import com.ravyn.chat.repository.UserRepository;
 import com.ravyn.chat.user.ChatUser;
 import com.ravyn.chat.message.MessageService;
@@ -18,38 +19,29 @@ import java.util.Optional;
 public class ChatController {
     private final SimpMessageSendingOperations messageTemplate;
     private final ConversationService conversationService;
-    private final UserRepository userRepository;
     private final MessageService messageService;
 
-    public ChatController(SimpMessageSendingOperations messageTemplate, ConversationService conversationService, UserRepository userRepository, MessageService messageService) {
+    public ChatController(SimpMessageSendingOperations messageTemplate, ConversationService conversationService, MessageService messageService) {
         this.messageTemplate = messageTemplate;
         this.conversationService = conversationService;
-        this.userRepository = userRepository;
         this.messageService = messageService;
     }
 
     @MessageMapping("/chat.send")
-    public void sendMessage(@Payload IncomingChatMessage chatMessage){
+    public void sendMessage(@Payload MessageRequest chatMessage){
         if (!conversationService.validateUserInConversation(chatMessage.getSenderId(), chatMessage.getConversationId()))
             return;
 
-        Optional<ChatUser> user = userRepository.findById(chatMessage.getSenderId());
-        if(user.isEmpty()) return;
-        ChatUser sender = user.get();
-
         Long conversationId = chatMessage.getConversationId();
         Long senderId = chatMessage.getSenderId();
-        String username = sender.getUsername();
         String content = chatMessage.getContent();
 
-        messageService.saveMessage(conversationId, senderId, content);
-
-        OutgoingChatMessage outgoingChatMessage = new OutgoingChatMessage(conversationId, senderId, username, content);
-        messageTemplate.convertAndSend("/topic/conversations/" + conversationId, outgoingChatMessage);
+        MessageResponse messageResponse = messageService.saveMessage(conversationId, senderId, content);
+        messageTemplate.convertAndSend("/topic/conversations/" + conversationId, messageResponse);
     }
 
     @MessageMapping("/chat.addUser")
-    public void connectUser(@Payload IncomingChatMessage chatMessage, SimpMessageHeaderAccessor headerAccessor){
-        headerAccessor.getSessionAttributes().put("userId", chatMessage.getSenderId());
+    public void connectUser(@Payload Message message, SimpMessageHeaderAccessor headerAccessor){
+        headerAccessor.getSessionAttributes().put("userId", message.getSenderId());
     }
 }

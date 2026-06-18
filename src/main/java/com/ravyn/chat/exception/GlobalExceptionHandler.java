@@ -42,4 +42,10 @@ public class GlobalExceptionHandler {
     public ErrorResponse handleUsernameTakenException(UsernameTakenException exception){
         return new ErrorResponse(exception.getMessage(), ErrorCode.USERNAME_TAKEN);
     }
+
+    @ExceptionHandler(UsernameNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleUsernameNotFoundException(UsernameNotFoundException exception){
+        return new ErrorResponse(exception.getMessage(), ErrorCode.USERNAME_NOT_FOUND);
+    }
 }

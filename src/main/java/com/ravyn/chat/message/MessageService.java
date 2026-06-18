@@ -3,7 +3,6 @@ package com.ravyn.chat.message;
 import com.ravyn.chat.conversation.Conversation;
 import com.ravyn.chat.exception.ConversationNotFoundException;
 import com.ravyn.chat.exception.DataIntegrityException;
-import com.ravyn.chat.exception.UserNotFoundException;
 import com.ravyn.chat.repository.ConversationRepository;
 import com.ravyn.chat.repository.MessageRepository;
 import com.ravyn.chat.repository.UserRepository;
@@ -25,12 +24,14 @@ public class MessageService {
         this.userRepository = userRepository;
     }
 
-    public Message saveMessage(Long conversationId, Long senderId, String messageContent){
+    public MessageResponse saveMessage(Long conversationId, Long senderId, String messageContent){
         if (messageContent == null || messageContent.isBlank())
             throw new IllegalArgumentException("Message content cannot be blank");
 
-        Message message = new Message(conversationId, senderId, messageContent);
-        return messageRepository.save(message);
+        Message message = messageRepository.save(new Message(conversationId, senderId, messageContent));
+        ChatUser sender = getUserOrThrow(senderId);
+
+        return new MessageResponse(message.getId(), message.getConversationId(), message.getSenderId(), sender.getUsername(), messageContent, message.getCreatedAt());
     }
 
     public List<MessageResponse> getMessagesForConversation(Long conversationId){
@@ -69,7 +70,7 @@ public class MessageService {
     private List<MessageResponse> toMessageResponses(List<Message> messageList, Map<Long, String> usernameByUserId){
         List<MessageResponse> messageResponseList = new ArrayList<>();
 
-        for(Message message: messageList)
+        for(Message message : messageList)
             messageResponseList.add(toMessageResponse(message, usernameByUserId));
 
         return messageResponseList;

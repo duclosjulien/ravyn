@@ -1,4 +1,85 @@
 /* =========================================================
+   TIER 1 — RAW PALETTE
+   Named by appearance. Theme-agnostic. Components never use these directly.
+   ========================================================= */
+:root {
+    /* Cream ramp (warm paper) — lightest to darkest */
+    --cream-0:   #F8F1E3;  /* warm light paper, not pure white */
+    --cream-100: #EFE4CF;  /* main warm surface */
+    --cream-200: #E3D4B8;  /* page background / soft rows */
+    --cream-300: #D2C2A5;  /* hairline borders */
+    --cream-400: #B8A88C;  /* stronger edges / dividers */
+
+    /* Green ramp (from #36513F) */
+    --green-300: #8FB08C;  /* lifted sage-green, for dark-theme actions */
+    --green-500: #4A6B53;  /* mid */
+    --green-700: #36513F;  /* logo green — primary action */
+    --green-900: #1E2622;  /* near-black warm green, dark-theme bg */
+
+    /* Sage ramp (from #A7B8A6) */
+    --sage-200: #C2CFC1;
+    --sage-400: #A7B8A6;   /* logo sage */
+    --sage-600: #7E9180;
+
+    /* Slate ramp (from #394754) — text/ink */
+    --slate-500: #5F675C;  /* muted warm gray-green text */
+    --slate-700: #3F4C4A;  /* logo slate */
+    --slate-900: #2D3938;  /* primary warm ink */
+
+    /* Dark surfaces (warm green-gray, NOT black) */
+    --forest-900: #1E2622; /* dark bg base */
+    --forest-800: #262E29; /* lifted surface */
+    --forest-700: #39443C; /* dark borders */
+
+    /* Error (muted clay-red — survives a Japandi palette) */
+    --clay-500: #9B4D4D;   /* the red you already used for #recipientError */
+    --clay-300: #C77B7B;   /* lighter, for dark theme */
+}
+
+/* =========================================================
+   TIER 2 — SEMANTIC ALIASES
+   Named by role. This is what your components actually use.
+   Each one points at a tier-1 value.
+   ========================================================= */
+:root {
+    --color-bg:          var(--cream-200);
+    --color-surface:     var(--cream-0);   /* light paper surfaces */
+    --color-app-surface: var(--cream-100);
+    --color-panel:       var(--cream-100);
+    --color-canvas:      var(--cream-0);
+    --color-input-bg:    var(--cream-0);
+    --color-soft-surface: var(--cream-200);
+    --color-border:      var(--cream-300);
+    --color-text:        var(--slate-900);
+    --color-text-muted:  var(--slate-500);
+    --color-action:      var(--green-700); /* button fill */
+    --color-on-action:   var(--cream-100); /* text on the button */
+    --color-link:        var(--green-700);
+    --color-accent:      var(--sage-400);  /* focus rings, avatars */
+    --color-error:       var(--clay-500);
+    --color-shadow: rgb(from var(--slate-900) r g b / 0.15);
+    --color-focus-shadow: rgb(from var(--color-accent) r g b / 0.25);
+}
+
+[data-theme="dark"] {
+    --color-bg:          var(--forest-900);
+    --color-surface:     var(--forest-800);
+    --color-app-surface: var(--forest-800);
+    --color-panel:       var(--forest-800);
+    --color-canvas:      var(--forest-900);
+    --color-input-bg:    var(--forest-800);
+    --color-soft-surface: var(--forest-700);
+    --color-border:      var(--forest-700);
+    --color-text:        var(--cream-100);
+    --color-text-muted:  var(--sage-600);
+    --color-action:      var(--green-300); /* lighter green reads better on dark */
+    --color-on-action:   var(--forest-900);
+    --color-link:        var(--green-300);
+    --color-accent:      var(--sage-400);
+    --color-error:       var(--clay-300);
+}
+
+/* =========================================================
    1. Reset / Base
    ========================================================= */
 
@@ -15,8 +96,8 @@ body {
     font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     font-size: 1rem;
     line-height: 1.5;
-    color: #2f3e4a;
-    background: #f3f1e8;
+    color: var(--color-text);
+    background: var(--color-bg);
 }
 
 /* =========================================================
@@ -42,33 +123,66 @@ button {
     cursor: pointer;
 }
 
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
 /* =========================================================
-   4. Username / Login Page
+   4. Auth Pages
    ========================================================= */
 
-#username-page {
+#username-page,
+#register-page {
     min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 24px;
+    position: relative;
+    overflow: hidden;
 }
 
-.username-page-container {
+.auth-page-container {
     width: 100%;
     max-width: 460px;
     padding: 36px;
-    background: #fffaf2;
-    border: 1px solid #ded8ca;
     border-radius: 18px;
-    box-shadow: 0 18px 50px rgba(47, 62, 74, 0.15);
     text-align: center;
+    position: relative;
+    z-index: 1;
 }
 
-.username-page-container .title {
+.auth-form {
+    max-width: 320px;
+    margin: 0 auto;
+}
+
+.auth-brand {
+    font-size: 56px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    margin-top: 0;
+    margin-bottom: 18px;
+    font-family: Newsreader, serif;
+}
+
+.auth-page-container .title {
     margin: 0 0 24px;
-    font-size: 28px;
-    font-weight: 700;
+    font-size: 26px;
+    font-weight: 500;
+}
+
+.auth-divider {
+    width: 44px;
+    height: 1px;
+    background: var(--cream-400);
+    margin: 0 auto 22px;
+}
+
+.auth-subtitle {
+    margin: 0 0 20px;
+    color: var(--color-text-muted);
 }
 
 .form-group {
@@ -77,27 +191,71 @@ button {
 
 .form-control {
     width: 100%;
-    min-height: 44px;
-    padding: 12px 14px;
-    border: 1px solid #d8d2c5;
+    min-height: 40px;
+    padding: 10px 14px;
+    border: 1px solid var(--color-border);
     border-radius: 12px;
-    background: #fffaf2;
+    background: var(--color-input-bg);
     font-size: 15px;
 }
 
 .form-control:focus {
-    border-color: #a7b8a6;
-    box-shadow: 0 0 0 3px rgba(167, 184, 166, 0.25);
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px var(--color-focus-shadow);
 }
 
-.username-submit {
+.auth-submit {
     width: 100%;
-    min-height: 44px;
-    padding: 12px 14px;
+    min-height: 40px;
+    padding: 10px 14px;
     border-radius: 12px;
-    background: #36513f;
-    color: #f3f1e8;
+    background: var(--color-action);
+    color: var(--color-on-action);
     font-weight: 600;
+}
+
+#loginError,
+#registerError {
+    color: var(--color-error);
+    font-size: 15px;
+    min-height: 25px;
+    margin-top: 4px;
+    margin-bottom: 6px;
+}
+
+#goToRegister,
+#goToLogin {
+    background: transparent;
+    border: none;
+    padding: 0;
+    color: var(--color-link);
+    font-weight: 600;
+}
+
+#goToRegister:hover,
+#goToLogin:hover {
+   opacity: 0.8;
+}
+
+#goToRegister:focus-visible,
+#goToLogin:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+}
+/* -90 -110 opacity 0.035 witdh 600*/
+.auth-background-logo-wrapper {
+    position: absolute;
+    right: -150px;
+    bottom: -110px;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.auth-background-logo img {
+    width: 1500px;
+    height: auto;
+    opacity: 0.090;
+    display: block;
 }
 
 /* =========================================================
@@ -107,18 +265,19 @@ button {
 #chat-page {
     min-height: 100vh;
     padding: 32px;
+    display: flex;
 }
 
 .app-shell {
     display: flex;
+    width: min(1500px, 100%);
     min-height: calc(100vh - 64px);
-    max-width: 1500px;
     margin: 0 auto;
-    background: #fffaf2;
-    border: 1px solid #ded8ca;
+    background: var(--color-app-surface);
+    border: 1px solid var(--color-border);
     border-radius: 18px;
     overflow: hidden;
-    box-shadow: 0 18px 50px rgba(47, 62, 74, 0.15);
+    box-shadow: 0 18px 50px var(--color-shadow);
 }
 
 /* =========================================================
@@ -128,8 +287,9 @@ button {
 .sidebar {
     width: 320px;
     padding: 24px;
-    border-right: 1px solid #ded8ca;
-    background: #fffaf2;
+    border-right: 1px solid var(--color-border);
+    background: var(--color-panel);
+    flex-shrink: 0;
 }
 
 .brand {
@@ -159,22 +319,22 @@ button {
     font-size: 14px;
     letter-spacing: 0.08em;
     font-weight: 600;
-    color: #58675c;
+    color: var(--color-text-muted);
 }
 
 #recipientUsername {
     width: 100%;
     padding: 12px 14px;
     margin-bottom: 12px;
-    border: 1px solid #d8d2c5;
+    border: 1px solid var(--color-border);
     border-radius: 12px;
-    background: #fffaf2;
+    background: var(--color-input-bg);
     font-size: 15px;
 }
 
 #recipientUsername:focus {
-    border-color: #a7b8a6;
-    box-shadow: 0 0 0 3px rgba(167, 184, 166, 0.25);
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px var(--color-focus-shadow);
 }
 
 #startConversationButton {
@@ -182,14 +342,14 @@ button {
     padding: 12px 14px;
     margin-bottom: 24px;
     border-radius: 12px;
-    background: #36513f;
-    color: #f3f1e8;
+    background: var(--color-action);
+    color: var(--color-on-action);
     font-weight: 600;
 }
 
 #recipientError {
     margin-bottom: 16px;
-    color: #9b4d4d;
+    color: var(--color-error);
     font-size: 14px;
 }
 
@@ -203,14 +363,19 @@ button {
     width: 100%;
     padding: 14px 16px;
     border-radius: 14px;
-    background: #ebe9e4;
-    color: #2f3e4a;
+    background: var(--color-soft-surface);
+    color: var(--color-text);
     text-align: left;
     font-size: 15px;
 }
 
 #conversationList button:hover {
-    background: #dfe6dc;
+    background: var(--sage-200);
+}
+
+.conversation-item--active {
+    background: var(--color-soft-surface);
+    box-shadow: inset 3px 0 0 var(--color-action);
 }
 
 .conversation-item {
@@ -223,8 +388,8 @@ button {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: #a7b8a6;
-    color: #fffaf2;
+    background: var(--color-accent);
+    color: var(--color-on-action);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -238,12 +403,12 @@ button {
 
 .conversation-name {
     font-weight: 600;
-    color: #2f3e4a;
+    color: var(--color-text);
 }
 
 .conversation-preview {
     font-size: 13px;
-    color: #7a8278;
+    color: var(--color-text-muted);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -258,20 +423,45 @@ button {
     display: flex;
     flex-direction: column;
     padding: 24px;
-    min-width: 0;
+    background: var(--color-canvas);
 }
+
 
 .chat-header {
-    padding-bottom: 20px;
-    margin-bottom: 20px;
-    border-bottom: 1px solid #ded8ca;
-    text-align: center;
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    width: 100%;
+    padding-bottom: 18px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--color-border);
 }
 
-.chat-header h2 {
-    margin: 0;
-    font-size: 24px;
+.chat-header-avatar {
+    width: 2.4rem;
+    height: 2.4rem;
+    border-radius: 999px;
+    display: grid;
+    place-items: center;
+    background: var(--color-soft-surface);
+    color: var(--color-text);
     font-weight: 600;
+}
+
+.chat-header-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.chat-header-text h2 {
+    margin: 0;
+}
+
+.chat-header-text p {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: 0.85rem;
 }
 
 /* =========================================================
@@ -280,40 +470,59 @@ button {
 
 #messageArea {
     flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    list-style: none;
     margin: 0;
     padding: 16px;
-    list-style: none;
-    background: #ffffff;
-    border: 1px solid #ebe6dc;
-    border-radius: 16px;
     overflow-y: auto;
 }
 
-#messageArea li {
-    margin-bottom: 12px;
-}
-
 .chat-message {
-    padding: 12px 14px;
-    border-radius: 14px;
-    background: #f3f1e8;
+    max-width: 60%;
+    padding: 10px 14px;
+    border-radius: 16px;
+    overflow-wrap: anywhere;
 }
 
-.chat-message span {
-    display: block;
-    margin-bottom: 4px;
-    font-weight: 700;
-    color: #36513f;
+.chat-message--incoming {
+    align-self: flex-start;
+    background: var(--color-soft-surface);
+}
+
+.chat-message--outgoing {
+    align-self: flex-end;
+    background: var(--color-action);
 }
 
 .chat-message p {
     margin: 0;
-    color: #2f3e4a;
+    line-height: 1.45;
+    color: var(--color-text);
+}
+
+.chat-message--outgoing p {
+    color: var(--color-on-action);
+}
+
+.message-time {
+    display: block;
+    margin-top: 4px;
+    font-size: 0.72rem;
+    line-height: 1;
+    color: var(--color-text-muted);
+    opacity: 0.8;
+}
+
+.chat-message--outgoing .message-time {
+    color: var(--color-on-action);
+    opacity: 0.75;
 }
 
 .event-message {
     text-align: center;
-    color: #7a8278;
+    color: var(--color-text-muted);
     font-size: 14px;
 }
 
@@ -327,13 +536,13 @@ button {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    color: #7a8278;
+    color: var(--color-text-muted);
     text-align: center;
 }
 
 .empty-chat-state h3 {
     margin: 0 0 8px;
-    color: #2f3e4a;
+    color: var(--color-text);
     font-size: 22px;
 }
 
@@ -359,23 +568,23 @@ button {
     flex: 1;
     min-height: 44px;
     padding: 12px 14px;
-    border: 1px solid #d8d2c5;
+    border: 1px solid var(--color-border);
     border-radius: 12px;
-    background: #fffaf2;
+    background: var(--color-input-bg);
     font-size: 15px;
 }
 
 #message:focus {
-    border-color: #a7b8a6;
-    box-shadow: 0 0 0 3px rgba(167, 184, 166, 0.25);
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px var(--color-focus-shadow);
 }
 
 #messageForm button {
     min-height: 44px;
     padding: 0 18px;
     border-radius: 12px;
-    background: #36513f;
-    color: #f3f1e8;
+    background: var(--color-action);
+    color: var(--color-on-action);
     font-weight: 600;
 }
 
@@ -386,7 +595,7 @@ button {
 .connecting {
     margin-top: 12px;
     text-align: center;
-    color: #7a8278;
+    color: var(--color-text-muted);
     font-size: 14px;
 }
 
@@ -407,7 +616,7 @@ button {
     .sidebar {
         width: 100%;
         border-right: none;
-        border-bottom: 1px solid #ded8ca;
+        border-bottom: 1px solid var(--color-border);
     }
 }
 
@@ -422,7 +631,7 @@ button {
         border: none;
     }
 
-    .username-page-container {
+    .auth-page-container {
         padding: 28px 24px;
     }
 
@@ -436,5 +645,13 @@ button {
 
     #messageForm button {
         width: 100%;
+    }
+
+
+}
+
+@media screen and (max-width: 1050px) {
+    .auth-background-logo-wrapper {
+        display: none;
     }
 }

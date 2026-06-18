@@ -1,12 +1,5 @@
-export interface IncomingChatMessage {
+export interface MessageRequest {
     senderId: number;
-    conversationId: number;
-    content: string;
-}
-
-export interface OutgoingChatMessage {
-    senderId: number;
-    senderUsername: string;
     conversationId: number;
     content: string;
 }
