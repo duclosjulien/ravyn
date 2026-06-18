@@ -129,7 +129,7 @@ function sendMessage(event: SubmitEvent): void {
 }
 
 function onMessageReceived(payload: StompPayload): void {
-    const message: MessageResponse= JSON.parse(payload.body);
+    const message: MessageResponse = JSON.parse(payload.body);
     renderMessage(message);
 }
 
@@ -147,9 +147,21 @@ function renderMessage(message: MessageResponse): void {
         document.createTextNode(`${message.content}`)
     );
 
+    const timestampElement = document.createElement('span');
+    timestampElement.classList.add('message-time');
+    timestampElement.textContent = formatMessageTime(message.createdAt);
+
     messageElement.appendChild(textElement);
+    messageElement.appendChild(timestampElement);
     messageArea.appendChild(messageElement);
     messageArea.scrollTop = messageArea.scrollHeight;
+}
+
+function formatMessageTime(createdAt: string): string {
+    return new Date(createdAt).toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit'
+    });
 }
 
 async function startConversation(event: MouseEvent): Promise<void> {

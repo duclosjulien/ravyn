@@ -496,13 +496,6 @@ button:disabled {
     background: var(--color-action);
 }
 
-.chat-message span {
-    display: block;
-    margin-bottom: 4px;
-    font-weight: 700;
-    color: var(--color-link);
-}
-
 .chat-message p {
     margin: 0;
     line-height: 1.45;
@@ -511,6 +504,20 @@ button:disabled {
 
 .chat-message--outgoing p {
     color: var(--color-on-action);
+}
+
+.message-time {
+    display: block;
+    margin-top: 4px;
+    font-size: 0.72rem;
+    line-height: 1;
+    color: var(--color-text-muted);
+    opacity: 0.8;
+}
+
+.chat-message--outgoing .message-time {
+    color: var(--color-on-action);
+    opacity: 0.75;
 }
 
 .event-message {
