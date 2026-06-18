@@ -1,6 +1,6 @@
 'use strict';
 
-import { OutgoingChatMessage, IncomingChatMessage, Conversation, StompPayload, User, MessageResponse } from './types.js';
+import { MessageRequest, Conversation, StompPayload, User, MessageResponse } from './types.js';
 import {
     createConversation,
     findUserByUsername,
@@ -34,9 +34,12 @@ const goToRegister = document.querySelector('#goToRegister') as HTMLButtonElemen
 const goToLogin = document.querySelector('#goToLogin') as HTMLButtonElement;
 const recipientError = document.querySelector('#recipientError') as HTMLElement;
 const loginError = document.querySelector('#loginError') as HTMLElement;
-const registerError = document.querySelector('#registerError ') as HTMLElement;
+const registerError = document.querySelector('#registerError') as HTMLElement;
 const registerButton = document.querySelector('#registerButton') as HTMLButtonElement;
 const loginButton = document.querySelector('#loginButton') as HTMLButtonElement;
+const chatHeaderAvatar = document.querySelector('#chatHeaderAvatar') as HTMLElement;
+const chatHeaderTitle = document.querySelector('#chatHeaderTitle') as HTMLElement;
+const chatHeaderStatus = document.querySelector('#chatHeaderStatus') as HTMLElement;
 
 async function enterApp(currentUser: User): Promise<void> {
     conversations = await getConversationsByUserId(currentUser.id);
@@ -118,7 +121,7 @@ function sendMessage(event: SubmitEvent): void {
     const messageContent = messageInput.value.trim();
 
     if(messageContent && stompClient && currentUser && currentConversationId != null) {
-        const chatMessage: IncomingChatMessage = {senderId: currentUser.id, conversationId: currentConversationId,  content: messageContent};
+        const chatMessage: MessageRequest = {senderId: currentUser.id, conversationId: currentConversationId,  content: messageContent};
 
         stompClient.send("/app/chat.send", {}, JSON.stringify(chatMessage));
         messageInput.value = '';
@@ -126,17 +129,22 @@ function sendMessage(event: SubmitEvent): void {
 }
 
 function onMessageReceived(payload: StompPayload): void {
-    const message: OutgoingChatMessage = JSON.parse(payload.body);
+    const message: MessageResponse= JSON.parse(payload.body);
     renderMessage(message);
 }
 
-function renderMessage(message: OutgoingChatMessage| MessageResponse): void {
+function renderMessage(message: MessageResponse): void {
     const messageElement = document.createElement('li');
+
     messageElement.classList.add('chat-message');
+    if(currentUser?.id === message.senderId)
+        messageElement.classList.add('chat-message--outgoing');
+    else
+        messageElement.classList.add('chat-message--incoming');
 
     const textElement = document.createElement('p');
     textElement.appendChild(
-        document.createTextNode(`${message.senderUsername}: ${message.content}`)
+        document.createTextNode(`${message.content}`)
     );
 
     messageElement.appendChild(textElement);
@@ -158,12 +166,12 @@ async function startConversation(event: MouseEvent): Promise<void> {
         const conversationId = await createConversation(currentUser.id, recipientUser.id);
         recipientError.textContent = ""
         recipientUsernameInput.value = "";
-        currentConversationId = conversationId;
+
         if(!conversations.some(c => c.id === conversationId)){
             conversations.push({ id: conversationId, otherUserId: recipientUser.id, otherUsername: recipientUser.username});
             renderConversations();
         }
-        selectConversation(conversationId);
+        await selectConversation(conversationId, recipientUser.username);
     }
     catch (error) {
         if (error instanceof Error)
@@ -180,6 +188,9 @@ function renderConversations(): void {
 function createConversationButton(conversation: Conversation): void{
     const conversationElement = document.createElement('button');
     conversationElement.classList.add('conversation-item');
+
+    if(conversation.id === currentConversationId)
+        conversationElement.classList.add('conversation-item--active');
 
     const avatarElement = document.createElement('div');
     avatarElement.classList.add('conversation-avatar');
@@ -203,12 +214,12 @@ function createConversationButton(conversation: Conversation): void{
     conversationElement.appendChild(textContainer);
 
     conversationElement.addEventListener('click', () => {
-        selectConversation(conversation.id);
+        selectConversation(conversation.id, conversation.otherUsername);
     });
     conversationList.appendChild(conversationElement);
 }
 
-async function selectConversation(conversationId: number) {
+async function selectConversation(conversationId: number, otherUsername: string) {
     if (!stompClient)
         return;
 
@@ -220,6 +231,12 @@ async function selectConversation(conversationId: number) {
     const selectedConversationId = conversationId;
     currentConversationId = selectedConversationId;
 
+    chatHeaderAvatar.textContent = otherUsername.charAt(0).toUpperCase();
+    chatHeaderTitle.textContent = otherUsername;
+    chatHeaderStatus.textContent = "Online";
+
+    renderConversations();
+
     currentSubscription = stompClient.subscribe(
         `/topic/conversations/${selectedConversationId}`,
         onMessageReceived
@@ -229,6 +246,7 @@ async function selectConversation(conversationId: number) {
 
         if (currentConversationId !== selectedConversationId)
             return;
+        console.log("printing previous messages");
 
         previousMessages.forEach(renderMessage);
     } catch (error) {

@@ -5,9 +5,11 @@ import com.ravyn.chat.exception.UserNotFoundException;
 import com.ravyn.chat.exception.UsernameNotFoundException;
 import com.ravyn.chat.exception.UsernameTakenException;
 import com.ravyn.chat.repository.UserRepository;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 
@@ -40,6 +42,13 @@ public class UserService {
 
         if(!passwordEncoder.matches(password, user.getPasswordHash()))
             throw new InvalidCredentialsException();
+
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken(
+                        user.getUsername(),
+                        null,
+                        List.of()
+                );
 
         return new ChatUserResponse(user.getId(), user.getUsername());
     }

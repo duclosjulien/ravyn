@@ -1,8 +1,8 @@
 package com.ravyn.chat.chat;
 
 import com.ravyn.chat.conversation.ConversationService;
-import com.ravyn.chat.message.Message;
-import com.ravyn.chat.repository.MessageRepository;
+import com.ravyn.chat.message.MessageRequest;
+import com.ravyn.chat.message.MessageResponse;
 import com.ravyn.chat.repository.UserRepository;
 import com.ravyn.chat.user.ChatUser;
 import com.ravyn.chat.message.MessageService;
@@ -29,7 +29,7 @@ public class ChatController {
     }
 
     @MessageMapping("/chat.send")
-    public void sendMessage(@Payload IncomingChatMessage chatMessage){
+    public void sendMessage(@Payload MessageRequest chatMessage){
         if (!conversationService.validateUserInConversation(chatMessage.getSenderId(), chatMessage.getConversationId()))
             return;
 
@@ -42,10 +42,9 @@ public class ChatController {
         String username = sender.getUsername();
         String content = chatMessage.getContent();
 
-        messageService.saveMessage(conversationId, senderId, content);
+        MessageResponse messageResponse = messageService.saveMessage(conversationId, senderId, username, content);
 
-        OutgoingChatMessage outgoingChatMessage = new OutgoingChatMessage(conversationId, senderId, username, content);
-        messageTemplate.convertAndSend("/topic/conversations/" + conversationId, outgoingChatMessage);
+        messageTemplate.convertAndSend("/topic/conversations/" + conversationId, messageResponse);
     }
 
     @MessageMapping("/chat.addUser")

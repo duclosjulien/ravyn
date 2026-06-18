@@ -37,7 +37,7 @@
     </div>
     <div class="auth-background-logo-wrapper">
         <div class="auth-background-logo">
-            <img src="images/ravyn_background_logo.png" alt="Ravyn background logo">
+            <img src="images/ravyn-background.jpg" alt="Ravyn background logo">
         </div>
     </div>
 </div>
@@ -69,7 +69,7 @@
     </div>
     <div class="auth-background-logo-wrapper">
         <div class="auth-background-logo">
-            <img src="images/ravyn_background_logo.png" alt="Ravyn background logo">
+            <img src="images/ravyn-background.jpg" alt="Ravyn background logo">
         </div>
     </div>
 </div>
@@ -98,7 +98,12 @@
 
         <main class="chat-panel">
             <header class="chat-header">
-                <h2>Ravyn - Messenger</h2>
+                <div class="chat-header-avatar" id="chatHeaderAvatar">?</div>
+
+                <div class="chat-header-text">
+                    <h2 id="chatHeaderTitle">Ravyn</h2>
+                    <p id="chatHeaderStatus">Offline</p>
+                </div>
             </header>
 
             <div class="connecting">
@@ -115,7 +120,7 @@
             <form id="messageForm" name="messageForm">
                 <div class="form-group">
                     <div class="input-group clearfix">
-                        <input type="text" id="message" placeholder="Type a message..." autocomplete="off" class="form-control"/>
+                        <input type="text" id="messageRequest" placeholder="Type a messageRequest..." autocomplete="off" class="form-control"/>
                         <button type="submit" class="primary">Send</button>
                     </div>
                 </div>
