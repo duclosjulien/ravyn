@@ -1,5 +1,6 @@
 package com.ravyn.chat.user;
 
+import com.ravyn.chat.auth.AuthenticatedUser;
 import com.ravyn.chat.exception.*;
 import com.ravyn.chat.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
@@ -45,7 +46,7 @@ public class UserService {
 
         UsernamePasswordAuthenticationToken authentication =
                 new UsernamePasswordAuthenticationToken(
-                        user.getUsername(),
+                        new AuthenticatedUser(user.getId(), user.getUsername()),
                         null,
                         List.of()
                 );

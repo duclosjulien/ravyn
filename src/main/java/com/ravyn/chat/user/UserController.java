@@ -2,10 +2,7 @@ package com.ravyn.chat.user;
 
 import com.ravyn.chat.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/users")

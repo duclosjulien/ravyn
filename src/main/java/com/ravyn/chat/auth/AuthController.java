@@ -1,6 +1,7 @@
 package com.ravyn.chat.auth;
 
 import com.ravyn.chat.user.ChatUserResponse;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,8 +17,8 @@ public class AuthController {
     }
 
     @GetMapping("/me")
-    public ChatUserResponse me(Authentication authentication) {
-        return authService.me(authentication);
+    public ChatUserResponse me(UsernamePasswordAuthenticationToken authentication) {
+        return authService.me(authentication.getCredential);
     }
 
 }

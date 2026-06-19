@@ -1,7 +1,6 @@
 package com.ravyn.chat.auth;
 
 import com.ravyn.chat.exception.AuthenticationRequiredException;
-import com.ravyn.chat.repository.UserRepository;
 import com.ravyn.chat.user.ChatUserResponse;
 import com.ravyn.chat.user.UserService;
 import org.springframework.security.core.Authentication;
@@ -18,6 +17,8 @@ public class AuthService {
     public ChatUserResponse me(Authentication authentication){
         if(authentication == null)
             throw new AuthenticationRequiredException();
-        return userService.findUserByUsername(authentication.getName());
+
+        Long userId = (Long) authentication.getPrincipal();
+        return userService.findUserById(userId);
     }
 }
