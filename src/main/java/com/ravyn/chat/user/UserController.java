@@ -1,6 +1,7 @@
 package com.ravyn.chat.user;
 
 import com.ravyn.chat.repository.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,8 +19,8 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ChatUserResponse userLogin(@RequestBody LoginRequest request){
-        return userService.login(request.getUsername(), request.getPassword());
+    public ChatUserResponse userLogin(@RequestBody LoginRequest request, HttpServletRequest httpRequest){
+        return userService.login(request.getUsername(), request.getPassword(), httpRequest);
     }
 
     @PostMapping("/register")

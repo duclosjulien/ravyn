@@ -5,8 +5,12 @@ import com.ravyn.chat.exception.UserNotFoundException;
 import com.ravyn.chat.exception.UsernameNotFoundException;
 import com.ravyn.chat.exception.UsernameTakenException;
 import com.ravyn.chat.repository.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -36,7 +40,7 @@ public class UserService {
         return new ChatUserResponse(newUser.getId(), newUser.getUsername());
     }
 
-    public ChatUserResponse login(String username, String password){
+    public ChatUserResponse login(String username, String password, HttpServletRequest request){
         ChatUser user = userRepository.findByUsername(username)
                 .orElseThrow(InvalidCredentialsException::new);
 
@@ -49,6 +53,13 @@ public class UserService {
                         null,
                         List.of()
                 );
+
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        context.setAuthentication(authentication);
+        SecurityContextHolder.setContext(context);
+
+        request.getSession(true)
+                .setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, context);
 
         return new ChatUserResponse(user.getId(), user.getUsername());
     }
