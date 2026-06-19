@@ -47,15 +47,12 @@ export async function createConversation(user1Id: number, user2Id: number): Prom
     return body.id;
 }
 
-export async function getConversationsByUserId(userId: number) : Promise<Conversation[]>{
-    const response = await fetch(`/conversations/user/${userId}`, {
+export async function getCurrentUserConversations() : Promise<Conversation[]>{
+    const response = await fetch("/conversations/me", {
         method: "GET"
     });
 
-    if (!response.ok) {
-        const apiError =  await parseApiError(response);
-        throw new Error(apiError.message);
-    }
+    await throwIfApiError(response);
 
     const conversations: Conversation[] = await response.json();
     return conversations;
@@ -91,6 +88,12 @@ export async function getMessagesForConversation(conversationId: number): Promis
     return messages;
 }
 
+async function throwIfApiError(response: Response){
+    if (response.ok) return;
+
+    const apiError =  await parseApiError(response);
+    throw new Error(apiError.message);
+}
 async function parseApiError(response: Response): Promise<ApiError> {
     try {
         const body = await response.json();

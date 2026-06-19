@@ -1,5 +1,8 @@
 package com.ravyn.chat.conversation;
 
+import com.ravyn.chat.auth.AuthenticatedUser;
+import com.ravyn.chat.exception.AuthenticationRequiredException;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,9 +25,13 @@ public class ConversationController {
         return new CreateConversationResponse(conversation.getId());
     }
 
-    @GetMapping("/user/{userId}")
-    public List<ConversationResponse> getConversationsById(@PathVariable Long userId){
-       return conversationService.getConversationsForUser(userId);
+    @GetMapping("/me")
+    public List<ConversationResponse> getCurrentUserConversations(Authentication authentication){
+        if (authentication == null) {
+            throw new AuthenticationRequiredException();
+        }
+        AuthenticatedUser user = (AuthenticatedUser) authentication.getPrincipal();
+        return conversationService.getConversationsForUser(user.id());
     }
 
 }

@@ -4,8 +4,10 @@ import { MessageRequest, Conversation, StompPayload, User, MessageResponse } fro
 import {
     createConversation,
     findUserByUsername,
-    getConversationsByUserId, getCurrentUser,
-    getMessagesForConversation, registerUser,
+    getCurrentUser,
+    getCurrentUserConversations,
+    getMessagesForConversation,
+    registerUser,
     userLogin
 } from './api.js';
 
@@ -42,7 +44,7 @@ const chatHeaderTitle = document.querySelector('#chatHeaderTitle') as HTMLElemen
 const chatHeaderStatus = document.querySelector('#chatHeaderStatus') as HTMLElement;
 
 async function enterApp(currentUser: User): Promise<void> {
-    conversations = await getConversationsByUserId(currentUser.id);
+    conversations = await getCurrentUserConversations();
 
     usernamePage.classList.add('hidden');
     registerPage.classList.add('hidden');
