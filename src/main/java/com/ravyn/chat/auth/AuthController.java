@@ -17,8 +17,8 @@ public class AuthController {
     }
 
     @GetMapping("/me")
-    public ChatUserResponse me(UsernamePasswordAuthenticationToken authentication) {
-        return authService.me(authentication.getCredential);
+    public ChatUserResponse me(Authentication authentication) {
+        return authService.me(authentication);
     }
 
 }
