@@ -18,7 +18,7 @@ public class AuthService {
         if(authentication == null)
             throw new AuthenticationRequiredException();
 
-        Long userId = (Long) authentication.getPrincipal();
-        return userService.findUserById(userId);
+        AuthenticatedUser user = (AuthenticatedUser) authentication.getPrincipal();
+        return userService.findUserById(user.id());
     }
 }

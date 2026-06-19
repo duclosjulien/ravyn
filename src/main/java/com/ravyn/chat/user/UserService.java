@@ -24,16 +24,17 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public ChatUserResponse register(String username, String password){
+    public ChatUserResponse register(String username, String password, HttpServletRequest request){
         if(userRepository.findByUsername(username).isPresent())
             throw new UsernameTakenException(username);
-
-        return createUser(username, passwordEncoder.encode(password));
+        return createUser(username, passwordEncoder.encode(password), request);
 
     }
 
-    private ChatUserResponse createUser(String username, String passwordHash){
+    private ChatUserResponse createUser(String username, String passwordHash, HttpServletRequest request){
         ChatUser newUser = userRepository.save(new ChatUser(username, passwordHash));
+        establishSessionForUser(newUser, request);
+
         return new ChatUserResponse(newUser.getId(), newUser.getUsername());
     }
 
@@ -44,6 +45,11 @@ public class UserService {
         if(!passwordEncoder.matches(password, user.getPasswordHash()))
             throw new InvalidCredentialsException();
 
+        establishSessionForUser(user, request);
+        return new ChatUserResponse(user.getId(), user.getUsername());
+    }
+
+    private void establishSessionForUser(ChatUser user, HttpServletRequest request){
         UsernamePasswordAuthenticationToken authentication =
                 new UsernamePasswordAuthenticationToken(
                         new AuthenticatedUser(user.getId(), user.getUsername()),
@@ -57,8 +63,6 @@ public class UserService {
 
         request.getSession(true)
                 .setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, context);
-
-        return new ChatUserResponse(user.getId(), user.getUsername());
     }
 
     public ChatUserResponse findUserByUsername(String username){
@@ -69,7 +73,7 @@ public class UserService {
 
     public ChatUserResponse findUserById(Long id){
         ChatUser user = userRepository.findById(id)
-                .orElseThrow(AuthenticationRequiredException::new);
+                .orElseThrow(() -> new UserNotFoundException(id));
         return new ChatUserResponse(user.getId(), user.getUsername());
     }
 }

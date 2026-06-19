@@ -92,7 +92,8 @@ async function register(event: SubmitEvent): Promise<void>{
 
     try {
         registerButton.disabled = true;
-        currentUser = await registerUser(username, password);
+        await registerUser(username, password);
+        currentUser = await getCurrentUser();
     } catch (error) {
         if(error instanceof Error)
             registerError.textContent = error.message;
