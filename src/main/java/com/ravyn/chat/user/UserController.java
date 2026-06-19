@@ -29,7 +29,7 @@ public class UserController {
     }
 
     @GetMapping("/search")
-    public UserSummary findUserByUsername(@RequestParam String username){
+    public ChatUserResponse findUserByUsername(@RequestParam String username){
         return userService.findUserByUsername(username);
     }
 }

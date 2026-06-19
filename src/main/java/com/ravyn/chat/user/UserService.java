@@ -1,9 +1,6 @@
 package com.ravyn.chat.user;
 
-import com.ravyn.chat.exception.InvalidCredentialsException;
-import com.ravyn.chat.exception.UserNotFoundException;
-import com.ravyn.chat.exception.UsernameNotFoundException;
-import com.ravyn.chat.exception.UsernameTakenException;
+import com.ravyn.chat.exception.*;
 import com.ravyn.chat.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -14,7 +11,6 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 
 @Service
@@ -64,9 +60,15 @@ public class UserService {
         return new ChatUserResponse(user.getId(), user.getUsername());
     }
 
-    public UserSummary findUserByUsername(String username){
+    public ChatUserResponse findUserByUsername(String username){
         ChatUser user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException(username));
-        return new UserSummary(user.getId(), username);
+        return new ChatUserResponse(user.getId(), username);
+    }
+
+    public ChatUserResponse findUserById(Long id){
+        ChatUser user = userRepository.findById(id)
+                .orElseThrow(AuthenticationRequiredException::new);
+        return new ChatUserResponse(user.getId(), user.getUsername());
     }
 }
