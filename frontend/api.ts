@@ -103,3 +103,17 @@ async function parseApiError(response: Response): Promise<ApiError> {
     }
 }
 
+export async function getCurrentUser(): Promise<User> {
+    const response = await fetch("/auth/me", {
+        method: "GET"
+    });
+
+    if (!response.ok) {
+        const apiError = await parseApiError(response);
+        throw new Error(apiError.message);
+    }
+
+    const currentUser: User = await response.json();
+    return currentUser;
+}
+

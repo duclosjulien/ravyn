@@ -4,7 +4,7 @@ import { MessageRequest, Conversation, StompPayload, User, MessageResponse } fro
 import {
     createConversation,
     findUserByUsername,
-    getConversationsByUserId,
+    getConversationsByUserId, getCurrentUser,
     getMessagesForConversation, registerUser,
     userLogin
 } from './api.js';
@@ -67,7 +67,8 @@ async function connect(event: SubmitEvent): Promise<void> {
 
     try {
         loginButton.disabled = true;
-        currentUser = await userLogin(username, password);
+        await userLogin(username, password);
+        currentUser = await getCurrentUser();
     } catch (error) {
         if(error instanceof Error)
             loginError.textContent = error.message;

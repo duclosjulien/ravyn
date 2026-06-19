@@ -48,4 +48,10 @@ public class GlobalExceptionHandler {
     public ErrorResponse handleUsernameNotFoundException(UsernameNotFoundException exception){
         return new ErrorResponse(exception.getMessage(), ErrorCode.USERNAME_NOT_FOUND);
     }
+
+    @ExceptionHandler(AuthenticationRequiredException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ErrorResponse handleAuthenticationRequiredException(AuthenticationRequiredException exception){
+        return new ErrorResponse(exception.getMessage(), ErrorCode.AUTHENTICATION_REQUIRED);
+    }
 }
