@@ -5,7 +5,6 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ConversationRequest {
-    private Long user1Id;
-    private Long user2Id;
+public class CreateConversationRequest {
+    private Long recipientUserId;
 }

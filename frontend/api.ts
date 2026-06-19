@@ -32,17 +32,15 @@ export async function registerUser(username: string, password: string): Promise<
     return user;
 }
 
-export async function createConversation(user1Id: number, user2Id: number): Promise<number> {
+export async function createConversation(recipientUserId: number): Promise<number> {
     const response = await fetch("/conversations/create", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ user1Id, user2Id })
+        body: JSON.stringify({ recipientUserId })
     });
 
-    if (!response.ok) {
-        const apiError =  await parseApiError(response);
-        throw new Error(apiError.message);
-    }
+    await throwIfApiError(response);
+
     const body: CreateConversationResponse = await response.json();
     return body.id;
 }

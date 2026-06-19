@@ -170,7 +170,6 @@ function formatMessageTime(createdAt: string): string {
 
 async function startConversation(event: MouseEvent): Promise<void> {
     event.preventDefault();
-    if(!currentUser) return;
 
     const recipientUser = await findUserByUsername(recipientUsernameInput.value.trim());
     if(recipientUser == null) {
@@ -179,7 +178,7 @@ async function startConversation(event: MouseEvent): Promise<void> {
     }
 
     try {
-        const conversationId = await createConversation(currentUser.id, recipientUser.id);
+        const conversationId = await createConversation(recipientUser.id);
         recipientError.textContent = ""
         recipientUsernameInput.value = "";
 
