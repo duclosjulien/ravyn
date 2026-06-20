@@ -54,4 +54,10 @@ public class GlobalExceptionHandler {
     public ErrorResponse handleAuthenticationRequiredException(AuthenticationRequiredException exception){
         return new ErrorResponse(exception.getMessage(), ErrorCode.AUTHENTICATION_REQUIRED);
     }
+
+    @ExceptionHandler(ConversationAccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorResponse handleConversationAccessDeniedException(ConversationAccessDeniedException exception){
+        return new ErrorResponse(exception.getMessage(),  ErrorCode.CONVERSATION_ACCESS_DENIED);
+    }
 }

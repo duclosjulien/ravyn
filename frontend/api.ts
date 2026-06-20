@@ -77,10 +77,7 @@ export async function getMessagesForConversation(conversationId: number): Promis
         method: "GET"
     });
 
-    if (!response.ok) {
-        const apiError =  await parseApiError(response);
-        throw new Error(apiError.message);
-    }
+    await throwIfApiError(response);
 
     const messages: MessageResponse[] = await response.json();
     return messages;

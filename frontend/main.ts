@@ -43,7 +43,7 @@ const chatHeaderAvatar = document.querySelector('#chatHeaderAvatar') as HTMLElem
 const chatHeaderTitle = document.querySelector('#chatHeaderTitle') as HTMLElement;
 const chatHeaderStatus = document.querySelector('#chatHeaderStatus') as HTMLElement;
 
-async function enterApp(currentUser: User): Promise<void> {
+async function enterApp(): Promise<void> {
     conversations = await getCurrentUserConversations();
 
     usernamePage.classList.add('hidden');
@@ -79,7 +79,7 @@ async function connect(event: SubmitEvent): Promise<void> {
     } finally {
         loginButton.disabled = false;
     }
-    await enterApp(currentUser);
+    await enterApp();
 }
 
 async function register(event: SubmitEvent): Promise<void>{
@@ -104,7 +104,7 @@ async function register(event: SubmitEvent): Promise<void>{
     } finally {
         registerButton.disabled = false;
     }
-    await enterApp(currentUser);
+    await enterApp();
 }
 
 function onConnected(): void {
@@ -114,7 +114,7 @@ function onConnected(): void {
     connectingElement.classList.add('hidden');
 }
 
-function onError(error: unknown): void {
+function onError(): void {
     connectingElement.textContent = 'Could not connect to WebSocket server.';
     connectingElement.style.color = 'red';
 }

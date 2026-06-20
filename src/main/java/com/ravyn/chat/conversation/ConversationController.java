@@ -34,8 +34,8 @@ public class ConversationController {
         if (authentication == null)
             throw new AuthenticationRequiredException();
 
-        AuthenticatedUser user = (AuthenticatedUser) authentication.getPrincipal();
-        return conversationService.getConversationsForUser(user.id());
+        AuthenticatedUser currentUser = (AuthenticatedUser) authentication.getPrincipal();
+        return conversationService.getConversationsForUser(currentUser.id());
     }
 
 }
