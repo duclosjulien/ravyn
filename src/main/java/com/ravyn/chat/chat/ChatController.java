@@ -2,13 +2,11 @@ package com.ravyn.chat.chat;
 
 import com.ravyn.chat.auth.AuthenticatedUser;
 import com.ravyn.chat.conversation.ConversationService;
-import com.ravyn.chat.message.Message;
 import com.ravyn.chat.message.MessageRequest;
 import com.ravyn.chat.message.MessageResponse;
 import com.ravyn.chat.message.MessageService;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;

@@ -1,5 +1,6 @@
 package com.ravyn.chat.config;
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -15,11 +16,18 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
+
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                        })
+                )
+
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/index.html", "/css/**", "/js/**", "/images/**").permitAll()
                         .requestMatchers("/users/login", "/users/register").permitAll()
                         .requestMatchers("/ws/**").permitAll()
-                        .anyRequest().permitAll()   // TODO: tighten to .authenticated() in the authorization session
+                        .anyRequest().authenticated()
                 );
         return http.build();
     }
