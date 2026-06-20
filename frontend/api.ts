@@ -89,6 +89,7 @@ async function throwIfApiError(response: Response){
     const apiError =  await parseApiError(response);
     throw new Error(apiError.message);
 }
+
 async function parseApiError(response: Response): Promise<ApiError> {
     try {
         const body = await response.json();

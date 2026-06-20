@@ -125,7 +125,7 @@ function sendMessage(event: SubmitEvent): void {
     const messageContent = messageInput.value.trim();
 
     if(messageContent && stompClient && currentUser && currentConversationId != null) {
-        const chatMessage: MessageRequest = {senderId: currentUser.id, conversationId: currentConversationId,  content: messageContent};
+        const chatMessage: MessageRequest = {conversationId: currentConversationId,  content: messageContent};
 
         stompClient.send("/app/chat.send", {}, JSON.stringify(chatMessage));
         messageInput.value = '';

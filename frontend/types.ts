@@ -1,5 +1,4 @@
 export interface MessageRequest {
-    senderId: number;
     conversationId: number;
     content: string;
 }
