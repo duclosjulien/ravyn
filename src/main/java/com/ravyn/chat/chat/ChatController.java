@@ -45,9 +45,4 @@ public class ChatController {
                 chatMessage.getContent());
         messageTemplate.convertAndSend("/topic/conversations/" + conversationId, messageResponse);
     }
-
-    @MessageMapping("/chat.addUser")
-    public void connectUser(@Payload Message message, SimpMessageHeaderAccessor headerAccessor){
-        headerAccessor.getSessionAttributes().put("userId", message.getSenderId());
-    }
 }
