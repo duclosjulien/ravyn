@@ -4,8 +4,10 @@ import { MessageRequest, Conversation, StompPayload, User, MessageResponse } fro
 import {
     createConversation,
     findUserByUsername,
-    getConversationsByUserId, getCurrentUser,
-    getMessagesForConversation, registerUser,
+    getCurrentUser,
+    getCurrentUserConversations,
+    getMessagesForConversation,
+    registerUser,
     userLogin
 } from './api.js';
 
@@ -41,8 +43,8 @@ const chatHeaderAvatar = document.querySelector('#chatHeaderAvatar') as HTMLElem
 const chatHeaderTitle = document.querySelector('#chatHeaderTitle') as HTMLElement;
 const chatHeaderStatus = document.querySelector('#chatHeaderStatus') as HTMLElement;
 
-async function enterApp(currentUser: User): Promise<void> {
-    conversations = await getConversationsByUserId(currentUser.id);
+async function enterApp(): Promise<void> {
+    conversations = await getCurrentUserConversations();
 
     usernamePage.classList.add('hidden');
     registerPage.classList.add('hidden');
@@ -77,7 +79,7 @@ async function connect(event: SubmitEvent): Promise<void> {
     } finally {
         loginButton.disabled = false;
     }
-    await enterApp(currentUser);
+    await enterApp();
 }
 
 async function register(event: SubmitEvent): Promise<void>{
@@ -102,7 +104,7 @@ async function register(event: SubmitEvent): Promise<void>{
     } finally {
         registerButton.disabled = false;
     }
-    await enterApp(currentUser);
+    await enterApp();
 }
 
 function onConnected(): void {
@@ -112,7 +114,7 @@ function onConnected(): void {
     connectingElement.classList.add('hidden');
 }
 
-function onError(error: unknown): void {
+function onError(): void {
     connectingElement.textContent = 'Could not connect to WebSocket server.';
     connectingElement.style.color = 'red';
 }
@@ -123,7 +125,7 @@ function sendMessage(event: SubmitEvent): void {
     const messageContent = messageInput.value.trim();
 
     if(messageContent && stompClient && currentUser && currentConversationId != null) {
-        const chatMessage: MessageRequest = {senderId: currentUser.id, conversationId: currentConversationId,  content: messageContent};
+        const chatMessage: MessageRequest = {conversationId: currentConversationId,  content: messageContent};
 
         stompClient.send("/app/chat.send", {}, JSON.stringify(chatMessage));
         messageInput.value = '';
@@ -168,7 +170,6 @@ function formatMessageTime(createdAt: string): string {
 
 async function startConversation(event: MouseEvent): Promise<void> {
     event.preventDefault();
-    if(!currentUser) return;
 
     const recipientUser = await findUserByUsername(recipientUsernameInput.value.trim());
     if(recipientUser == null) {
@@ -177,7 +178,7 @@ async function startConversation(event: MouseEvent): Promise<void> {
     }
 
     try {
-        const conversationId = await createConversation(currentUser.id, recipientUser.id);
+        const conversationId = await createConversation(recipientUser.id);
         recipientError.textContent = ""
         recipientUsernameInput.value = "";
 

@@ -1,7 +1,7 @@
 import {User, Conversation, UserSummary, MessageResponse, ApiError, CreateConversationResponse} from './types';
 
 export async function userLogin(username: string, password: string): Promise<User> {
-    const response = await fetch("/users/login", {
+    const response = await fetch("/auth/login", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({ username, password })
@@ -17,7 +17,7 @@ export async function userLogin(username: string, password: string): Promise<Use
 }
 
 export async function registerUser(username: string, password: string): Promise<User> {
-    const response = await fetch("/users/register", {
+    const response = await fetch("/auth/register", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({ username, password })
@@ -32,30 +32,25 @@ export async function registerUser(username: string, password: string): Promise<
     return user;
 }
 
-export async function createConversation(user1Id: number, user2Id: number): Promise<number> {
+export async function createConversation(recipientUserId: number): Promise<number> {
     const response = await fetch("/conversations/create", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ user1Id, user2Id })
+        body: JSON.stringify({ recipientUserId })
     });
 
-    if (!response.ok) {
-        const apiError =  await parseApiError(response);
-        throw new Error(apiError.message);
-    }
+    await throwIfApiError(response);
+
     const body: CreateConversationResponse = await response.json();
     return body.id;
 }
 
-export async function getConversationsByUserId(userId: number) : Promise<Conversation[]>{
-    const response = await fetch(`/conversations/user/${userId}`, {
+export async function getCurrentUserConversations() : Promise<Conversation[]>{
+    const response = await fetch("/conversations/me", {
         method: "GET"
     });
 
-    if (!response.ok) {
-        const apiError =  await parseApiError(response);
-        throw new Error(apiError.message);
-    }
+    await throwIfApiError(response);
 
     const conversations: Conversation[] = await response.json();
     return conversations;
@@ -82,13 +77,17 @@ export async function getMessagesForConversation(conversationId: number): Promis
         method: "GET"
     });
 
-    if (!response.ok) {
-        const apiError =  await parseApiError(response);
-        throw new Error(apiError.message);
-    }
+    await throwIfApiError(response);
 
     const messages: MessageResponse[] = await response.json();
     return messages;
+}
+
+async function throwIfApiError(response: Response){
+    if (response.ok) return;
+
+    const apiError =  await parseApiError(response);
+    throw new Error(apiError.message);
 }
 
 async function parseApiError(response: Response): Promise<ApiError> {

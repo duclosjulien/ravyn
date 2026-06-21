@@ -1,6 +1,7 @@
 package com.ravyn.chat.message;
 
 import com.ravyn.chat.conversation.Conversation;
+import com.ravyn.chat.exception.ConversationAccessDeniedException;
 import com.ravyn.chat.exception.ConversationNotFoundException;
 import com.ravyn.chat.exception.DataIntegrityException;
 import com.ravyn.chat.repository.ConversationRepository;
@@ -34,8 +35,13 @@ public class MessageService {
         return new MessageResponse(message.getId(), message.getConversationId(), message.getSenderId(), sender.getUsername(), messageContent, message.getCreatedAt());
     }
 
-    public List<MessageResponse> getMessagesForConversation(Long conversationId){
+    public List<MessageResponse> getMessagesForConversation(Long conversationId, Long currentUserId){
         Conversation conversation = getConversationOrThrow(conversationId);
+
+        if (!Objects.equals(conversation.getUser1Id(), currentUserId)
+                && !Objects.equals(conversation.getUser2Id(), currentUserId)) {
+            throw new ConversationAccessDeniedException(conversationId);
+        }
 
         Map<Long, String> usernameByUserId = buildUsernameMap(conversation);
         List<Message> messageList = messageRepository.findByConversationIdOrderByCreatedAtAsc(conversationId);

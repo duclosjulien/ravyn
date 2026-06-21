@@ -1,5 +1,8 @@
 package com.ravyn.chat.conversation;
 
+import com.ravyn.chat.auth.AuthenticatedUser;
+import com.ravyn.chat.exception.AuthenticationRequiredException;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,17 +17,25 @@ public class ConversationController {
     }
 
     @PostMapping("/create")
-    public CreateConversationResponse getConversationOrCreateConversation(@RequestBody ConversationRequest request) {
+    public CreateConversationResponse createOrGetConversation(@RequestBody CreateConversationRequest request, Authentication authentication) {
+        if (authentication == null)
+            throw new AuthenticationRequiredException();
+
+        AuthenticatedUser currentUser = (AuthenticatedUser) authentication.getPrincipal();
         Conversation conversation = conversationService.getOrCreateConversation(
-                request.getUser1Id(),
-                request.getUser2Id());
+                request.getRecipientUserId(),
+                currentUser.id());
 
         return new CreateConversationResponse(conversation.getId());
     }
 
-    @GetMapping("/user/{userId}")
-    public List<ConversationResponse> getConversationsById(@PathVariable Long userId){
-       return conversationService.getConversationsForUser(userId);
+    @GetMapping("/me")
+    public List<ConversationResponse> getCurrentUserConversations(Authentication authentication){
+        if (authentication == null)
+            throw new AuthenticationRequiredException();
+
+        AuthenticatedUser currentUser = (AuthenticatedUser) authentication.getPrincipal();
+        return conversationService.getConversationsForUser(currentUser.id());
     }
 
 }
