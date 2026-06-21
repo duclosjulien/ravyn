@@ -1,6 +1,5 @@
 package com.ravyn.chat.conversation;
 
-import com.ravyn.chat.exception.DataIntegrityException;
 import com.ravyn.chat.exception.SelfConversationException;
 import com.ravyn.chat.exception.UserNotFoundException;
 import com.ravyn.chat.repository.ConversationRepository;
@@ -42,12 +41,12 @@ public class ConversationService {
     }
 
     public boolean validateUserInConversation(Long userId, Long conversationId){
-      Optional<Conversation> conversation = conversationRepository.findById(conversationId);
+        Optional<Conversation> conversation = conversationRepository.findById(conversationId);
 
-      if(conversation.isEmpty())
-          return false;
+        if(conversation.isEmpty())
+              return false;
 
-      return isParticipant(conversation.get(), userId);
+         return isParticipant(conversation.get(), userId);
     }
 
     private boolean isParticipant(Conversation conversation, Long userId){
@@ -56,9 +55,7 @@ public class ConversationService {
 
     public List<ConversationResponse> getConversationsForUser(Long userId){
         List<Conversation> conversations = getConversationsByUserId(userId);
-
         Set<Long> otherUserIds = collectOtherUserIds(conversations, userId);
-
         Map<Long, String> usernameByUserId = buildUsernameMap(otherUserIds);
 
         return toConversationResponses(usernameByUserId, conversations, userId);

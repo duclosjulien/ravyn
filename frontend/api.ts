@@ -1,7 +1,7 @@
 import {User, Conversation, UserSummary, MessageResponse, ApiError, CreateConversationResponse} from './types';
 
 export async function userLogin(username: string, password: string): Promise<User> {
-    const response = await fetch("/users/login", {
+    const response = await fetch("/auth/login", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({ username, password })
@@ -17,7 +17,7 @@ export async function userLogin(username: string, password: string): Promise<Use
 }
 
 export async function registerUser(username: string, password: string): Promise<User> {
-    const response = await fetch("/users/register", {
+    const response = await fetch("/auth/register", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({ username, password })
