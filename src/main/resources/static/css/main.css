@@ -559,28 +559,41 @@ button:disabled {
     margin-top: 16px;
 }
 
+#messageForm .form-group {
+    margin-bottom: 0;
+}
+
 .input-group {
     display: flex;
-    gap: 8px;
-}
-
-#message {
-    flex: 1;
-    min-height: 44px;
-    padding: 12px 14px;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
     border: 1px solid var(--color-border);
-    border-radius: 12px;
+    border-radius: 18px;
     background: var(--color-input-bg);
-    font-size: 15px;
 }
 
-#message:focus {
+.input-group:focus-within {
     border-color: var(--color-accent);
     box-shadow: 0 0 0 3px var(--color-focus-shadow);
 }
 
+#message {
+    flex: 1;
+    min-height: 40px;
+    padding: 8px 10px;
+    border: none;
+    border-radius: 12px;
+    background: transparent;
+    font-size: 15px;
+}
+
+#message:focus {
+    box-shadow: none;
+}
+
 #messageForm button {
-    min-height: 44px;
+    min-height: 40px;
     padding: 0 18px;
     border-radius: 12px;
     background: var(--color-action);
