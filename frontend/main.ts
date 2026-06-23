@@ -27,6 +27,7 @@ const usernameForm = document.querySelector('#usernameForm') as HTMLFormElement;
 const registerForm = document.querySelector('#registerForm') as HTMLFormElement;
 const messageForm = document.querySelector('#messageForm') as HTMLFormElement;
 const messageInput = document.querySelector('#message') as HTMLInputElement;
+const sendMessageButton = document.querySelector('#messageForm button') as HTMLButtonElement;
 const messageArea = document.querySelector('#messageArea') as HTMLElement;
 const connectingElement = document.querySelector('.connecting') as HTMLElement;
 const recipientUsernameInput = document.querySelector('#recipientUsername') as HTMLInputElement;
@@ -49,6 +50,7 @@ async function enterApp(): Promise<void> {
     usernamePage.classList.add('hidden');
     registerPage.classList.add('hidden');
     chatPage.classList.remove('hidden');
+    updateComposerState();
 
     startConversationButton.addEventListener('click', startConversation);
     renderConversations();
@@ -246,6 +248,8 @@ async function selectConversation(conversationId: number, otherUsername: string)
     const selectedConversationId = conversationId;
     currentConversationId = selectedConversationId;
 
+    updateComposerState();
+
     chatHeaderAvatar.textContent = otherUsername.charAt(0).toUpperCase();
     chatHeaderTitle.textContent = otherUsername;
     chatHeaderStatus.textContent = "Online";
@@ -267,6 +271,17 @@ async function selectConversation(conversationId: number, otherUsername: string)
     } catch (error) {
         console.error("Failed to load message history", error);
     }
+}
+
+function updateComposerState(): void {
+    const hasSelectedConversation = currentConversationId !== null;
+
+    messageInput.disabled = !hasSelectedConversation;
+    sendMessageButton.disabled = !hasSelectedConversation;
+
+    messageInput.placeholder = hasSelectedConversation
+        ? 'Write something thoughtful...'
+        : 'Select a conversation to start messaging';
 }
 
 usernameForm.addEventListener('submit', connect, true);
