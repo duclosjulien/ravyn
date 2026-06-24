@@ -10,6 +10,7 @@ import com.ravyn.chat.repository.UserRepository;
 import com.ravyn.chat.user.ChatUser;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.*;
 
 @Service

@@ -185,7 +185,13 @@ async function startConversation(event: MouseEvent): Promise<void> {
         recipientUsernameInput.value = "";
 
         if(!conversations.some(c => c.id === conversationId)){
-            conversations.push({ id: conversationId, otherUserId: recipientUser.id, otherUsername: recipientUser.username});
+            conversations.push({
+                id: conversationId,
+                otherUserId: recipientUser.id,
+                otherUsername: recipientUser.username,
+                lastMessageContent: null,
+                lastMessageCreatedAt: null
+            });
             renderConversations();
         }
         await selectConversation(conversationId, recipientUser.username);
@@ -222,7 +228,7 @@ function createConversationButton(conversation: Conversation): void{
 
     const previewElement = document.createElement('div');
     previewElement.classList.add('conversation-preview');
-    previewElement.textContent = 'No messages yet';
+    previewElement.textContent = conversation.lastMessageContent ?? 'No messages yet';
 
     textContainer.appendChild(nameElement);
     textContainer.appendChild(previewElement);

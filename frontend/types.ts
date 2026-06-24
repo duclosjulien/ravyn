@@ -16,6 +16,8 @@ export interface Conversation {
     id: number;
     otherUserId: number;
     otherUsername: string;
+    lastMessageContent: string | null;
+    lastMessageCreatedAt: string | null;
 }
 
 export interface UserSummary {

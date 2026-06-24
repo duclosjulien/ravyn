@@ -2,7 +2,9 @@ package com.ravyn.chat.conversation;
 
 import com.ravyn.chat.exception.SelfConversationException;
 import com.ravyn.chat.exception.UserNotFoundException;
+import com.ravyn.chat.message.Message;
 import com.ravyn.chat.repository.ConversationRepository;
+import com.ravyn.chat.repository.MessageRepository;
 import com.ravyn.chat.repository.UserRepository;
 import com.ravyn.chat.user.ChatUser;
 import org.springframework.stereotype.Service;
@@ -14,10 +16,12 @@ public class ConversationService {
 
     private final ConversationRepository conversationRepository;
     private final UserRepository userRepository;
+    private final MessageRepository messageRepository;
 
-    public ConversationService(ConversationRepository conversationRepository, UserRepository userRepository) {
+    public ConversationService(ConversationRepository conversationRepository, UserRepository userRepository, MessageRepository messageRepository) {
         this.conversationRepository = conversationRepository;
         this.userRepository = userRepository;
+        this.messageRepository = messageRepository;
     }
 
     public Conversation getOrCreateConversation(Long user1Id, Long user2Id) {
@@ -72,7 +76,14 @@ public class ConversationService {
             if (otherUsername == null)
                 continue;
 
-            conversationResponses.add(new ConversationResponse(conversationId, otherUserId, otherUsername));
+            Optional<Message> lastMessage =
+                    messageRepository.findFirstByConversationIdOrderByCreatedAtDesc(conversationId);
+
+            conversationResponses.add(new ConversationResponse(conversationId,
+                    otherUserId,
+                    otherUsername,
+                    lastMessage.map(Message::getContent).orElse(null),
+                    lastMessage.map(Message::getCreatedAt).orElse(null)));
         }
 
         return conversationResponses;
