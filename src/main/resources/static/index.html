@@ -92,17 +92,19 @@
             </button>
 
             <div id="recipientError"></div>
-
+            <div class="conversation-section-label">Conversations</div>
             <div id="conversationList"></div>
         </aside>
 
         <main class="chat-panel">
             <header class="chat-header">
-                <div class="chat-header-avatar" id="chatHeaderAvatar">?</div>
+                <div class="chat-header-avatar chat-header-avatar--brand" id="chatHeaderAvatar">
+                    <img src="/images/ravyn_icon_only.png" alt="" />
+                </div>
 
                 <div class="chat-header-text">
                     <h2 id="chatHeaderTitle">Ravyn</h2>
-                    <p id="chatHeaderStatus">Offline</p>
+                    <p id="chatHeaderStatus">Private messages</p>
                 </div>
             </header>
 
@@ -120,8 +122,13 @@
             <form id="messageForm" name="messageForm">
                 <div class="form-group">
                     <div class="input-group clearfix">
-                        <input type="text" id="message" placeholder="Type a message..." autocomplete="off" class="form-control"/>
-                        <button type="submit" class="primary">Send</button>
+                        <input
+                                type="text"
+                                id="message"
+                                placeholder="Write something thoughtful..."
+                                autocomplete="off"
+                        />
+                        <button type="submit">Send</button>
                     </div>
                 </div>
             </form>

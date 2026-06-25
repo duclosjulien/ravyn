@@ -1,10 +1,14 @@
 package com.ravyn.chat.conversation;
 
+import com.ravyn.chat.exception.DataIntegrityException;
 import com.ravyn.chat.exception.SelfConversationException;
 import com.ravyn.chat.exception.UserNotFoundException;
+import com.ravyn.chat.message.Message;
 import com.ravyn.chat.repository.ConversationRepository;
+import com.ravyn.chat.repository.MessageRepository;
 import com.ravyn.chat.repository.UserRepository;
 import com.ravyn.chat.user.ChatUser;
+import com.ravyn.chat.user.UserService;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -14,26 +18,41 @@ public class ConversationService {
 
     private final ConversationRepository conversationRepository;
     private final UserRepository userRepository;
+    private final MessageRepository messageRepository;
+    private final UserService userService;
 
-    public ConversationService(ConversationRepository conversationRepository, UserRepository userRepository) {
+    public ConversationService(ConversationRepository conversationRepository, UserRepository userRepository, MessageRepository messageRepository, UserService userService) {
         this.conversationRepository = conversationRepository;
         this.userRepository = userRepository;
+        this.messageRepository = messageRepository;
+        this.userService = userService;
     }
 
-    public Conversation getOrCreateConversation(Long user1Id, Long user2Id) {
-        if(Objects.equals(user1Id, user2Id))
+    public Conversation getConversation(Long conversationId) {
+        return conversationRepository.findById(conversationId)
+                .orElseThrow(DataIntegrityException::new);
+    }
+    public ConversationResponse getOrCreateConversation(Long currentUserId, Long otherUserId) {
+        if(Objects.equals(currentUserId, otherUserId))
             throw new SelfConversationException();
 
-        if (!userRepository.existsById(user1Id))
-            throw new UserNotFoundException(user1Id);
-        if (!userRepository.existsById(user2Id))
-            throw new UserNotFoundException(user2Id);
+        if (!userRepository.existsById(currentUserId))
+            throw new UserNotFoundException(currentUserId);
+        if (!userRepository.existsById(otherUserId))
+            throw new UserNotFoundException(otherUserId);
 
-        Long participantAId = Math.min(user1Id, user2Id);
-        Long participantBId = Math.max(user1Id, user2Id);
+        Long participantAId = Math.min(currentUserId, otherUserId);
+        Long participantBId = Math.max(currentUserId, otherUserId);
 
-        return conversationRepository.findByUser1IdAndUser2Id(participantAId, participantBId)
+        Conversation conversation = conversationRepository.findByUser1IdAndUser2Id(participantAId, participantBId)
                 .orElseGet(() -> createConversation(participantAId, participantBId));
+
+        return new ConversationResponse(
+                conversation.getId(),
+                otherUserId,
+                userService.findUserById(otherUserId).getUsername(),
+                null,
+                null);
     }
 
     private Conversation createConversation(Long participantAId, Long participantBId){
@@ -72,11 +91,19 @@ public class ConversationService {
             if (otherUsername == null)
                 continue;
 
-            conversationResponses.add(new ConversationResponse(conversationId, otherUserId, otherUsername));
+            Optional<Message> lastMessage =
+                    messageRepository.findFirstByConversationIdOrderByCreatedAtDesc(conversationId);
+
+            conversationResponses.add(new ConversationResponse(conversationId,
+                    otherUserId,
+                    otherUsername,
+                    lastMessage.map(Message::getContent).orElse(null),
+                    lastMessage.map(Message::getCreatedAt).orElse(null)));
         }
 
         return conversationResponses;
     }
+
 
     private Map<Long, String> buildUsernameMap(Set<Long> userIds){
         Iterable<ChatUser> users = userRepository.findAllById(userIds);
@@ -103,5 +130,14 @@ public class ConversationService {
 
     private List<Conversation> getConversationsByUserId(Long userId){
         return conversationRepository.findByUser1IdOrUser2Id(userId, userId);
+    }
+
+    public List<Long> getParticipantIds(Long conversationId){
+        Conversation conversation = conversationRepository.findById(conversationId).
+                orElseThrow(DataIntegrityException::new);
+        List<Long> participantIds = new ArrayList<>();
+        participantIds.add(conversation.getUser1Id());
+        participantIds.add(conversation.getUser2Id());
+        return participantIds;
     }
 }

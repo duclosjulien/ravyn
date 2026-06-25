@@ -18,7 +18,7 @@ let stompClient: any = null;
 let currentUser: User | null = null;
 let currentConversationId: number | null = null;
 let conversations: Conversation[] = [];
-let currentSubscription: any = null;
+let inboxSubscription: any = null;
 
 const usernamePage = document.querySelector('#username-page') as HTMLElement;
 const registerPage = document.querySelector('#register-page') as HTMLElement;
@@ -27,6 +27,7 @@ const usernameForm = document.querySelector('#usernameForm') as HTMLFormElement;
 const registerForm = document.querySelector('#registerForm') as HTMLFormElement;
 const messageForm = document.querySelector('#messageForm') as HTMLFormElement;
 const messageInput = document.querySelector('#message') as HTMLInputElement;
+const sendMessageButton = document.querySelector('#messageForm button') as HTMLButtonElement;
 const messageArea = document.querySelector('#messageArea') as HTMLElement;
 const connectingElement = document.querySelector('.connecting') as HTMLElement;
 const recipientUsernameInput = document.querySelector('#recipientUsername') as HTMLInputElement;
@@ -49,6 +50,7 @@ async function enterApp(): Promise<void> {
     usernamePage.classList.add('hidden');
     registerPage.classList.add('hidden');
     chatPage.classList.remove('hidden');
+    updateComposerState();
 
     startConversationButton.addEventListener('click', startConversation);
     renderConversations();
@@ -112,6 +114,11 @@ function onConnected(): void {
         return;
 
     connectingElement.classList.add('hidden');
+
+    if (inboxSubscription !== null)
+        inboxSubscription.unsubscribe();
+
+    inboxSubscription = stompClient.subscribe('/user/queue/messages', onMessageReceived);
 }
 
 function onError(): void {
@@ -134,7 +141,24 @@ function sendMessage(event: SubmitEvent): void {
 
 function onMessageReceived(payload: StompPayload): void {
     const message: MessageResponse = JSON.parse(payload.body);
-    renderMessage(message);
+    updateConversationPreview(message);
+
+    if (message.conversationId === currentConversationId)
+        renderMessage(message);
+}
+
+function updateConversationPreview(message: MessageResponse): void {
+    const conversation = conversations.find(
+        conversation => conversation.id === message.conversationId
+    );
+
+    if (!conversation)
+        return;
+
+    conversation.lastMessageContent = message.content;
+    conversation.lastMessageCreatedAt = message.createdAt;
+
+    renderConversations();
 }
 
 function renderMessage(message: MessageResponse): void {
@@ -183,7 +207,13 @@ async function startConversation(event: MouseEvent): Promise<void> {
         recipientUsernameInput.value = "";
 
         if(!conversations.some(c => c.id === conversationId)){
-            conversations.push({ id: conversationId, otherUserId: recipientUser.id, otherUsername: recipientUser.username});
+            conversations.push({
+                id: conversationId,
+                otherUserId: recipientUser.id,
+                otherUsername: recipientUser.username,
+                lastMessageContent: null,
+                lastMessageCreatedAt: null
+            });
             renderConversations();
         }
         await selectConversation(conversationId, recipientUser.username);
@@ -220,7 +250,7 @@ function createConversationButton(conversation: Conversation): void{
 
     const previewElement = document.createElement('div');
     previewElement.classList.add('conversation-preview');
-    previewElement.textContent = 'No messages yet';
+    previewElement.textContent = conversation.lastMessageContent ?? 'No messages yet';
 
     textContainer.appendChild(nameElement);
     textContainer.appendChild(previewElement);
@@ -238,13 +268,12 @@ async function selectConversation(conversationId: number, otherUsername: string)
     if (!stompClient)
         return;
 
-    if (currentSubscription !== null)
-        currentSubscription.unsubscribe();
-
     messageArea.textContent = "";
 
     const selectedConversationId = conversationId;
     currentConversationId = selectedConversationId;
+
+    updateComposerState();
 
     chatHeaderAvatar.textContent = otherUsername.charAt(0).toUpperCase();
     chatHeaderTitle.textContent = otherUsername;
@@ -252,10 +281,6 @@ async function selectConversation(conversationId: number, otherUsername: string)
 
     renderConversations();
 
-    currentSubscription = stompClient.subscribe(
-        `/topic/conversations/${selectedConversationId}`,
-        onMessageReceived
-    );
     try {
         const previousMessages = await getMessagesForConversation(selectedConversationId);
 
@@ -267,6 +292,17 @@ async function selectConversation(conversationId: number, otherUsername: string)
     } catch (error) {
         console.error("Failed to load message history", error);
     }
+}
+
+function updateComposerState(): void {
+    const hasSelectedConversation = currentConversationId !== null;
+
+    messageInput.disabled = !hasSelectedConversation;
+    sendMessageButton.disabled = !hasSelectedConversation;
+
+    messageInput.placeholder = hasSelectedConversation
+        ? 'Write something thoughtful...'
+        : 'Select a conversation to start messaging';
 }
 
 usernameForm.addEventListener('submit', connect, true);

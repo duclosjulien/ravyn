@@ -17,16 +17,15 @@ public class ConversationController {
     }
 
     @PostMapping("/create")
-    public CreateConversationResponse createOrGetConversation(@RequestBody CreateConversationRequest request, Authentication authentication) {
+    public ConversationResponse createOrGetConversation(@RequestBody CreateConversationRequest request, Authentication authentication) {
         if (authentication == null)
             throw new AuthenticationRequiredException();
 
         AuthenticatedUser currentUser = (AuthenticatedUser) authentication.getPrincipal();
-        Conversation conversation = conversationService.getOrCreateConversation(
-                request.getRecipientUserId(),
-                currentUser.id());
 
-        return new CreateConversationResponse(conversation.getId());
+        return conversationService.getOrCreateConversation(
+                currentUser.id(),
+                request.getRecipientUserId());
     }
 
     @GetMapping("/me")
