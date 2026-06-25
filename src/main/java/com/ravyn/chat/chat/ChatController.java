@@ -12,6 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 
 import java.security.Principal;
+import java.util.List;
 
 @Controller
 public class ChatController {
@@ -41,6 +42,14 @@ public class ChatController {
                 conversationId,
                 senderId,
                 chatMessage.getContent());
-        messageTemplate.convertAndSend("/topic/conversations/" + conversationId, messageResponse);
+
+        List<Long> participantIds = conversationService.getParticipantIds(conversationId);
+        for(Long participantId : participantIds){
+            messageTemplate.convertAndSendToUser(
+                    participantId.toString(),
+                    "/queue/messages",
+                    messageResponse
+            );
+        }
     }
 }

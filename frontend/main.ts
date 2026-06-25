@@ -18,7 +18,7 @@ let stompClient: any = null;
 let currentUser: User | null = null;
 let currentConversationId: number | null = null;
 let conversations: Conversation[] = [];
-let currentSubscription: any = null;
+let inboxSubscription: any = null;
 
 const usernamePage = document.querySelector('#username-page') as HTMLElement;
 const registerPage = document.querySelector('#register-page') as HTMLElement;
@@ -114,6 +114,11 @@ function onConnected(): void {
         return;
 
     connectingElement.classList.add('hidden');
+
+    if (inboxSubscription !== null)
+        inboxSubscription.unsubscribe();
+
+    inboxSubscription = stompClient.subscribe('/user/queue/messages', onMessageReceived);
 }
 
 function onError(): void {
@@ -136,7 +141,24 @@ function sendMessage(event: SubmitEvent): void {
 
 function onMessageReceived(payload: StompPayload): void {
     const message: MessageResponse = JSON.parse(payload.body);
-    renderMessage(message);
+    updateConversationPreview(message);
+
+    if (message.conversationId === currentConversationId)
+        renderMessage(message);
+}
+
+function updateConversationPreview(message: MessageResponse): void {
+    const conversation = conversations.find(
+        conversation => conversation.id === message.conversationId
+    );
+
+    if (!conversation)
+        return;
+
+    conversation.lastMessageContent = message.content;
+    conversation.lastMessageCreatedAt = message.createdAt;
+
+    renderConversations();
 }
 
 function renderMessage(message: MessageResponse): void {
@@ -246,9 +268,6 @@ async function selectConversation(conversationId: number, otherUsername: string)
     if (!stompClient)
         return;
 
-    if (currentSubscription !== null)
-        currentSubscription.unsubscribe();
-
     messageArea.textContent = "";
 
     const selectedConversationId = conversationId;
@@ -262,10 +281,6 @@ async function selectConversation(conversationId: number, otherUsername: string)
 
     renderConversations();
 
-    currentSubscription = stompClient.subscribe(
-        `/topic/conversations/${selectedConversationId}`,
-        onMessageReceived
-    );
     try {
         const previousMessages = await getMessagesForConversation(selectedConversationId);
 
