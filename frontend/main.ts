@@ -206,11 +206,26 @@ function renderMessage(message: MessageResponse): void {
     messageArea.scrollTop = messageArea.scrollHeight;
 }
 
-function formatMessageTime(createdAt: string): string {
-    return new Date(createdAt).toLocaleTimeString([], {
-        hour: '2-digit',
-        minute: '2-digit'
-    });
+function formatMessageTime(createdAt: string | null): string {
+    if(createdAt == null)
+        return '';
+
+    const today = new Date().setHours(0, 0, 0 ,0);
+    const messageDate = new Date(createdAt).setHours(0, 0, 0, 0);
+
+    if(today === messageDate) {
+        return new Date(createdAt).toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+
+    const oneDay = 24 * 60 * 60 * 1000
+    if(today === messageDate + oneDay){
+        return "Yesterday";
+    }
+
+    return new Date(createdAt).toLocaleDateString();
 }
 
 async function startConversation(event: MouseEvent): Promise<void> {
@@ -273,8 +288,13 @@ function createConversationButton(conversation: Conversation): void{
     previewElement.classList.add('conversation-preview');
     previewElement.textContent = conversation.lastMessageContent ?? 'No messages yet';
 
+    const lastMessageTimeElement = document.createElement('div');
+    lastMessageTimeElement.classList.add('conversation-lastMessageTime');
+    lastMessageTimeElement.textContent = formatMessageTime(conversation.lastMessageCreatedAt);
+
     textContainer.appendChild(nameElement);
     textContainer.appendChild(previewElement);
+    textContainer.appendChild(lastMessageTimeElement);
 
     conversationElement.appendChild(avatarElement);
     conversationElement.appendChild(textContainer);
