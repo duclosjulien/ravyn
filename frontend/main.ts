@@ -46,6 +46,8 @@ const chatHeaderStatus = document.querySelector('#chatHeaderStatus') as HTMLElem
 
 async function enterApp(): Promise<void> {
     conversations = await getCurrentUserConversations();
+    sortConversationList();
+    renderConversations();
 
     usernamePage.classList.add('hidden');
     registerPage.classList.add('hidden');
@@ -53,7 +55,6 @@ async function enterApp(): Promise<void> {
     updateComposerState();
 
     startConversationButton.addEventListener('click', startConversation);
-    renderConversations();
 
     const socket = new SockJS('/ws');
     stompClient = Stomp.over(socket);
@@ -141,6 +142,7 @@ function sendMessage(event: SubmitEvent): void {
 
 function onMessageReceived(payload: StompPayload): void {
     const message: MessageResponse = JSON.parse(payload.body);
+
     updateConversationPreview(message);
 
     if (message.conversationId === currentConversationId)
@@ -158,7 +160,26 @@ function updateConversationPreview(message: MessageResponse): void {
     conversation.lastMessageContent = message.content;
     conversation.lastMessageCreatedAt = message.createdAt;
 
+    sortConversationList();
     renderConversations();
+}
+
+function sortConversationList(): void {
+    conversations.sort((a, b) => {
+        const aTime = a.lastMessageCreatedAt;
+        const bTime = b.lastMessageCreatedAt;
+
+        if (aTime == null && bTime == null)
+            return 0;
+
+        if (aTime == null)
+            return 1;
+
+        if (bTime == null)
+            return -1;
+
+        return bTime.localeCompare(aTime);
+    });
 }
 
 function renderMessage(message: MessageResponse): void {
@@ -286,7 +307,6 @@ async function selectConversation(conversationId: number, otherUsername: string)
 
         if (currentConversationId !== selectedConversationId)
             return;
-        console.log("printing previous messages");
 
         previousMessages.forEach(renderMessage);
     } catch (error) {
