@@ -2,7 +2,6 @@ package com.ravyn.chat.message;
 
 import com.ravyn.chat.conversation.Conversation;
 import com.ravyn.chat.conversation.ConversationService;
-import com.ravyn.chat.exception.ConversationAccessDeniedException;
 import com.ravyn.chat.exception.DataIntegrityException;
 import com.ravyn.chat.repository.MessageRepository;
 import com.ravyn.chat.repository.UserRepository;
@@ -28,12 +27,10 @@ public class MessageService {
         if (messageContent == null || messageContent.isBlank())
             throw new IllegalArgumentException("Message content cannot be blank");
 
-        Conversation conversation = conversationService.getConversationOrThrow(conversationId);
-        if (!conversationService.validateUserInConversation(senderId, conversation.getId()))
-            throw new ConversationAccessDeniedException(conversation.getId());
+        Conversation conversation = conversationService.getConversationForUserOrThrow(conversationId, senderId);
 
         ChatUser sender = getUserOrThrow(senderId);
-        Message message = messageRepository.save(new Message(conversationId, senderId, messageContent));
+        Message message = messageRepository.save(new Message(conversation.getId(), senderId, messageContent));
 
         return new MessageResponse(
                 message.getId(),
@@ -46,12 +43,7 @@ public class MessageService {
     }
 
     public List<MessageResponse> getMessagesForConversation(Long conversationId, Long currentUserId){
-        Conversation conversation = conversationService.getConversationOrThrow(conversationId);
-
-        if (!Objects.equals(conversation.getUser1Id(), currentUserId)
-                && !Objects.equals(conversation.getUser2Id(), currentUserId)) {
-            throw new ConversationAccessDeniedException(conversationId);
-        }
+        Conversation conversation = conversationService.getConversationForUserOrThrow(conversationId, currentUserId);
 
         Map<Long, String> usernameByUserId = buildUsernameMap(conversation);
         List<Message> messageList = messageRepository.findByConversationIdOrderByCreatedAtAsc(conversationId);

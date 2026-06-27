@@ -1,9 +1,6 @@
 package com.ravyn.chat.conversation;
 
-import com.ravyn.chat.exception.ConversationNotFoundException;
-import com.ravyn.chat.exception.DataIntegrityException;
-import com.ravyn.chat.exception.SelfConversationException;
-import com.ravyn.chat.exception.UserNotFoundException;
+import com.ravyn.chat.exception.*;
 import com.ravyn.chat.message.Message;
 import com.ravyn.chat.repository.ConversationRepository;
 import com.ravyn.chat.repository.MessageRepository;
@@ -83,6 +80,15 @@ public class ConversationService {
         return toConversationResponses(usernameByUserId, conversations, userId);
     }
 
+    public Conversation getConversationForUserOrThrow(Long conversationId, Long userId){
+        Conversation conversation = getConversationOrThrow(conversationId);
+
+        if(!isParticipant(conversation, userId))
+            throw new ConversationAccessDeniedException(conversationId);
+
+        return conversation;
+    }
+
     private List<ConversationResponse> toConversationResponses(Map<Long, String> usernameByUserId, List<Conversation> conversations, Long userId){
         List<ConversationResponse> conversationResponses = new ArrayList<>();
 
@@ -108,7 +114,6 @@ public class ConversationService {
 
         return conversationResponses;
     }
-
 
     private Map<Long, String> buildUsernameMap(Set<Long> userIds){
         Iterable<ChatUser> users = userRepository.findAllById(userIds);
