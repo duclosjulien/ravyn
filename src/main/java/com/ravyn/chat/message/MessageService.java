@@ -1,28 +1,26 @@
 package com.ravyn.chat.message;
 
 import com.ravyn.chat.conversation.Conversation;
+import com.ravyn.chat.conversation.ConversationService;
 import com.ravyn.chat.exception.ConversationAccessDeniedException;
-import com.ravyn.chat.exception.ConversationNotFoundException;
 import com.ravyn.chat.exception.DataIntegrityException;
-import com.ravyn.chat.repository.ConversationRepository;
 import com.ravyn.chat.repository.MessageRepository;
 import com.ravyn.chat.repository.UserRepository;
 import com.ravyn.chat.user.ChatUser;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.util.*;
 
 @Service
 public class MessageService {
     private final MessageRepository messageRepository;
-    private final ConversationRepository conversationRepository;
+    private final ConversationService conversationService;
     private final UserRepository userRepository;
 
 
-    public MessageService(MessageRepository messageRepository, ConversationRepository conversationRepository, UserRepository userRepository) {
+    public MessageService(MessageRepository messageRepository, ConversationService conversationService, UserRepository userRepository) {
         this.messageRepository = messageRepository;
-        this.conversationRepository = conversationRepository;
+        this.conversationService = conversationService;
         this.userRepository = userRepository;
     }
 
@@ -30,14 +28,25 @@ public class MessageService {
         if (messageContent == null || messageContent.isBlank())
             throw new IllegalArgumentException("Message content cannot be blank");
 
-        Message message = messageRepository.save(new Message(conversationId, senderId, messageContent));
-        ChatUser sender = getUserOrThrow(senderId);
+        Conversation conversation = conversationService.getConversationOrThrow(conversationId);
+        if (!conversationService.validateUserInConversation(senderId, conversation.getId()))
+            throw new ConversationAccessDeniedException(conversation.getId());
 
-        return new MessageResponse(message.getId(), message.getConversationId(), message.getSenderId(), sender.getUsername(), messageContent, message.getCreatedAt());
+        ChatUser sender = getUserOrThrow(senderId);
+        Message message = messageRepository.save(new Message(conversationId, senderId, messageContent));
+
+        return new MessageResponse(
+                message.getId(),
+                message.getConversationId(),
+                message.getSenderId(),
+                sender.getUsername(),
+                message.getContent(),
+                message.getCreatedAt()
+        );
     }
 
     public List<MessageResponse> getMessagesForConversation(Long conversationId, Long currentUserId){
-        Conversation conversation = getConversationOrThrow(conversationId);
+        Conversation conversation = conversationService.getConversationOrThrow(conversationId);
 
         if (!Objects.equals(conversation.getUser1Id(), currentUserId)
                 && !Objects.equals(conversation.getUser2Id(), currentUserId)) {
@@ -81,15 +90,6 @@ public class MessageService {
             messageResponseList.add(toMessageResponse(message, usernameByUserId));
 
         return messageResponseList;
-    }
-
-    private Conversation getConversationOrThrow(Long conversationId){
-        Optional<Conversation> conversation = conversationRepository.findById(conversationId);
-
-        if(conversation.isEmpty())
-            throw new ConversationNotFoundException(conversationId);
-
-        return conversation.get();
     }
 
     private MessageResponse toMessageResponse(Message message, Map<Long, String> usernameByUserId) {

@@ -1,5 +1,6 @@
 package com.ravyn.chat.conversation;
 
+import com.ravyn.chat.exception.ConversationNotFoundException;
 import com.ravyn.chat.exception.DataIntegrityException;
 import com.ravyn.chat.exception.SelfConversationException;
 import com.ravyn.chat.exception.UserNotFoundException;
@@ -28,10 +29,11 @@ public class ConversationService {
         this.userService = userService;
     }
 
-    public Conversation getConversation(Long conversationId) {
+    public Conversation getConversationOrThrow(Long conversationId) {
         return conversationRepository.findById(conversationId)
-                .orElseThrow(DataIntegrityException::new);
+                .orElseThrow(() -> new ConversationNotFoundException(conversationId));
     }
+
     public ConversationResponse getOrCreateConversation(Long currentUserId, Long otherUserId) {
         if(Objects.equals(currentUserId, otherUserId))
             throw new SelfConversationException();
