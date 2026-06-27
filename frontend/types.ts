@@ -18,6 +18,11 @@ export interface Conversation {
     otherUsername: string;
     lastMessageContent: string | null;
     lastMessageCreatedAt: string | null;
+    lastMessageSenderId: number | null;
+}
+
+export interface CreateConversationResponse {
+    id: number;
 }
 
 export interface UserSummary {
@@ -32,10 +37,6 @@ export interface MessageResponse{
     senderUsername: string;
     content: string;
     createdAt: string;
-}
-
-export interface CreateConversationResponse {
-    id: number;
 }
 
 type ErrorCode =
