@@ -11,12 +11,14 @@ public class ConversationResponse {
     private String otherUsername;
     private String lastMessageContent;
     private Instant lastMessageCreatedAt;
+    private Long lastMessageSenderId;
 
-    public ConversationResponse(Long id, Long otherUserId, String otherUsername, String lastMessageContent, Instant lastMessageCreatedAt) {
+    public ConversationResponse(Long id, Long otherUserId, String otherUsername, String lastMessageContent, Instant lastMessageCreatedAt, Long lastMessageSenderId) {
         this.id = id;
         this.otherUserId = otherUserId;
         this.otherUsername = otherUsername;
         this.lastMessageContent = lastMessageContent;
         this.lastMessageCreatedAt = lastMessageCreatedAt;
+        this.lastMessageSenderId = lastMessageSenderId;
     }
 }

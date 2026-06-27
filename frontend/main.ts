@@ -159,6 +159,7 @@ function updateConversationPreview(message: MessageResponse): void {
 
     conversation.lastMessageContent = message.content;
     conversation.lastMessageCreatedAt = message.createdAt;
+    conversation.lastMessageSenderId = message.senderId;
 
     sortConversationList();
     renderConversations();
@@ -206,11 +207,26 @@ function renderMessage(message: MessageResponse): void {
     messageArea.scrollTop = messageArea.scrollHeight;
 }
 
-function formatMessageTime(createdAt: string): string {
-    return new Date(createdAt).toLocaleTimeString([], {
-        hour: '2-digit',
-        minute: '2-digit'
-    });
+function formatMessageTime(createdAt: string | null): string {
+    if(createdAt == null)
+        return '';
+
+    const today = new Date().setHours(0, 0, 0 ,0);
+    const messageDate = new Date(createdAt).setHours(0, 0, 0, 0);
+
+    if(today === messageDate) {
+        return new Date(createdAt).toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+
+    const oneDay = 24 * 60 * 60 * 1000
+    if(today === messageDate + oneDay){
+        return "Yesterday";
+    }
+
+    return new Date(createdAt).toLocaleDateString();
 }
 
 async function startConversation(event: MouseEvent): Promise<void> {
@@ -233,7 +249,8 @@ async function startConversation(event: MouseEvent): Promise<void> {
                 otherUserId: recipientUser.id,
                 otherUsername: recipientUser.username,
                 lastMessageContent: null,
-                lastMessageCreatedAt: null
+                lastMessageCreatedAt: null,
+                lastMessageSenderId: null
             });
             renderConversations();
         }
@@ -271,10 +288,22 @@ function createConversationButton(conversation: Conversation): void{
 
     const previewElement = document.createElement('div');
     previewElement.classList.add('conversation-preview');
-    previewElement.textContent = conversation.lastMessageContent ?? 'No messages yet';
+
+    if (conversation.lastMessageSenderId == null) {
+        previewElement.textContent = "No messages yet";
+    } else if (conversation.lastMessageSenderId === currentUser?.id) {
+        previewElement.textContent = "You: " + conversation.lastMessageContent;
+    } else {
+        previewElement.textContent = conversation.lastMessageContent ?? "No messages yet";
+    }
+
+    const lastMessageTimeElement = document.createElement('div');
+    lastMessageTimeElement.classList.add('conversation-lastMessageTime');
+    lastMessageTimeElement.textContent = formatMessageTime(conversation.lastMessageCreatedAt);
 
     textContainer.appendChild(nameElement);
     textContainer.appendChild(previewElement);
+    textContainer.appendChild(lastMessageTimeElement);
 
     conversationElement.appendChild(avatarElement);
     conversationElement.appendChild(textContainer);

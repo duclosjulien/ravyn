@@ -52,6 +52,7 @@ public class ConversationService {
                 otherUserId,
                 userService.findUserById(otherUserId).getUsername(),
                 null,
+                null,
                 null);
     }
 
@@ -94,11 +95,13 @@ public class ConversationService {
             Optional<Message> lastMessage =
                     messageRepository.findFirstByConversationIdOrderByCreatedAtDesc(conversationId);
 
-            conversationResponses.add(new ConversationResponse(conversationId,
+            conversationResponses.add(new ConversationResponse(
+                    conversationId,
                     otherUserId,
                     otherUsername,
                     lastMessage.map(Message::getContent).orElse(null),
-                    lastMessage.map(Message::getCreatedAt).orElse(null)));
+                    lastMessage.map(Message::getCreatedAt).orElse(null),
+                    userId));
         }
 
         return conversationResponses;
