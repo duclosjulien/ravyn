@@ -17,10 +17,13 @@ public class Message {
 
     @Column(nullable = false)
     private Long conversationId;
+
     @Column(nullable = false)
     private Long senderId;
+
     @Column(nullable = false, length = 2000)
     private String content;
+
     @Column(nullable = false)
     private Instant createdAt;
 
