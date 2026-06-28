@@ -109,7 +109,7 @@ public class ConversationService {
                     otherUsername,
                     lastMessage.map(Message::getContent).orElse(null),
                     lastMessage.map(Message::getCreatedAt).orElse(null),
-                    userId));
+                    lastMessage.map(Message::getSenderId).orElse(null)));
         }
 
         return conversationResponses;

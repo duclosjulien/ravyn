@@ -1,19 +1,22 @@
 package com.ravyn.chat.conversation;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Getter;
 
 @Getter
 @Entity
+@Table(
+        uniqueConstraints = @UniqueConstraint(columnNames = {"user1Id", "user2Id"})
+)
 public class Conversation {
 
     @Id
     @GeneratedValue
     private Long id;
 
+    @Column(nullable = false)
     private Long user1Id;
+    @Column(nullable = false)
     private Long user2Id;
 
     protected Conversation() {}

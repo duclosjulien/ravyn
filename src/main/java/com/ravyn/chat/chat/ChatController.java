@@ -2,6 +2,7 @@ package com.ravyn.chat.chat;
 
 import com.ravyn.chat.auth.AuthenticatedUser;
 import com.ravyn.chat.conversation.ConversationService;
+import com.ravyn.chat.exception.MessageContentTooLongException;
 import com.ravyn.chat.message.MessageRequest;
 import com.ravyn.chat.message.MessageResponse;
 import com.ravyn.chat.message.MessageService;
