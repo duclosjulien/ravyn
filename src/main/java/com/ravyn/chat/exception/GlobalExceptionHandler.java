@@ -66,4 +66,10 @@ public class GlobalExceptionHandler {
     public ErrorResponse handleMessageContentTooLongException(MessageContentTooLongException exception){
         return new ErrorResponse(exception.getMessage(),  ErrorCode.MESSAGE_CONTENT_TOO_LONG);
     }
+
+    @ExceptionHandler(EmptyMessageContentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleEmptyMessageContentException(EmptyMessageContentException exception){
+        return new ErrorResponse(exception.getMessage(),  ErrorCode.EMPTY_MESSAGE_CONTENT);
+    }
 }

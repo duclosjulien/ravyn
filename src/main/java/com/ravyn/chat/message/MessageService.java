@@ -3,6 +3,7 @@ package com.ravyn.chat.message;
 import com.ravyn.chat.conversation.Conversation;
 import com.ravyn.chat.conversation.ConversationService;
 import com.ravyn.chat.exception.DataIntegrityException;
+import com.ravyn.chat.exception.EmptyMessageContentException;
 import com.ravyn.chat.exception.MessageContentTooLongException;
 import com.ravyn.chat.repository.MessageRepository;
 import com.ravyn.chat.repository.UserRepository;
@@ -43,7 +44,7 @@ public class MessageService {
 
     private void validateMessageContent(String messageContent){
         if (messageContent == null || messageContent.isBlank()) {
-            throw new IllegalArgumentException("Message content cannot be blank");
+            throw new EmptyMessageContentException();
         }
         if (messageContent.length() > MAX_MESSAGE_CONTENT_LENGTH) {
             throw new MessageContentTooLongException(MAX_MESSAGE_CONTENT_LENGTH);
