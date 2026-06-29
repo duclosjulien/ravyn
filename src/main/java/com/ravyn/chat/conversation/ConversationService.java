@@ -1,8 +1,6 @@
 package com.ravyn.chat.conversation;
 
-import com.ravyn.chat.exception.DataIntegrityException;
-import com.ravyn.chat.exception.SelfConversationException;
-import com.ravyn.chat.exception.UserNotFoundException;
+import com.ravyn.chat.exception.*;
 import com.ravyn.chat.message.Message;
 import com.ravyn.chat.repository.ConversationRepository;
 import com.ravyn.chat.repository.MessageRepository;
@@ -28,10 +26,11 @@ public class ConversationService {
         this.userService = userService;
     }
 
-    public Conversation getConversation(Long conversationId) {
+    public Conversation getConversationOrThrow(Long conversationId) {
         return conversationRepository.findById(conversationId)
-                .orElseThrow(DataIntegrityException::new);
+                .orElseThrow(() -> new ConversationNotFoundException(conversationId));
     }
+
     public ConversationResponse getOrCreateConversation(Long currentUserId, Long otherUserId) {
         if(Objects.equals(currentUserId, otherUserId))
             throw new SelfConversationException();
@@ -81,6 +80,15 @@ public class ConversationService {
         return toConversationResponses(usernameByUserId, conversations, userId);
     }
 
+    public Conversation getConversationForUserOrThrow(Long conversationId, Long userId){
+        Conversation conversation = getConversationOrThrow(conversationId);
+
+        if(!isParticipant(conversation, userId))
+            throw new ConversationAccessDeniedException(conversationId);
+
+        return conversation;
+    }
+
     private List<ConversationResponse> toConversationResponses(Map<Long, String> usernameByUserId, List<Conversation> conversations, Long userId){
         List<ConversationResponse> conversationResponses = new ArrayList<>();
 
@@ -101,12 +109,11 @@ public class ConversationService {
                     otherUsername,
                     lastMessage.map(Message::getContent).orElse(null),
                     lastMessage.map(Message::getCreatedAt).orElse(null),
-                    userId));
+                    lastMessage.map(Message::getSenderId).orElse(null)));
         }
 
         return conversationResponses;
     }
-
 
     private Map<Long, String> buildUsernameMap(Set<Long> userIds){
         Iterable<ChatUser> users = userRepository.findAllById(userIds);

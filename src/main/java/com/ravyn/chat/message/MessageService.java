@@ -1,51 +1,61 @@
 package com.ravyn.chat.message;
 
 import com.ravyn.chat.conversation.Conversation;
-import com.ravyn.chat.exception.ConversationAccessDeniedException;
-import com.ravyn.chat.exception.ConversationNotFoundException;
+import com.ravyn.chat.conversation.ConversationService;
 import com.ravyn.chat.exception.DataIntegrityException;
-import com.ravyn.chat.repository.ConversationRepository;
+import com.ravyn.chat.exception.EmptyMessageContentException;
+import com.ravyn.chat.exception.MessageContentTooLongException;
 import com.ravyn.chat.repository.MessageRepository;
 import com.ravyn.chat.repository.UserRepository;
 import com.ravyn.chat.user.ChatUser;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.util.*;
 
 @Service
 public class MessageService {
     private final MessageRepository messageRepository;
-    private final ConversationRepository conversationRepository;
+    private final ConversationService conversationService;
     private final UserRepository userRepository;
+    private static final int MAX_MESSAGE_CONTENT_LENGTH = 2000;
 
-
-    public MessageService(MessageRepository messageRepository, ConversationRepository conversationRepository, UserRepository userRepository) {
+    public MessageService(MessageRepository messageRepository, ConversationService conversationService, UserRepository userRepository) {
         this.messageRepository = messageRepository;
-        this.conversationRepository = conversationRepository;
+        this.conversationService = conversationService;
         this.userRepository = userRepository;
     }
 
     public MessageResponse saveMessage(Long conversationId, Long senderId, String messageContent){
-        if (messageContent == null || messageContent.isBlank())
-            throw new IllegalArgumentException("Message content cannot be blank");
+        validateMessageContent(messageContent);
 
-        Message message = messageRepository.save(new Message(conversationId, senderId, messageContent));
+        Conversation conversation = conversationService.getConversationForUserOrThrow(conversationId, senderId);
         ChatUser sender = getUserOrThrow(senderId);
+        Message message = messageRepository.save(new Message(conversation.getId(), senderId, messageContent));
 
-        return new MessageResponse(message.getId(), message.getConversationId(), message.getSenderId(), sender.getUsername(), messageContent, message.getCreatedAt());
+        return new MessageResponse(
+                message.getId(),
+                message.getConversationId(),
+                message.getSenderId(),
+                sender.getUsername(),
+                message.getContent(),
+                message.getCreatedAt()
+        );
+    }
+
+    private void validateMessageContent(String messageContent){
+        if (messageContent == null || messageContent.isBlank()) {
+            throw new EmptyMessageContentException();
+        }
+        if (messageContent.length() > MAX_MESSAGE_CONTENT_LENGTH) {
+            throw new MessageContentTooLongException(MAX_MESSAGE_CONTENT_LENGTH);
+        }
     }
 
     public List<MessageResponse> getMessagesForConversation(Long conversationId, Long currentUserId){
-        Conversation conversation = getConversationOrThrow(conversationId);
-
-        if (!Objects.equals(conversation.getUser1Id(), currentUserId)
-                && !Objects.equals(conversation.getUser2Id(), currentUserId)) {
-            throw new ConversationAccessDeniedException(conversationId);
-        }
+        Conversation conversation = conversationService.getConversationForUserOrThrow(conversationId, currentUserId);
 
         Map<Long, String> usernameByUserId = buildUsernameMap(conversation);
-        List<Message> messageList = messageRepository.findByConversationIdOrderByCreatedAtAsc(conversationId);
+        List<Message> messageList = messageRepository.findByConversationIdOrderByCreatedAtAsc(conversation.getId());
 
         return toMessageResponses(messageList, usernameByUserId);
     }
@@ -68,8 +78,9 @@ public class MessageService {
     private ChatUser getUserOrThrow(Long userId){
         Optional<ChatUser> user = userRepository.findById(userId);
 
-        if(user.isEmpty())
+        if(user.isEmpty()) {
             throw new DataIntegrityException();
+        }
 
         return user.get();
     }
@@ -77,19 +88,10 @@ public class MessageService {
     private List<MessageResponse> toMessageResponses(List<Message> messageList, Map<Long, String> usernameByUserId){
         List<MessageResponse> messageResponseList = new ArrayList<>();
 
-        for(Message message : messageList)
+        for(Message message : messageList) {
             messageResponseList.add(toMessageResponse(message, usernameByUserId));
-
+        }
         return messageResponseList;
-    }
-
-    private Conversation getConversationOrThrow(Long conversationId){
-        Optional<Conversation> conversation = conversationRepository.findById(conversationId);
-
-        if(conversation.isEmpty())
-            throw new ConversationNotFoundException(conversationId);
-
-        return conversation.get();
     }
 
     private MessageResponse toMessageResponse(Message message, Map<Long, String> usernameByUserId) {
