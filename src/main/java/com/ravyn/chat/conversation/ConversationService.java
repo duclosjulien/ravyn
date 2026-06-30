@@ -95,7 +95,7 @@ public class ConversationService {
             if (otherUsername == null)
                 continue;
 
-            Optional<Message> lastMessage = messageRepository.findFirstByConversationIdOrderByCreatedAtDesc(userId);
+            Optional<Message> lastMessage = messageRepository.findFirstByConversationIdOrderByCreatedAtDesc(conversationId);
 
             conversationResponses.add(new ConversationResponse(
                     conversationId,

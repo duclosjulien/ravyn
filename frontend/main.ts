@@ -44,14 +44,22 @@ const chatHeaderAvatar = document.querySelector('#chatHeaderAvatar') as HTMLElem
 const chatHeaderTitle = document.querySelector('#chatHeaderTitle') as HTMLElement;
 const chatHeaderStatus = document.querySelector('#chatHeaderStatus') as HTMLElement;
 
+async function startUp(): Promise<void> {
+    try {
+        currentUser = await getCurrentUser();
+        await enterApp();
+    } catch(error) {
+        showLoginPage();
+    }
+}
+
 async function enterApp(): Promise<void> {
     conversations = await getCurrentUserConversations();
     sortConversationList();
     renderConversations();
 
-    usernamePage.classList.add('hidden');
-    registerPage.classList.add('hidden');
-    chatPage.classList.remove('hidden');
+
+    showChatPage();
     updateComposerState();
 
     startConversationButton.addEventListener('click', startConversation);
@@ -67,6 +75,7 @@ async function connect(event: SubmitEvent): Promise<void> {
 
     const username: string = (document.querySelector('#name') as HTMLInputElement).value.trim();
     const password: string = (document.querySelector('#password') as HTMLInputElement).value;
+
     if(!username || !password)
         return;
 
@@ -74,15 +83,19 @@ async function connect(event: SubmitEvent): Promise<void> {
         loginButton.disabled = true;
         await userLogin(username, password);
         currentUser = await getCurrentUser();
+
     } catch (error) {
         if(error instanceof Error)
             loginError.textContent = error.message;
         console.error(error);
         return;
+
     } finally {
         loginButton.disabled = false;
     }
     await enterApp();
+
+
 }
 
 async function register(event: SubmitEvent): Promise<void>{
@@ -354,15 +367,33 @@ function updateComposerState(): void {
         : 'Select a conversation to start messaging';
 }
 
+function showLoginPage(){
+    registerPage.classList.add('hidden');
+    chatPage.classList.add('hidden');
+    usernamePage.classList.remove("hidden");
+}
+
+function showRegisterPage(){
+    usernamePage.classList.add('hidden');
+    chatPage.classList.add('hidden');
+    registerPage.classList.remove('hidden');
+}
+
+function showChatPage(){
+    usernamePage.classList.add('hidden');
+    registerPage.classList.add('hidden');
+    chatPage.classList.remove('hidden');
+}
+
 usernameForm.addEventListener('submit', connect, true);
 registerForm.addEventListener('submit', register, true);
 messageForm.addEventListener('submit', sendMessage, true);
 
 goToRegister.addEventListener('click', () => {
-    usernamePage.classList.add('hidden');
-    registerPage.classList.remove('hidden');
+    showRegisterPage();
 });
 goToLogin.addEventListener('click', () => {
-    registerPage.classList.add('hidden');
-    usernamePage.classList.remove('hidden');
+    showLoginPage();
 });
+
+startUp();
