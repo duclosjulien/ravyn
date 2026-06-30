@@ -20,6 +20,8 @@ let currentConversationId: number | null = null;
 let conversations: Conversation[] = [];
 let inboxSubscription: any = null;
 
+const bootPage = document.querySelector('#boot-page') as HTMLElement;
+const bootPageMessage = document.querySelector('#boot-page-message') as HTMLElement;
 const usernamePage = document.querySelector('#username-page') as HTMLElement;
 const registerPage = document.querySelector('#register-page') as HTMLElement;
 const chatPage = document.querySelector('#chat-page') as HTMLElement;
@@ -29,7 +31,6 @@ const messageForm = document.querySelector('#messageForm') as HTMLFormElement;
 const messageInput = document.querySelector('#message') as HTMLInputElement;
 const sendMessageButton = document.querySelector('#messageForm button') as HTMLButtonElement;
 const messageArea = document.querySelector('#messageArea') as HTMLElement;
-const connectingElement = document.querySelector('.connecting') as HTMLElement;
 const recipientUsernameInput = document.querySelector('#recipientUsername') as HTMLInputElement;
 const conversationList = document.querySelector('#conversationList') as HTMLElement;
 const startConversationButton = document.querySelector('#startConversationButton') as HTMLButtonElement;
@@ -47,9 +48,15 @@ const chatHeaderStatus = document.querySelector('#chatHeaderStatus') as HTMLElem
 async function startUp(): Promise<void> {
     try {
         currentUser = await getCurrentUser();
-        await enterApp();
     } catch(error) {
         showLoginPage();
+        return;
+    }
+
+    try {
+        await enterApp();
+    } catch(error) {
+        showErrorPage();
     }
 }
 
@@ -61,8 +68,6 @@ async function enterApp(): Promise<void> {
 
     showChatPage();
     updateComposerState();
-
-    startConversationButton.addEventListener('click', startConversation);
 
     const socket = new SockJS('/ws');
     stompClient = Stomp.over(socket);
@@ -93,9 +98,12 @@ async function connect(event: SubmitEvent): Promise<void> {
     } finally {
         loginButton.disabled = false;
     }
-    await enterApp();
 
-
+    try {
+        await enterApp();
+    } catch {
+        showErrorPage();
+    }
 }
 
 async function register(event: SubmitEvent): Promise<void>{
@@ -120,14 +128,17 @@ async function register(event: SubmitEvent): Promise<void>{
     } finally {
         registerButton.disabled = false;
     }
-    await enterApp();
+
+    try {
+        await enterApp();
+    } catch(error){
+        showErrorPage();
+    }
 }
 
 function onConnected(): void {
     if(!stompClient)
         return;
-
-    connectingElement.classList.add('hidden');
 
     if (inboxSubscription !== null)
         inboxSubscription.unsubscribe();
@@ -136,8 +147,7 @@ function onConnected(): void {
 }
 
 function onError(): void {
-    connectingElement.textContent = 'Could not connect to WebSocket server.';
-    connectingElement.style.color = 'red';
+    // TODO: Show a non-blocking WebSocket connection status in the chat UI.}
 }
 
 function sendMessage(event: SubmitEvent): void {
@@ -368,26 +378,47 @@ function updateComposerState(): void {
 }
 
 function showLoginPage(){
+    bootPage.classList.add('hidden');
     registerPage.classList.add('hidden');
     chatPage.classList.add('hidden');
     usernamePage.classList.remove("hidden");
 }
 
 function showRegisterPage(){
+    bootPage.classList.add('hidden');
     usernamePage.classList.add('hidden');
     chatPage.classList.add('hidden');
     registerPage.classList.remove('hidden');
 }
 
 function showChatPage(){
+    bootPage.classList.add('hidden');
     usernamePage.classList.add('hidden');
     registerPage.classList.add('hidden');
     chatPage.classList.remove('hidden');
 }
 
+function showBootPage() {
+    bootPageMessage.textContent = "Loading Ravyn..."
+    usernamePage.classList.add('hidden');
+    registerPage.classList.add('hidden');
+    chatPage.classList.add('hidden');
+    bootPage.classList.remove('hidden');
+}
+
+function showErrorPage() {
+    bootPageMessage.textContent = "Could not load Ravyn. Please refresh.";
+    usernamePage.classList.add('hidden');
+    registerPage.classList.add('hidden');
+    chatPage.classList.add('hidden');
+    bootPage.classList.remove('hidden');
+}
+
+
 usernameForm.addEventListener('submit', connect, true);
 registerForm.addEventListener('submit', register, true);
 messageForm.addEventListener('submit', sendMessage, true);
+startConversationButton.addEventListener('click', startConversation);
 
 goToRegister.addEventListener('click', () => {
     showRegisterPage();

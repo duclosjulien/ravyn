@@ -660,13 +660,6 @@ button:disabled {
    10. Connection Status
    ========================================================= */
 
-.connecting {
-    margin-top: 12px;
-    text-align: center;
-    color: var(--color-text-muted);
-    font-size: 14px;
-}
-
 /* =========================================================
    11. Responsive
    ========================================================= */
