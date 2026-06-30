@@ -2,8 +2,8 @@ package com.ravyn.chat.conversation;
 
 import com.ravyn.chat.exception.*;
 import com.ravyn.chat.message.Message;
-import com.ravyn.chat.message.MessageService;
 import com.ravyn.chat.repository.ConversationRepository;
+import com.ravyn.chat.repository.MessageRepository;
 import com.ravyn.chat.user.ChatUser;
 import com.ravyn.chat.user.UserService;
 import org.springframework.stereotype.Service;
@@ -15,12 +15,12 @@ public class ConversationService {
 
     private final ConversationRepository conversationRepository;
     private final UserService userService;
-    private final MessageService messageService;
+    private final MessageRepository messageRepository;
 
-    public ConversationService(ConversationRepository conversationRepository, UserService userService, MessageService messageService) {
+    public ConversationService(ConversationRepository conversationRepository, UserService userService, MessageRepository messageRepository) {
         this.conversationRepository = conversationRepository;
         this.userService = userService;
-        this.messageService = messageService;
+        this.messageRepository = messageRepository;
     }
 
     public Conversation getConversationOrThrow(Long conversationId) {
@@ -95,7 +95,7 @@ public class ConversationService {
             if (otherUsername == null)
                 continue;
 
-            Optional<Message> lastMessage = messageService.getLastMessageCreatedByConversationId(conversationId);
+            Optional<Message> lastMessage = messageRepository.findFirstByConversationIdOrderByCreatedAtDesc(userId);
 
             conversationResponses.add(new ConversationResponse(
                     conversationId,

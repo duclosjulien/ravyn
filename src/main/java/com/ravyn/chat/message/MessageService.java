@@ -94,10 +94,6 @@ public class MessageService {
         return messageResponseList;
     }
 
-    public Optional<Message> getLastMessageCreatedByConversationId(Long conversationId) {
-        return messageRepository.findFirstByConversationIdOrderByCreatedAtDesc(conversationId);
-    }
-
     private MessageResponse toMessageResponse(Message message, Map<Long, String> usernameByUserId) {
         return new MessageResponse(
                 message.getId(),
