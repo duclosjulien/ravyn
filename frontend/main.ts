@@ -46,6 +46,7 @@ const chatHeaderTitle = document.querySelector('#chatHeaderTitle') as HTMLElemen
 const chatHeaderStatus = document.querySelector('#chatHeaderStatus') as HTMLElement;
 
 async function startUp(): Promise<void> {
+    showBootPage();
     try {
         currentUser = await getCurrentUser();
     } catch(error) {
@@ -56,6 +57,7 @@ async function startUp(): Promise<void> {
     try {
         await enterApp();
     } catch(error) {
+        console.error(error);
         showErrorPage();
     }
 }
@@ -101,7 +103,8 @@ async function connect(event: SubmitEvent): Promise<void> {
 
     try {
         await enterApp();
-    } catch {
+    } catch(error) {
+        console.error(error);
         showErrorPage();
     }
 }
@@ -132,6 +135,7 @@ async function register(event: SubmitEvent): Promise<void>{
     try {
         await enterApp();
     } catch(error){
+        console.error(error);
         showErrorPage();
     }
 }
@@ -147,7 +151,7 @@ function onConnected(): void {
 }
 
 function onError(): void {
-    // TODO: Show a non-blocking WebSocket connection status in the chat UI.}
+    // TODO: Show a non-blocking WebSocket connection status in the chat UI.
 }
 
 function sendMessage(event: SubmitEvent): void {
@@ -377,43 +381,33 @@ function updateComposerState(): void {
         : 'Select a conversation to start messaging';
 }
 
+const allPages = [bootPage, usernamePage, registerPage, chatPage];
+
+function showPage(page: HTMLElement) {
+    allPages.forEach(p => p.classList.toggle('hidden', p !== page));
+}
+
 function showLoginPage(){
-    bootPage.classList.add('hidden');
-    registerPage.classList.add('hidden');
-    chatPage.classList.add('hidden');
-    usernamePage.classList.remove("hidden");
+    showPage(usernamePage);
 }
 
 function showRegisterPage(){
-    bootPage.classList.add('hidden');
-    usernamePage.classList.add('hidden');
-    chatPage.classList.add('hidden');
-    registerPage.classList.remove('hidden');
+    showPage(registerPage);
 }
 
 function showChatPage(){
-    bootPage.classList.add('hidden');
-    usernamePage.classList.add('hidden');
-    registerPage.classList.add('hidden');
-    chatPage.classList.remove('hidden');
+    showPage(chatPage);
 }
 
 function showBootPage() {
     bootPageMessage.textContent = "Loading Ravyn..."
-    usernamePage.classList.add('hidden');
-    registerPage.classList.add('hidden');
-    chatPage.classList.add('hidden');
-    bootPage.classList.remove('hidden');
+    showPage(bootPage);
 }
 
 function showErrorPage() {
     bootPageMessage.textContent = "Could not load Ravyn. Please refresh.";
-    usernamePage.classList.add('hidden');
-    registerPage.classList.add('hidden');
-    chatPage.classList.add('hidden');
-    bootPage.classList.remove('hidden');
+    showPage(bootPage);
 }
-
 
 usernameForm.addEventListener('submit', connect, true);
 registerForm.addEventListener('submit', register, true);
