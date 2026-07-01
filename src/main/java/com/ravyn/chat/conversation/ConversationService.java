@@ -4,7 +4,6 @@ import com.ravyn.chat.exception.*;
 import com.ravyn.chat.message.Message;
 import com.ravyn.chat.repository.ConversationRepository;
 import com.ravyn.chat.repository.MessageRepository;
-import com.ravyn.chat.repository.UserRepository;
 import com.ravyn.chat.user.ChatUser;
 import com.ravyn.chat.user.UserService;
 import org.springframework.stereotype.Service;
@@ -15,15 +14,13 @@ import java.util.*;
 public class ConversationService {
 
     private final ConversationRepository conversationRepository;
-    private final UserRepository userRepository;
-    private final MessageRepository messageRepository;
     private final UserService userService;
+    private final MessageRepository messageRepository;
 
-    public ConversationService(ConversationRepository conversationRepository, UserRepository userRepository, MessageRepository messageRepository, UserService userService) {
+    public ConversationService(ConversationRepository conversationRepository, UserService userService, MessageRepository messageRepository) {
         this.conversationRepository = conversationRepository;
-        this.userRepository = userRepository;
-        this.messageRepository = messageRepository;
         this.userService = userService;
+        this.messageRepository = messageRepository;
     }
 
     public Conversation getConversationOrThrow(Long conversationId) {
@@ -35,10 +32,8 @@ public class ConversationService {
         if(Objects.equals(currentUserId, otherUserId))
             throw new SelfConversationException();
 
-        if (!userRepository.existsById(currentUserId))
-            throw new UserNotFoundException(currentUserId);
-        if (!userRepository.existsById(otherUserId))
-            throw new UserNotFoundException(otherUserId);
+        userService.ensureUserExists(currentUserId);
+        ChatUser otherUser = userService.ensureUserExists(otherUserId);
 
         Long participantAId = Math.min(currentUserId, otherUserId);
         Long participantBId = Math.max(currentUserId, otherUserId);
@@ -48,8 +43,8 @@ public class ConversationService {
 
         return new ConversationResponse(
                 conversation.getId(),
-                otherUserId,
-                userService.findUserById(otherUserId).getUsername(),
+                otherUser.getId(),
+                otherUser.getUsername(),
                 null,
                 null,
                 null);
@@ -100,8 +95,7 @@ public class ConversationService {
             if (otherUsername == null)
                 continue;
 
-            Optional<Message> lastMessage =
-                    messageRepository.findFirstByConversationIdOrderByCreatedAtDesc(conversationId);
+            Optional<Message> lastMessage = messageRepository.findFirstByConversationIdOrderByCreatedAtDesc(conversationId);
 
             conversationResponses.add(new ConversationResponse(
                     conversationId,
@@ -116,7 +110,7 @@ public class ConversationService {
     }
 
     private Map<Long, String> buildUsernameMap(Set<Long> userIds){
-        Iterable<ChatUser> users = userRepository.findAllById(userIds);
+        List<ChatUser> users = userService.findUsersByIds(userIds);
 
         Map<Long, String> usernameByUserId = new HashMap<>();
         for(ChatUser user: users)

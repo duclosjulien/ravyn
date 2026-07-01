@@ -8,7 +8,8 @@ import {
     getCurrentUserConversations,
     getMessagesForConversation,
     registerUser,
-    userLogin
+    userLogin,
+    userLogout
 } from './api.js';
 
 declare var SockJS: any;
@@ -20,6 +21,8 @@ let currentConversationId: number | null = null;
 let conversations: Conversation[] = [];
 let inboxSubscription: any = null;
 
+const bootPage = document.querySelector('#boot-page') as HTMLElement;
+const bootPageMessage = document.querySelector('#boot-page-message') as HTMLElement;
 const usernamePage = document.querySelector('#username-page') as HTMLElement;
 const registerPage = document.querySelector('#register-page') as HTMLElement;
 const chatPage = document.querySelector('#chat-page') as HTMLElement;
@@ -29,7 +32,6 @@ const messageForm = document.querySelector('#messageForm') as HTMLFormElement;
 const messageInput = document.querySelector('#message') as HTMLInputElement;
 const sendMessageButton = document.querySelector('#messageForm button') as HTMLButtonElement;
 const messageArea = document.querySelector('#messageArea') as HTMLElement;
-const connectingElement = document.querySelector('.connecting') as HTMLElement;
 const recipientUsernameInput = document.querySelector('#recipientUsername') as HTMLInputElement;
 const conversationList = document.querySelector('#conversationList') as HTMLElement;
 const startConversationButton = document.querySelector('#startConversationButton') as HTMLButtonElement;
@@ -40,21 +42,36 @@ const loginError = document.querySelector('#loginError') as HTMLElement;
 const registerError = document.querySelector('#registerError') as HTMLElement;
 const registerButton = document.querySelector('#registerButton') as HTMLButtonElement;
 const loginButton = document.querySelector('#loginButton') as HTMLButtonElement;
+const logoutButton = document.querySelector('#logoutButton') as HTMLElement;
 const chatHeaderAvatar = document.querySelector('#chatHeaderAvatar') as HTMLElement;
 const chatHeaderTitle = document.querySelector('#chatHeaderTitle') as HTMLElement;
 const chatHeaderStatus = document.querySelector('#chatHeaderStatus') as HTMLElement;
+
+async function startUp(): Promise<void> {
+    showBootPage();
+    try {
+        currentUser = await getCurrentUser();
+    } catch(error) {
+        showLoginPage();
+        return;
+    }
+
+    try {
+        await enterApp();
+    } catch(error) {
+        console.error(error);
+        showErrorPage();
+    }
+}
 
 async function enterApp(): Promise<void> {
     conversations = await getCurrentUserConversations();
     sortConversationList();
     renderConversations();
 
-    usernamePage.classList.add('hidden');
-    registerPage.classList.add('hidden');
-    chatPage.classList.remove('hidden');
-    updateComposerState();
 
-    startConversationButton.addEventListener('click', startConversation);
+    showChatPage();
+    updateComposerState();
 
     const socket = new SockJS('/ws');
     stompClient = Stomp.over(socket);
@@ -67,6 +84,7 @@ async function connect(event: SubmitEvent): Promise<void> {
 
     const username: string = (document.querySelector('#name') as HTMLInputElement).value.trim();
     const password: string = (document.querySelector('#password') as HTMLInputElement).value;
+
     if(!username || !password)
         return;
 
@@ -74,15 +92,23 @@ async function connect(event: SubmitEvent): Promise<void> {
         loginButton.disabled = true;
         await userLogin(username, password);
         currentUser = await getCurrentUser();
+
     } catch (error) {
         if(error instanceof Error)
             loginError.textContent = error.message;
         console.error(error);
         return;
+
     } finally {
         loginButton.disabled = false;
     }
-    await enterApp();
+
+    try {
+        await enterApp();
+    } catch(error) {
+        console.error(error);
+        showErrorPage();
+    }
 }
 
 async function register(event: SubmitEvent): Promise<void>{
@@ -107,14 +133,18 @@ async function register(event: SubmitEvent): Promise<void>{
     } finally {
         registerButton.disabled = false;
     }
-    await enterApp();
+
+    try {
+        await enterApp();
+    } catch(error){
+        console.error(error);
+        showErrorPage();
+    }
 }
 
 function onConnected(): void {
     if(!stompClient)
         return;
-
-    connectingElement.classList.add('hidden');
 
     if (inboxSubscription !== null)
         inboxSubscription.unsubscribe();
@@ -123,8 +153,7 @@ function onConnected(): void {
 }
 
 function onError(): void {
-    connectingElement.textContent = 'Could not connect to WebSocket server.';
-    connectingElement.style.color = 'red';
+    // TODO: Show a non-blocking WebSocket connection status in the chat UI.
 }
 
 function sendMessage(event: SubmitEvent): void {
@@ -354,15 +383,66 @@ function updateComposerState(): void {
         : 'Select a conversation to start messaging';
 }
 
+const allPages = [bootPage, usernamePage, registerPage, chatPage];
+
+function showPage(page: HTMLElement) {
+    allPages.forEach(p => p.classList.toggle('hidden', p !== page));
+}
+
+function showLoginPage(){
+    showPage(usernamePage);
+}
+
+function showRegisterPage(){
+    showPage(registerPage);
+}
+
+function showChatPage(){
+    showPage(chatPage);
+}
+
+function showBootPage() {
+    bootPageMessage.textContent = "Loading Ravyn..."
+    showPage(bootPage);
+}
+
+function showErrorPage() {
+    bootPageMessage.textContent = "Could not load Ravyn. Please refresh.";
+    showPage(bootPage);
+}
+
+async function logout() {
+    try {
+        await userLogout();
+    } catch(error) {
+        console.error(error);
+    } finally {
+        if (inboxSubscription !== null){
+            inboxSubscription.unsubscribe();
+            inboxSubscription = null;
+        }
+        if (stompClient){
+            stompClient.disconnect();
+            stompClient = null;
+        }
+        showLoginPage();
+    }
+}
+
 usernameForm.addEventListener('submit', connect, true);
 registerForm.addEventListener('submit', register, true);
 messageForm.addEventListener('submit', sendMessage, true);
+startConversationButton.addEventListener('click', startConversation);
 
 goToRegister.addEventListener('click', () => {
-    usernamePage.classList.add('hidden');
-    registerPage.classList.remove('hidden');
+    showRegisterPage();
 });
 goToLogin.addEventListener('click', () => {
-    registerPage.classList.add('hidden');
-    usernamePage.classList.remove('hidden');
+    showLoginPage();
 });
+
+logoutButton.addEventListener('click', () => {
+    logout();
+})
+
+startUp();
