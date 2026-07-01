@@ -8,7 +8,7 @@ import {
     getCurrentUserConversations,
     getMessagesForConversation,
     registerUser,
-    userLogin
+    userLogin, userLogout
 } from './api.js';
 
 declare var SockJS: any;
@@ -41,6 +41,7 @@ const loginError = document.querySelector('#loginError') as HTMLElement;
 const registerError = document.querySelector('#registerError') as HTMLElement;
 const registerButton = document.querySelector('#registerButton') as HTMLButtonElement;
 const loginButton = document.querySelector('#loginButton') as HTMLButtonElement;
+const logoutButton = document.querySelector('#logoutButton') as HTMLElement;
 const chatHeaderAvatar = document.querySelector('#chatHeaderAvatar') as HTMLElement;
 const chatHeaderTitle = document.querySelector('#chatHeaderTitle') as HTMLElement;
 const chatHeaderStatus = document.querySelector('#chatHeaderStatus') as HTMLElement;
@@ -420,5 +421,10 @@ goToRegister.addEventListener('click', () => {
 goToLogin.addEventListener('click', () => {
     showLoginPage();
 });
+
+logoutButton.addEventListener('click', () => {
+    userLogout();
+    showLoginPage();
+})
 
 startUp();

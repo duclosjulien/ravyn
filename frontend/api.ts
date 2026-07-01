@@ -16,6 +16,12 @@ export async function userLogin(username: string, password: string): Promise<Use
     return user;
 }
 
+export async function userLogout() {
+    await fetch("auth/logout", {
+        method: "POST"
+    })
+}
+
 export async function registerUser(username: string, password: string): Promise<User> {
     const response = await fetch("/auth/register", {
         method: "POST",
