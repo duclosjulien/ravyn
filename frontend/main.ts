@@ -8,7 +8,8 @@ import {
     getCurrentUserConversations,
     getMessagesForConversation,
     registerUser,
-    userLogin, userLogout
+    userLogin,
+    userLogout
 } from './api.js';
 
 declare var SockJS: any;
@@ -410,6 +411,24 @@ function showErrorPage() {
     showPage(bootPage);
 }
 
+async function logout() {
+    try {
+        await userLogout();
+    } catch(error) {
+        console.error(error);
+    } finally {
+        if (inboxSubscription !== null){
+            inboxSubscription.unsubscribe();
+            inboxSubscription = null;
+        }
+        if (stompClient){
+            stompClient.disconnect();
+            stompClient = null;
+        }
+        showLoginPage();
+    }
+}
+
 usernameForm.addEventListener('submit', connect, true);
 registerForm.addEventListener('submit', register, true);
 messageForm.addEventListener('submit', sendMessage, true);
@@ -423,8 +442,7 @@ goToLogin.addEventListener('click', () => {
 });
 
 logoutButton.addEventListener('click', () => {
-    userLogout();
-    showLoginPage();
+    logout();
 })
 
 startUp();

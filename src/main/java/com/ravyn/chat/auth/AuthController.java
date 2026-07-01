@@ -4,6 +4,7 @@ import com.ravyn.chat.user.ChatUserResponse;
 import com.ravyn.chat.user.LoginRequest;
 import com.ravyn.chat.user.RegisterRequest;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -35,12 +36,7 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public void logout(HttpServletRequest request){
-        HttpSession session = request.getSession(false);
-        if(session == null){
-            return;
-        }
-        session.invalidate();
-        SecurityContextHolder.clearContext();
+    public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
+        new SecurityContextLogoutHandler().logout(request, response, authentication);
     }
 }

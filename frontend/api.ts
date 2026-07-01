@@ -17,9 +17,14 @@ export async function userLogin(username: string, password: string): Promise<Use
 }
 
 export async function userLogout() {
-    await fetch("auth/logout", {
+    const response = await fetch("/auth/logout", {
         method: "POST"
     })
+
+    if (!response.ok) {
+        const apiError = await parseApiError(response);
+        throw new Error(apiError.message);
+    }
 }
 
 export async function registerUser(username: string, password: string): Promise<User> {
