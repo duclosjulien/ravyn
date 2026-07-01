@@ -6,8 +6,8 @@ import com.ravyn.chat.exception.DataIntegrityException;
 import com.ravyn.chat.exception.EmptyMessageContentException;
 import com.ravyn.chat.exception.MessageContentTooLongException;
 import com.ravyn.chat.repository.MessageRepository;
-import com.ravyn.chat.repository.UserRepository;
 import com.ravyn.chat.user.ChatUser;
+import com.ravyn.chat.user.UserService;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -16,13 +16,13 @@ import java.util.*;
 public class MessageService {
     private final MessageRepository messageRepository;
     private final ConversationService conversationService;
-    private final UserRepository userRepository;
     private static final int MAX_MESSAGE_CONTENT_LENGTH = 2000;
+    private final UserService userService;
 
-    public MessageService(MessageRepository messageRepository, ConversationService conversationService, UserRepository userRepository) {
+    public MessageService(MessageRepository messageRepository, ConversationService conversationService, UserService userService) {
         this.messageRepository = messageRepository;
         this.conversationService = conversationService;
-        this.userRepository = userRepository;
+        this.userService = userService;
     }
 
     public MessageResponse saveMessage(Long conversationId, Long senderId, String messageContent){
@@ -76,7 +76,7 @@ public class MessageService {
     }
 
     private ChatUser getUserOrThrow(Long userId){
-        Optional<ChatUser> user = userRepository.findById(userId);
+        Optional<ChatUser> user = userService.findUserEntityById(userId);
 
         if(user.isEmpty()) {
             throw new DataIntegrityException();
