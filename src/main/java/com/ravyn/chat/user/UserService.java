@@ -46,10 +46,9 @@ public class UserService {
         return new ChatUserResponse(user.getId(), user.getUsername());
     }
 
-    public void ensureUserExists(Long userId){
-        if (userRepository.findById(userId).isEmpty()){
-            throw new UserNotFoundException(userId);
-        }
+    public ChatUser ensureUserExists(Long userId){
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
     }
 
     public List<ChatUser> findUsersByIds(Set<Long> userIds) {
