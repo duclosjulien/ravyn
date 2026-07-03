@@ -1,9 +1,6 @@
 package com.ravyn.chat.message;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Getter;
 
 import java.time.Instant;
@@ -12,19 +9,19 @@ import java.time.Instant;
 @Entity
 public class Message {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(name = "conversation_id", nullable = false)
     private Long conversationId;
 
-    @Column(nullable = false)
+    @Column(name = "sender_id", nullable = false)
     private Long senderId;
 
     @Column(nullable = false, length = 2000)
     private String content;
 
-    @Column(nullable = false)
+    @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
     protected Message(){}
