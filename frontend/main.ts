@@ -442,7 +442,7 @@ goToLogin.addEventListener('click', () => {
 });
 
 logoutButton.addEventListener('click', () => {
-    logout();
-})
+    void logout();
+});
 
 startUp();
