@@ -2,11 +2,11 @@ import { useMemo, useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
-  SafeAreaView,
   StyleSheet,
   Text,
   View
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Composer } from "@/components/Composer";
 import { ConversationList } from "@/components/ConversationList";
@@ -32,7 +32,7 @@ export default function ChatPrototypeScreen() {
     : [];
 
   return (
-    <SafeAreaView style={styles.screen}>
+    <SafeAreaView edges={["top", "bottom"]} style={styles.screen}>
       <KeyboardAvoidingView
         behavior={Platform.select({ ios: "padding", android: undefined })}
         style={styles.shell}

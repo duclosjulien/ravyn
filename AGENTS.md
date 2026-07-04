@@ -10,6 +10,7 @@ It is both:
 2. A learning project for professional backend/full-stack engineering practices.
 
 Agents must treat the project as a serious application, not a throwaway prototype.
+Ravyn is primarily a backend/full-stack learning project. The maintainer does not currently intend to deeply learn mobile development. Mobile UI work may be implemented mostly by agents, as long as it stays presentation-only until backend integration is explicitly planned. Backend integration, authentication, persistence, security, and API design decisions must remain human-reviewed and issue-scoped.
 
 ⸻
 
