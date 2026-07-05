@@ -1,0 +1,28 @@
+services:
+  ravyn:
+    build: .
+    container_name: ravyn
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:17-alpine
+    container_name: ravyn-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - ravyn-postgres-data:/var/lib/postgresql/data
+
+volumes:
+  ravyn-postgres-data:
+
