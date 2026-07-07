@@ -76,8 +76,8 @@ Use this if you want to run the Spring Boot app directly from your machine.
 #### Requirements
 
 - Java 21
-- Local PostgreSQL
-- Maven wrapper included in the project
+- Local PostgreSQL running with the `ravyn` database and matching credentials, 
+or `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, and `SPRING_DATASOURCE_PASSWORD` set explicitly- Maven wrapper included in the project
 
 #### Start
 
