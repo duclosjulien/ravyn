@@ -33,7 +33,7 @@ public class ConversationService {
             throw new SelfConversationException();
 
         userService.ensureUserExists(currentUserId);
-        userService.ensureUserExists(otherUserId);
+        ChatUser otherUser = userService.ensureUserExists(otherUserId);
 
         Long participantAId = Math.min(currentUserId, otherUserId);
         Long participantBId = Math.max(currentUserId, otherUserId);
@@ -43,8 +43,8 @@ public class ConversationService {
 
         return new ConversationResponse(
                 conversation.getId(),
-                otherUserId,
-                userService.findUserById(otherUserId).getUsername(),
+                otherUser.getId(),
+                otherUser.getUsername(),
                 null,
                 null,
                 null);

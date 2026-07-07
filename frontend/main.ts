@@ -8,7 +8,8 @@ import {
     getCurrentUserConversations,
     getMessagesForConversation,
     registerUser,
-    userLogin
+    userLogin,
+    userLogout
 } from './api.js';
 
 declare var SockJS: any;
@@ -41,6 +42,7 @@ const loginError = document.querySelector('#loginError') as HTMLElement;
 const registerError = document.querySelector('#registerError') as HTMLElement;
 const registerButton = document.querySelector('#registerButton') as HTMLButtonElement;
 const loginButton = document.querySelector('#loginButton') as HTMLButtonElement;
+const logoutButton = document.querySelector('#logoutButton') as HTMLElement;
 const chatHeaderAvatar = document.querySelector('#chatHeaderAvatar') as HTMLElement;
 const chatHeaderTitle = document.querySelector('#chatHeaderTitle') as HTMLElement;
 const chatHeaderStatus = document.querySelector('#chatHeaderStatus') as HTMLElement;
@@ -409,6 +411,24 @@ function showErrorPage() {
     showPage(bootPage);
 }
 
+async function logout() {
+    try {
+        await userLogout();
+    } catch(error) {
+        console.error(error);
+    } finally {
+        if (inboxSubscription !== null){
+            inboxSubscription.unsubscribe();
+            inboxSubscription = null;
+        }
+        if (stompClient){
+            stompClient.disconnect();
+            stompClient = null;
+        }
+        showLoginPage();
+    }
+}
+
 usernameForm.addEventListener('submit', connect, true);
 registerForm.addEventListener('submit', register, true);
 messageForm.addEventListener('submit', sendMessage, true);
@@ -419,6 +439,10 @@ goToRegister.addEventListener('click', () => {
 });
 goToLogin.addEventListener('click', () => {
     showLoginPage();
+});
+
+logoutButton.addEventListener('click', () => {
+    void logout();
 });
 
 startUp();
