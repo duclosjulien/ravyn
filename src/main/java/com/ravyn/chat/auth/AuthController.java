@@ -22,14 +22,27 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ChatUserResponse login(@RequestBody LoginRequest request){
-        return authService.login(request.getUsername(), request.getPassword());
+    public ChatUserResponse login(@RequestBody LoginRequest request, Authentication authentication){
+        return authService.login(
+                request.getUsername(),
+                request.getPassword(),
+                isAlreadyAuthenticated(authentication));
     }
 
     @PostMapping("/register")
-    public ChatUserResponse register(@RequestBody RegisterRequest request){
-        return authService.register(request.getUsername(), request.getPassword());
+    public ChatUserResponse register(@RequestBody RegisterRequest request, Authentication authentication){
+        return authService.register(
+                request.getUsername(),
+                request.getPassword(),
+                isAlreadyAuthenticated(authentication));
     }
+
+    private boolean isAlreadyAuthenticated(Authentication authentication){
+        return authentication != null &&
+        authentication.isAuthenticated() &&
+        authentication.getPrincipal() instanceof AuthenticatedUser;
+    }
+
     @GetMapping("/me")
     public ChatUserResponse me(Authentication authentication) {
         return authService.me(authentication);
