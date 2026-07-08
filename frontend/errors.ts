@@ -9,8 +9,8 @@ export type ErrorCode =
     | "ALREADY_AUTHENTICATED";
 
 export class ApiError extends Error {
-    status: number;
-    errorCode: ErrorCode;
+    readonly status: number;
+    readonly errorCode: ErrorCode;
 
     constructor(status: number, errorCode: ErrorCode, message: string) {
         super(message);

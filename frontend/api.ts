@@ -1,5 +1,5 @@
 import {User, Conversation, UserSummary, MessageResponse, CreateConversationResponse} from './types';
-import {ErrorCode, ApiError} from "./errors";
+import {ApiError} from "./errors";
 
 export async function userLogin(username: string, password: string): Promise<User> {
     const response = await fetch("/auth/login", {
@@ -8,10 +8,7 @@ export async function userLogin(username: string, password: string): Promise<Use
         body: JSON.stringify({ username, password })
     });
 
-    if (!response.ok) {
-        const apiError =  await parseApiError(response);
-        throw new Error(apiError.message);
-    }
+    await throwIfApiError(response);
 
     const user: User = await response.json();
     return user;
@@ -22,10 +19,7 @@ export async function userLogout() {
         method: "POST"
     })
 
-    if (!response.ok) {
-        const apiError = await parseApiError(response);
-        throw new Error(apiError.message);
-    }
+   await throwIfApiError(response);
 }
 
 export async function registerUser(username: string, password: string): Promise<User> {
@@ -35,10 +29,7 @@ export async function registerUser(username: string, password: string): Promise<
         body: JSON.stringify({ username, password })
     });
 
-    if (!response.ok) {
-        const apiError =  await parseApiError(response);
-        throw new Error(apiError.message);
-    }
+    await throwIfApiError(response);
 
     const user: User = await response.json();
     return user;
@@ -75,10 +66,7 @@ export async function findUserByUsername(username: string): Promise<UserSummary 
 
     if(response.status === 404) return null;
 
-    if (!response.ok) {
-        const apiError =  await parseApiError(response);
-        throw new Error(apiError.message);
-    }
+    await throwIfApiError(response);
 
     const userSummary: UserSummary = await response.json();
     return userSummary;
@@ -107,7 +95,7 @@ async function parseApiError(response: Response): Promise<ApiError> {
         const body = await response.json();
         return new ApiError(
             body?.status || 0,
-            body?.code || "UNKNOWN_ERROR",
+            body?.errorCode || "UNKNOWN_ERROR",
             body?.message || "Unknown error",
         );
     } catch {
@@ -124,10 +112,7 @@ export async function getCurrentUser(): Promise<User> {
         method: "GET"
     });
 
-    if (!response.ok) {
-        const apiError = await parseApiError(response);
-        throw new Error(apiError.message);
-    }
+    await throwIfApiError(response);
 
     const currentUser: User = await response.json();
     return currentUser;

@@ -97,8 +97,13 @@ async function connect(event: SubmitEvent): Promise<void> {
     } catch (error) {
         console.error(error);
         if(error instanceof ApiError && error.errorCode === "ALREADY_AUTHENTICATED") {
-           currentUser = await getCurrentUser();
-           await enterApp();
+            try {
+                currentUser = await getCurrentUser();
+                await enterApp();
+            } catch (innerError) {
+                console.error(innerError);
+                showErrorPage();
+            }
         }
 
         else if(error instanceof Error) {
@@ -135,14 +140,20 @@ async function register(event: SubmitEvent): Promise<void>{
     } catch (error) {
         console.error(error);
         if(error instanceof ApiError && error.errorCode === "ALREADY_AUTHENTICATED") {
-            currentUser = await getCurrentUser();
-            await enterApp();
+            try {
+                currentUser = await getCurrentUser();
+                await enterApp();
+            } catch (innerError) {
+                console.error(innerError);
+                showErrorPage();
+            }
         }
 
         else if(error instanceof Error) {
-            loginError.textContent = error.message;
+            registerError.textContent = error.message;
         }
         return;
+
     } finally {
         registerButton.disabled = false;
     }
