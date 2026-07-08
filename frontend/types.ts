@@ -39,16 +39,4 @@ export interface MessageResponse{
     createdAt: string;
 }
 
-type ErrorCode =
-    | "CONVERSATION_NOT_FOUND"
-    | "USER_NOT_FOUND"
-    | "CONVERSATION_WITH_SELF"
-    | "CORRUPTED_DATA"
-    | "UNKNOWN_ERROR"
-    | "INVALID_CREDENTIALS"
-    | "USERNAME_TAKEN";
 
-export interface ApiError {
-    message: string;
-    code: ErrorCode;
-}

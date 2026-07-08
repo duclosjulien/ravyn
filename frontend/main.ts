@@ -11,6 +11,7 @@ import {
     userLogin,
     userLogout
 } from './api.js';
+import {ApiError} from "./errors";
 
 declare var SockJS: any;
 declare var Stomp: any;
@@ -94,11 +95,16 @@ async function connect(event: SubmitEvent): Promise<void> {
         currentUser = await getCurrentUser();
 
     } catch (error) {
-        if(error instanceof Error)
-            loginError.textContent = error.message;
         console.error(error);
-        return;
+        if(error instanceof ApiError && error.errorCode === "ALREADY_AUTHENTICATED") {
+            await recoverAlreadyAuthenticated();
+        }
 
+        else if(error instanceof Error) {
+            loginError.textContent = error.message;
+        }
+        return;
+        
     } finally {
         loginButton.disabled = false;
     }
@@ -126,10 +132,16 @@ async function register(event: SubmitEvent): Promise<void>{
         await registerUser(username, password);
         currentUser = await getCurrentUser();
     } catch (error) {
-        if(error instanceof Error)
-            registerError.textContent = error.message;
         console.error(error);
+        if(error instanceof ApiError && error.errorCode === "ALREADY_AUTHENTICATED") {
+            await recoverAlreadyAuthenticated();
+        }
+
+        else if(error instanceof Error) {
+            registerError.textContent = error.message;
+        }
         return;
+
     } finally {
         registerButton.disabled = false;
     }
@@ -138,6 +150,16 @@ async function register(event: SubmitEvent): Promise<void>{
         await enterApp();
     } catch(error){
         console.error(error);
+        showErrorPage();
+    }
+}
+
+async function recoverAlreadyAuthenticated(): Promise<void> {
+    try {
+        currentUser = await getCurrentUser();
+        await enterApp();
+    } catch (innerError) {
+        console.error(innerError);
         showErrorPage();
     }
 }
