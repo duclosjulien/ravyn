@@ -38,7 +38,7 @@ public class ConversationService {
         Long participantAId = Math.min(currentUserId, otherUserId);
         Long participantBId = Math.max(currentUserId, otherUserId);
 
-        Conversation conversation = conversationRepository.findByUser1IdAndUser2Id(participantAId, participantBId)
+        Conversation conversation = conversationRepository.findByParticipantLowIdAndParticipantHighId(participantAId, participantBId)
                 .orElseGet(() -> createConversation(participantAId, participantBId));
 
         return new ConversationResponse(
@@ -64,7 +64,7 @@ public class ConversationService {
     }
 
     private boolean isParticipant(Conversation conversation, Long userId){
-        return Objects.equals(conversation.getUser1Id(), userId) || Objects.equals(conversation.getUser2Id(), userId);
+        return Objects.equals(conversation.getParticipantLowId(), userId) || Objects.equals(conversation.getParticipantHighId(), userId);
     }
 
     public List<ConversationResponse> getConversationsForUser(Long userId){
@@ -129,19 +129,19 @@ public class ConversationService {
     }
 
     private Long getOtherUserId(Conversation conversation, Long currUserId){
-        return Objects.equals(conversation.getUser1Id(), currUserId) ?  conversation.getUser2Id() : conversation.getUser1Id();
+        return Objects.equals(conversation.getParticipantLowId(), currUserId) ?  conversation.getParticipantHighId() : conversation.getParticipantLowId();
     }
 
     private List<Conversation> getConversationsByUserId(Long userId){
-        return conversationRepository.findByUser1IdOrUser2Id(userId, userId);
+        return conversationRepository.findByParticipantLowIdOrParticipantHighId(userId, userId);
     }
 
     public List<Long> getParticipantIds(Long conversationId){
         Conversation conversation = conversationRepository.findById(conversationId).
                 orElseThrow(DataIntegrityException::new);
         List<Long> participantIds = new ArrayList<>();
-        participantIds.add(conversation.getUser1Id());
-        participantIds.add(conversation.getUser2Id());
+        participantIds.add(conversation.getParticipantLowId());
+        participantIds.add(conversation.getParticipantHighId());
         return participantIds;
     }
 }
