@@ -94,7 +94,7 @@ async function parseApiError(response: Response): Promise<ApiError> {
     try {
         const body = await response.json();
         return new ApiError(
-            body?.status || 0,
+            response.status || 0,
             body?.errorCode || "UNKNOWN_ERROR",
             body?.message || "Unknown error",
         );
