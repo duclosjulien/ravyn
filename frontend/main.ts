@@ -104,7 +104,7 @@ async function connect(event: SubmitEvent): Promise<void> {
             loginError.textContent = error.message;
         }
         return;
-        
+
     } finally {
         loginButton.disabled = false;
     }
