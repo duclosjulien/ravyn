@@ -72,4 +72,10 @@ public class GlobalExceptionHandler {
     public ErrorResponse handleEmptyMessageContentException(EmptyMessageContentException exception){
         return new ErrorResponse(exception.getMessage(),  ErrorCode.EMPTY_MESSAGE_CONTENT);
     }
+
+    @ExceptionHandler(UserAlreadyAuthenticatedException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleUserAlreadyAuthenticatedException(UserAlreadyAuthenticatedException exception){
+        return new ErrorResponse(exception.getMessage(), ErrorCode.ALREADY_AUTHENTICATED);
+    }
 }

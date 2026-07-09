@@ -1,4 +1,5 @@
-import {User, Conversation, UserSummary, MessageResponse, ApiError, CreateConversationResponse} from './types';
+import {User, Conversation, UserSummary, MessageResponse, CreateConversationResponse} from './types';
+import {ApiError} from "./errors";
 
 export async function userLogin(username: string, password: string): Promise<User> {
     const response = await fetch("/auth/login", {
@@ -7,10 +8,7 @@ export async function userLogin(username: string, password: string): Promise<Use
         body: JSON.stringify({ username, password })
     });
 
-    if (!response.ok) {
-        const apiError =  await parseApiError(response);
-        throw new Error(apiError.message);
-    }
+    await throwIfApiError(response);
 
     const user: User = await response.json();
     return user;
@@ -21,10 +19,7 @@ export async function userLogout() {
         method: "POST"
     })
 
-    if (!response.ok) {
-        const apiError = await parseApiError(response);
-        throw new Error(apiError.message);
-    }
+   await throwIfApiError(response);
 }
 
 export async function registerUser(username: string, password: string): Promise<User> {
@@ -34,10 +29,7 @@ export async function registerUser(username: string, password: string): Promise<
         body: JSON.stringify({ username, password })
     });
 
-    if (!response.ok) {
-        const apiError =  await parseApiError(response);
-        throw new Error(apiError.message);
-    }
+    await throwIfApiError(response);
 
     const user: User = await response.json();
     return user;
@@ -74,10 +66,7 @@ export async function findUserByUsername(username: string): Promise<UserSummary 
 
     if(response.status === 404) return null;
 
-    if (!response.ok) {
-        const apiError =  await parseApiError(response);
-        throw new Error(apiError.message);
-    }
+    await throwIfApiError(response);
 
     const userSummary: UserSummary = await response.json();
     return userSummary;
@@ -97,19 +86,24 @@ export async function getMessagesForConversation(conversationId: number): Promis
 async function throwIfApiError(response: Response){
     if (response.ok) return;
 
-    const apiError =  await parseApiError(response);
-    throw new Error(apiError.message);
+    const apiError:ApiError =  await parseApiError(response);
+    throw apiError;
 }
 
 async function parseApiError(response: Response): Promise<ApiError> {
     try {
         const body = await response.json();
-        return {
-            message: body?.message || "Unknown error",
-            code: body?.code || "UNKNOWN_ERROR",
-        };
+        return new ApiError(
+            response.status || 0,
+            body?.errorCode || "UNKNOWN_ERROR",
+            body?.message || "Unknown error",
+        );
     } catch {
-        return { message: "Unknown error", code: "UNKNOWN_ERROR" };
+        return new ApiError(
+            response.status,
+            "UNKNOWN_ERROR",
+            "Unknown error",
+        );
     }
 }
 
@@ -118,10 +112,7 @@ export async function getCurrentUser(): Promise<User> {
         method: "GET"
     });
 
-    if (!response.ok) {
-        const apiError = await parseApiError(response);
-        throw new Error(apiError.message);
-    }
+    await throwIfApiError(response);
 
     const currentUser: User = await response.json();
     return currentUser;

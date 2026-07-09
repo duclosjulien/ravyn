@@ -61,8 +61,8 @@ public class MessageService {
     }
 
     private Map<Long, String> buildUsernameMap(Conversation conversation){
-        Long user1Id = conversation.getUser1Id();
-        Long user2Id = conversation.getUser2Id();
+        Long user1Id = conversation.getParticipantLowId();
+        Long user2Id = conversation.getParticipantHighId();
 
         ChatUser user1 = getUserOrThrow(user1Id);
         ChatUser user2 = getUserOrThrow(user2Id);

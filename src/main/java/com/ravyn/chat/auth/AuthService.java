@@ -2,6 +2,7 @@ package com.ravyn.chat.auth;
 
 import com.ravyn.chat.exception.AuthenticationRequiredException;
 import com.ravyn.chat.exception.InvalidCredentialsException;
+import com.ravyn.chat.exception.UserAlreadyAuthenticatedException;
 import com.ravyn.chat.user.ChatUser;
 import com.ravyn.chat.user.ChatUserResponse;
 import com.ravyn.chat.user.UserService;
@@ -22,7 +23,11 @@ public class AuthService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public ChatUserResponse register(String username, String password){
+    public ChatUserResponse register(String username, String password, boolean alreadyAuthenticated){
+        if(alreadyAuthenticated){
+            throw new UserAlreadyAuthenticatedException();
+        }
+
         String passwordHash = passwordEncoder.encode(password);
 
         ChatUser newUser = userService.createUser(username, passwordHash);
@@ -31,7 +36,11 @@ public class AuthService {
         return toResponse(newUser);
     }
 
-    public ChatUserResponse login(String username, String password){
+    public ChatUserResponse login(String username, String password, boolean alreadyAuthenticated){
+        if(alreadyAuthenticated){
+            throw new UserAlreadyAuthenticatedException();
+        }
+
         ChatUser user = userService.findUserEntityByUsername(username)
                 .orElseThrow(InvalidCredentialsException::new);
 

@@ -18,15 +18,15 @@ public class Conversation {
     private Long id;
 
     @Column(name = "participant_low_id", nullable = false)
-    private Long user1Id;
+    private Long participantLowId;
 
     @Column(name = "participant_high_id", nullable = false)
-    private Long user2Id;
+    private Long participantHighId;
 
     protected Conversation() {}
 
-    public Conversation(Long user1Id, Long user2Id) {
-        this.user1Id = user1Id;
-        this.user2Id = user2Id;
+    public Conversation(Long participantLowId, Long participantHighId) {
+        this.participantLowId = participantLowId;
+        this.participantHighId = participantHighId;
     }
 }
