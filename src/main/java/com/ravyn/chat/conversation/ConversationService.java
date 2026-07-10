@@ -154,18 +154,10 @@ public class ConversationService {
     public void markConversationAsRead(Long conversationId, Long currentUserId) {
         getConversationForUserOrThrow(conversationId, currentUserId);
 
-        Instant readAt = Instant.now();
-
-        Optional<ConversationReadState> existingReadState =
-                conversationReadStateRepository.findByConversationIdAndUserId(conversationId, currentUserId);
-
-        if (existingReadState.isPresent()) {
-            existingReadState.get().markReadAt(readAt);
-            return;
-        }
-
-        ConversationReadState readState = new ConversationReadState(conversationId, currentUserId);
-        readState.markReadAt(readAt);
-        conversationReadStateRepository.save(readState);
+        conversationReadStateRepository.upsertReadState(
+                conversationId,
+                currentUserId,
+                Instant.now()
+        );
     }
 }
