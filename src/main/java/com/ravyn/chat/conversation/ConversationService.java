@@ -2,23 +2,28 @@ package com.ravyn.chat.conversation;
 
 import com.ravyn.chat.exception.*;
 import com.ravyn.chat.message.Message;
+import com.ravyn.chat.repository.ConversationReadStateRepository;
 import com.ravyn.chat.repository.ConversationRepository;
 import com.ravyn.chat.repository.MessageRepository;
 import com.ravyn.chat.user.ChatUser;
 import com.ravyn.chat.user.UserService;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.*;
 
 @Service
 public class ConversationService {
 
     private final ConversationRepository conversationRepository;
+    private final ConversationReadStateRepository conversationReadStateRepository;
     private final UserService userService;
     private final MessageRepository messageRepository;
 
-    public ConversationService(ConversationRepository conversationRepository, UserService userService, MessageRepository messageRepository) {
+    public ConversationService(ConversationRepository conversationRepository, ConversationReadStateRepository conversationReadStateRepository, UserService userService, MessageRepository messageRepository) {
         this.conversationRepository = conversationRepository;
+        this.conversationReadStateRepository = conversationReadStateRepository;
         this.userService = userService;
         this.messageRepository = messageRepository;
     }
@@ -143,5 +148,24 @@ public class ConversationService {
         participantIds.add(conversation.getParticipantLowId());
         participantIds.add(conversation.getParticipantHighId());
         return participantIds;
+    }
+
+    @Transactional
+    public void markConversationAsRead(Long conversationId, Long currentUserId) {
+        getConversationForUserOrThrow(conversationId, currentUserId);
+
+        Instant readAt = Instant.now();
+
+        Optional<ConversationReadState> existingReadState =
+                conversationReadStateRepository.findByConversationIdAndUserId(conversationId, currentUserId);
+
+        if (existingReadState.isPresent()) {
+            existingReadState.get().markReadAt(readAt);
+            return;
+        }
+
+        ConversationReadState readState = new ConversationReadState(conversationId, currentUserId);
+        readState.markReadAt(readAt);
+        conversationReadStateRepository.save(readState);
     }
 }

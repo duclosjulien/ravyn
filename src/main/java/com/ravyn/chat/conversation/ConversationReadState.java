@@ -1,16 +1,10 @@
 package com.ravyn.chat.conversation;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import lombok.Getter;
-import lombok.Setter;
 import jakarta.persistence.*;
 import java.time.Instant;
 
 @Getter
-@Setter
 @Entity
 public class ConversationReadState {
     @Id
@@ -32,5 +26,9 @@ public class ConversationReadState {
         this.conversationId = conversationId;
         this.userId = userId;
         this.lastReadAt = null;
+    }
+
+    public void markReadAt(Instant readAt) {
+        this.lastReadAt = readAt;
     }
 }
