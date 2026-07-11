@@ -37,4 +37,13 @@ public class ConversationController {
         return conversationService.getConversationsForUser(currentUser.id());
     }
 
+    @PostMapping("/{conversationId}/read")
+    public void markConversationAsRead(@PathVariable Long conversationId, Authentication authentication){
+        if (authentication == null)
+            throw new AuthenticationRequiredException();
+
+        AuthenticatedUser currentUser = (AuthenticatedUser) authentication.getPrincipal();
+        conversationService.markConversationAsRead(conversationId, currentUser.id());
+
+    }
 }

@@ -2,23 +2,28 @@ package com.ravyn.chat.conversation;
 
 import com.ravyn.chat.exception.*;
 import com.ravyn.chat.message.Message;
+import com.ravyn.chat.repository.ConversationReadStateRepository;
 import com.ravyn.chat.repository.ConversationRepository;
 import com.ravyn.chat.repository.MessageRepository;
 import com.ravyn.chat.user.ChatUser;
 import com.ravyn.chat.user.UserService;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.*;
 
 @Service
 public class ConversationService {
 
     private final ConversationRepository conversationRepository;
+    private final ConversationReadStateRepository conversationReadStateRepository;
     private final UserService userService;
     private final MessageRepository messageRepository;
 
-    public ConversationService(ConversationRepository conversationRepository, UserService userService, MessageRepository messageRepository) {
+    public ConversationService(ConversationRepository conversationRepository, ConversationReadStateRepository conversationReadStateRepository, UserService userService, MessageRepository messageRepository) {
         this.conversationRepository = conversationRepository;
+        this.conversationReadStateRepository = conversationReadStateRepository;
         this.userService = userService;
         this.messageRepository = messageRepository;
     }
@@ -28,6 +33,7 @@ public class ConversationService {
                 .orElseThrow(() -> new ConversationNotFoundException(conversationId));
     }
 
+    @Transactional
     public ConversationResponse getOrCreateConversation(Long currentUserId, Long otherUserId) {
         if(Objects.equals(currentUserId, otherUserId))
             throw new SelfConversationException();
@@ -39,19 +45,39 @@ public class ConversationService {
         Long participantBId = Math.max(currentUserId, otherUserId);
 
         Conversation conversation = conversationRepository.findByParticipantLowIdAndParticipantHighId(participantAId, participantBId)
-                .orElseGet(() -> createConversation(participantAId, participantBId));
+                .orElseGet(() -> createConversationWithReadStates(participantAId, participantBId, currentUserId, otherUserId));
+
+        Long conversationId = conversation.getId();
+        boolean needsAttention = messageRepository.existsUnreadMessage(
+                conversation.getId(),
+                currentUserId,
+                getLastReadAtOrThrow(conversation.getId(), currentUserId));
+
+        Optional<Message> lastMessage = messageRepository.findFirstByConversationIdOrderByCreatedAtDesc(conversationId);
 
         return new ConversationResponse(
                 conversation.getId(),
                 otherUser.getId(),
                 otherUser.getUsername(),
-                null,
-                null,
-                null);
+                lastMessage.map(Message::getContent).orElse(null),
+                lastMessage.map(Message::getCreatedAt).orElse(null),
+                lastMessage.map(Message::getSenderId).orElse(null),
+                needsAttention);
     }
 
     private Conversation createConversation(Long participantAId, Long participantBId){
         return conversationRepository.save(new Conversation(participantAId, participantBId));
+    }
+
+    private Conversation createConversationWithReadStates(Long participantAId, Long participantBId, Long currentUserId, Long otherUserId) {
+        Conversation conversation = createConversation(participantAId, participantBId);
+        createConversationReadState(conversation.getId(), currentUserId, otherUserId);
+        return conversation;
+    }
+
+    private void createConversationReadState(Long conversationId, Long currentUserId, Long otherUserId){
+        conversationReadStateRepository.save(ConversationReadState.readAt(conversationId, currentUserId, Instant.now()));
+        conversationReadStateRepository.save(ConversationReadState.readAt(conversationId, otherUserId, Instant.now()));
     }
 
     public boolean validateUserInConversation(Long userId, Long conversationId){
@@ -103,10 +129,22 @@ public class ConversationService {
                     otherUsername,
                     lastMessage.map(Message::getContent).orElse(null),
                     lastMessage.map(Message::getCreatedAt).orElse(null),
-                    lastMessage.map(Message::getSenderId).orElse(null)));
+                    lastMessage.map(Message::getSenderId).orElse(null),
+                    messageRepository.existsUnreadMessage(
+                            conversationId,
+                            userId,
+                            getLastReadAtOrThrow(conversationId, userId))));
         }
 
         return conversationResponses;
+    }
+
+    private Instant getLastReadAtOrThrow(Long conversationId, Long userId){
+        Optional<ConversationReadState> conversationReadState = conversationReadStateRepository.findByConversationIdAndUserId(conversationId, userId);
+        if(conversationReadState.isEmpty())
+            throw new DataIntegrityException();
+
+        return conversationReadState.get().getLastReadAt();
     }
 
     private Map<Long, String> buildUsernameMap(Set<Long> userIds){
@@ -143,5 +181,16 @@ public class ConversationService {
         participantIds.add(conversation.getParticipantLowId());
         participantIds.add(conversation.getParticipantHighId());
         return participantIds;
+    }
+
+    @Transactional
+    public void markConversationAsRead(Long conversationId, Long currentUserId) {
+        getConversationForUserOrThrow(conversationId, currentUserId);
+
+        conversationReadStateRepository.upsertReadState(
+                conversationId,
+                currentUserId,
+                Instant.now()
+        );
     }
 }
