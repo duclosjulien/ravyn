@@ -35,6 +35,7 @@ CREATE TABLE conversation_read_state (
     conversation_id BIGINT NOT NULL,
     user_id BIGINT NOT NULL,
     last_read_at TIMESTAMP WITH TIME ZONE,
+    needs_attention BOOLEAN NOT NULL,
     CONSTRAINT fk_conversation_read_state_conversation FOREIGN KEY (conversation_id) REFERENCES conversation(id) ON DELETE CASCADE,
     CONSTRAINT fk_conversation_read_state_user FOREIGN KEY (user_id) REFERENCES chat_user(id) ON DELETE CASCADE,
     CONSTRAINT uk_conversation_read_state_conversation_user UNIQUE (conversation_id, user_id)

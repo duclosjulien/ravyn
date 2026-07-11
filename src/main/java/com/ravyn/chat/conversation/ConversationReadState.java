@@ -20,12 +20,25 @@ public class ConversationReadState {
     @Column(name = "last_read_at")
     private Instant lastReadAt;
 
+    @Column(name = "needs_attention")
+    private boolean needsAttention;
+
     public ConversationReadState() {};
 
-    public ConversationReadState(Long conversationId, Long userId) {
+    public ConversationReadState(Long conversationId, Long userId, boolean needsAttention) {
         this.conversationId = conversationId;
         this.userId = userId;
         this.lastReadAt = null;
+        this.needsAttention = needsAttention;
+
+    }
+
+    public static ConversationReadState read(Long conversationId, Long userId) {
+        return new ConversationReadState(conversationId, userId, false);
+    }
+
+    public static ConversationReadState unread(Long conversationId, Long userId) {
+        return new ConversationReadState(conversationId, userId, true);
     }
 
     public void markReadAt(Instant readAt) {
