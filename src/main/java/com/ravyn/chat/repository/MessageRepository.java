@@ -3,6 +3,7 @@ package com.ravyn.chat.repository;
 import com.ravyn.chat.message.Message;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.time.Instant;
 import java.util.List;
@@ -22,8 +23,8 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
         )
         """, nativeQuery = true)
     boolean existsUnreadMessage(
-            Long conversationId,
-            Long currentUserId,
-            Instant lastReadAt
+            @Param("conversationId") Long conversationId,
+            @Param("currentUserId") Long currentUserId,
+            @Param("lastReadAt") Instant lastReadAt
     );
 }

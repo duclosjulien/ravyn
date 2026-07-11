@@ -47,14 +47,22 @@ public class ConversationService {
         Conversation conversation = conversationRepository.findByParticipantLowIdAndParticipantHighId(participantAId, participantBId)
                 .orElseGet(() -> createConversationWithReadStates(participantAId, participantBId, currentUserId, otherUserId));
 
+        Long conversationId = conversation.getId();
+        boolean needsAttention = messageRepository.existsUnreadMessage(
+                conversation.getId(),
+                currentUserId,
+                getLastReadAtOrThrow(conversation.getId(), currentUserId));
+
+        Optional<Message> lastMessage = messageRepository.findFirstByConversationIdOrderByCreatedAtDesc(conversationId);
+
         return new ConversationResponse(
                 conversation.getId(),
                 otherUser.getId(),
                 otherUser.getUsername(),
-                null,
-                null,
-                null,
-                false);
+                lastMessage.map(Message::getContent).orElse(null),
+                lastMessage.map(Message::getCreatedAt).orElse(null),
+                lastMessage.map(Message::getSenderId).orElse(null),
+                needsAttention);
     }
 
     private Conversation createConversation(Long participantAId, Long participantBId){
@@ -68,18 +76,8 @@ public class ConversationService {
     }
 
     private void createConversationReadState(Long conversationId, Long currentUserId, Long otherUserId){
-        createReadStateForConversationCreator(conversationId, currentUserId);
-        createUnreadStateForOtherParticipant(conversationId, otherUserId);
-    }
-
-    private void createReadStateForConversationCreator(Long conversationId, Long currentUserId) {
-        conversationReadStateRepository.save(
-                ConversationReadState.read(conversationId, currentUserId));
-    }
-
-    private void createUnreadStateForOtherParticipant(Long conversationId, Long otherUserId) {
-        conversationReadStateRepository.save(
-                ConversationReadState.unread(conversationId, otherUserId));
+        conversationReadStateRepository.save(ConversationReadState.readAt(conversationId, currentUserId, Instant.now()));
+        conversationReadStateRepository.save(ConversationReadState.readAt(conversationId, currentUserId, Instant.now()));
     }
 
     public boolean validateUserInConversation(Long userId, Long conversationId){
