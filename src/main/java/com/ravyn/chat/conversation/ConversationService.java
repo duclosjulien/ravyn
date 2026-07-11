@@ -77,7 +77,7 @@ public class ConversationService {
 
     private void createConversationReadState(Long conversationId, Long currentUserId, Long otherUserId){
         conversationReadStateRepository.save(ConversationReadState.readAt(conversationId, currentUserId, Instant.now()));
-        conversationReadStateRepository.save(ConversationReadState.readAt(conversationId, currentUserId, Instant.now()));
+        conversationReadStateRepository.save(ConversationReadState.readAt(conversationId, otherUserId, Instant.now()));
     }
 
     public boolean validateUserInConversation(Long userId, Long conversationId){

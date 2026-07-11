@@ -19,7 +19,7 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
             FROM message m
             WHERE m.conversation_id = :conversationId
               AND m.sender_id <> :currentUserId
-              AND (:lastReadAt IS NULL OR m.created_at > :lastReadAt)
+              AND m.created_at > :lastReadAt
         )
         """, nativeQuery = true)
     boolean existsUnreadMessage(
