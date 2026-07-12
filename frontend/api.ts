@@ -1,5 +1,5 @@
 import {User, Conversation, UserSummary, MessageResponse, CreateConversationResponse} from './types';
-import {ApiError} from "./errors";
+import {ApiError} from "./errors.js";
 
 export async function userLogin(username: string, password: string): Promise<User> {
     const response = await fetch("/auth/login", {
