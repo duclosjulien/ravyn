@@ -1,5 +1,5 @@
 import {User, Conversation, UserSummary, MessageResponse, CreateConversationResponse} from './types';
-import {ApiError} from "./errors";
+import {ApiError} from "./errors.js";
 
 export async function userLogin(username: string, password: string): Promise<User> {
     const response = await fetch("/auth/login", {
@@ -118,3 +118,10 @@ export async function getCurrentUser(): Promise<User> {
     return currentUser;
 }
 
+export async function markConversationAsRead(conversationId: number) : Promise<void> {
+    const response = await fetch(`/conversations/${conversationId}/read`, {
+        method: "POST"
+    });
+
+    await throwIfApiError(response);
+}
