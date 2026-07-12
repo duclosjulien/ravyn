@@ -19,6 +19,7 @@ export interface Conversation {
     lastMessageContent: string | null;
     lastMessageCreatedAt: string | null;
     lastMessageSenderId: number | null;
+    needsAttention: boolean;
 }
 
 export interface CreateConversationResponse {
