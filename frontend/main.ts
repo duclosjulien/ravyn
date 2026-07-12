@@ -6,7 +6,7 @@ import {
     findUserByUsername,
     getCurrentUser,
     getCurrentUserConversations,
-    getMessagesForConversation,
+    getMessagesForConversation, markConversationAsRead,
     registerUser,
     userLogin,
     userLogout
@@ -191,13 +191,21 @@ function sendMessage(event: SubmitEvent): void {
     }
 }
 
-function onMessageReceived(payload: StompPayload): void {
+async function onMessageReceived(payload: StompPayload): Promise<void> {
     const message: MessageResponse = JSON.parse(payload.body);
 
     updateConversationPreview(message);
 
-    if (message.conversationId === currentConversationId)
+    const messageConversationId = message.conversationId;
+    if (messageConversationId === currentConversationId) {
         renderMessage(message);
+        await markConversationAsRead(currentConversationId);
+        const selectedConversation = conversations.find(conversation => conversation.id == messageConversationId);
+
+        if(selectedConversation) {
+            selectedConversation.needsAttention = false;
+        }
+    }
 }
 
 function updateConversationPreview(message: MessageResponse): void {
@@ -301,7 +309,8 @@ async function startConversation(event: MouseEvent): Promise<void> {
                 otherUsername: recipientUser.username,
                 lastMessageContent: null,
                 lastMessageCreatedAt: null,
-                lastMessageSenderId: null
+                lastMessageSenderId: null,
+                needsAttention: false
             });
             renderConversations();
         }
@@ -360,7 +369,7 @@ function createConversationButton(conversation: Conversation): void{
     conversationElement.appendChild(textContainer);
 
     conversationElement.addEventListener('click', () => {
-        selectConversation(conversation.id, conversation.otherUsername);
+        void selectConversation(conversation.id, conversation.otherUsername);
     });
     conversationList.appendChild(conversationElement);
 }
@@ -384,9 +393,20 @@ async function selectConversation(conversationId: number, otherUsername: string)
 
     try {
         const previousMessages = await getMessagesForConversation(selectedConversationId);
+        await markConversationAsRead(selectedConversationId);
 
         if (currentConversationId !== selectedConversationId)
             return;
+
+        const selectedConversation = conversations.find(
+            conversation => conversation.id === selectedConversationId
+        );
+
+        if (selectedConversation) {
+            selectedConversation.needsAttention = false;
+        }
+
+        renderConversations();
 
         previousMessages.forEach(renderMessage);
     } catch (error) {
@@ -467,4 +487,4 @@ logoutButton.addEventListener('click', () => {
     void logout();
 });
 
-startUp();
+void startUp();

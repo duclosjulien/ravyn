@@ -118,3 +118,10 @@ export async function getCurrentUser(): Promise<User> {
     return currentUser;
 }
 
+export async function markConversationAsRead(conversationId: number) : Promise<void> {
+    const response = await fetch(`/conversations/${conversationId}/read`, {
+        method: "POST"
+    });
+
+    await throwIfApiError(response);
+}

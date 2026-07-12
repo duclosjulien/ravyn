@@ -14,8 +14,7 @@ public interface ConversationReadStateRepository extends JpaRepository<Conversat
 
     @Modifying
     @Query(value = """
-
-            INSERT INTO conversation_read_state (conversation_id, user_id, last_read_at)
+        INSERT INTO conversation_read_state (conversation_id, user_id, last_read_at)
         VALUES (:conversationId, :userId, :readAt)
         ON CONFLICT (conversation_id, user_id)
         DO UPDATE SET last_read_at = GREATEST(conversation_read_state.last_read_at, EXCLUDED.last_read_at)

@@ -22,10 +22,14 @@ public class ConversationReadState {
 
     public ConversationReadState() {};
 
-    public ConversationReadState(Long conversationId, Long userId) {
+    public ConversationReadState(Long conversationId, Long userId, Instant lastReadAt) {
         this.conversationId = conversationId;
         this.userId = userId;
-        this.lastReadAt = null;
+        this.lastReadAt = lastReadAt;
+    }
+
+    public static ConversationReadState readAt(Long conversationId, Long userId, Instant lastReadAt) {
+        return new ConversationReadState(conversationId, userId, lastReadAt);
     }
 
     public void markReadAt(Instant readAt) {
