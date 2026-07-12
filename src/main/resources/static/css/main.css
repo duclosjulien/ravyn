@@ -439,6 +439,29 @@ button:disabled {
     color: var(--color-text-muted);
 }
 
+.conversation-top-line {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.conversation-attention-dot {
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 999px;
+    background-color: var(--color-action);
+    flex-shrink: 0;
+    opacity: 0.85;
+}
+
+.conversation-item--needs-attention .conversation-name {
+    font-weight: 600;
+}
+
+.conversation-item--needs-attention .conversation-preview {
+    color: var(--color-text);
+}
+
 /* =========================================================
    7. Chat Panel
    ========================================================= */

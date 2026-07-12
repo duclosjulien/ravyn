@@ -11,7 +11,7 @@ import {
     userLogin,
     userLogout
 } from './api.js';
-import {ApiError} from "./errors";
+import {ApiError} from "./errors.js";
 
 declare var SockJS: any;
 declare var Stomp: any;
@@ -200,11 +200,6 @@ async function onMessageReceived(payload: StompPayload): Promise<void> {
     if (messageConversationId === currentConversationId) {
         renderMessage(message);
         await markConversationAsRead(currentConversationId);
-        const selectedConversation = conversations.find(conversation => conversation.id == messageConversationId);
-
-        if(selectedConversation) {
-            selectedConversation.needsAttention = false;
-        }
     }
 }
 
@@ -219,6 +214,12 @@ function updateConversationPreview(message: MessageResponse): void {
     conversation.lastMessageContent = message.content;
     conversation.lastMessageCreatedAt = message.createdAt;
     conversation.lastMessageSenderId = message.senderId;
+
+    if (message.conversationId === currentConversationId || message.senderId === currentUser?.id) {
+        conversation.needsAttention = false;
+    } else {
+        conversation.needsAttention = true;
+    }
 
     sortConversationList();
     renderConversations();
@@ -335,6 +336,10 @@ function createConversationButton(conversation: Conversation): void{
     if(conversation.id === currentConversationId)
         conversationElement.classList.add('conversation-item--active');
 
+    if (conversation.needsAttention) {
+        conversationElement.classList.add('conversation-item--needs-attention');
+    }
+
     const avatarElement = document.createElement('div');
     avatarElement.classList.add('conversation-avatar');
     avatarElement.textContent = conversation.otherUsername.charAt(0).toUpperCase() || '?';
@@ -345,6 +350,13 @@ function createConversationButton(conversation: Conversation): void{
     const nameElement = document.createElement('div');
     nameElement.classList.add('conversation-name');
     nameElement.textContent = conversation.otherUsername;
+
+    const attentionDotElement = document.createElement('span');
+    attentionDotElement.classList.add('conversation-attention-dot');
+
+    if (!conversation.needsAttention) {
+        attentionDotElement.classList.add('hidden');
+    }
 
     const previewElement = document.createElement('div');
     previewElement.classList.add('conversation-preview');
@@ -361,7 +373,13 @@ function createConversationButton(conversation: Conversation): void{
     lastMessageTimeElement.classList.add('conversation-lastMessageTime');
     lastMessageTimeElement.textContent = formatMessageTime(conversation.lastMessageCreatedAt);
 
-    textContainer.appendChild(nameElement);
+    const conversationTopLine = document.createElement('div');
+    conversationTopLine.classList.add('conversation-top-line');
+
+    conversationTopLine.appendChild(nameElement);
+    conversationTopLine.appendChild(attentionDotElement);
+
+    textContainer.appendChild(conversationTopLine);
     textContainer.appendChild(previewElement);
     textContainer.appendChild(lastMessageTimeElement);
 
