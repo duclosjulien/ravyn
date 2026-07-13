@@ -620,6 +620,17 @@ button:disabled {
     line-height: 1.5;
 }
 
+#conversationError {
+    margin: 0 0 0.75rem;
+    padding: 0.25rem 0.1rem;
+    color: var(--color-error);
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+#conversationError.hidden {
+    display: none;
+}
 /* =========================================================
    9. Message Form
    ========================================================= */
