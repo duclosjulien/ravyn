@@ -433,14 +433,28 @@ async function selectConversation(conversationId: number, otherUsername: string)
 }
 
 function updateComposerState(): void {
-    const hasSelectedConversation = currentConversationId !== null;
+    if(currentConversationId === null) {
+        messageInput.disabled = true;
+        sendMessageButton.disabled = true;
+        messageInput.placeholder = "Select a conversation to start messaging"
+        return;
+    }
 
-    messageInput.disabled = !hasSelectedConversation;
-    sendMessageButton.disabled = !hasSelectedConversation;
+    const conversation = conversations.find(conversation => conversation.id === currentConversationId);
+    if(conversation === undefined) {
+        messageInput.disabled = true;
+        sendMessageButton.disabled = true;
+        messageInput.placeholder = "Conversation unavailable"
 
-    messageInput.placeholder = hasSelectedConversation
-        ? 'Write something thoughtful...'
-        : 'Select a conversation to start messaging';
+    }
+    else {
+        messageInput.placeholder = conversation.lastMessageContent === null
+            ? "Begin the conversation..."
+            : "Write something thoughtful...";
+        messageInput.disabled = false;
+        sendMessageButton.disabled = false;
+    }
+
 }
 
 const allPages = [bootPage, usernamePage, registerPage, chatPage];
