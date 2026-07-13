@@ -423,22 +423,22 @@ async function selectConversation(conversationId: number, otherUsername: string)
 
     try {
         await markConversationAsRead(selectedConversationId);
+        if (currentConversationId !== selectedConversationId)
+            return;
+
+        const selectedConversation = conversations.find(
+            conversation => conversation.id === selectedConversationId
+        );
+
+        if (selectedConversation) {
+            selectedConversation.needsAttention = false;
+        }
+
+        renderConversations();
     } catch (error) {
         console.error("Failed to mark the conversation as read", error);
-    }
-
-    if (currentConversationId !== selectedConversationId)
         return;
-
-    const selectedConversation = conversations.find(
-        conversation => conversation.id === selectedConversationId
-    );
-
-    if (selectedConversation) {
-        selectedConversation.needsAttention = false;
     }
-    
-    renderConversations();
 }
 
 function showConversationError(errorMessage: string): void {
