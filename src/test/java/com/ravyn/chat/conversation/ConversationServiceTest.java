@@ -1,8 +1,9 @@
 package com.ravyn.chat.conversation;
 
 import com.ravyn.chat.exception.SelfConversationException;
+import com.ravyn.chat.repository.ConversationReadStateRepository;
 import com.ravyn.chat.repository.ConversationRepository;
-import com.ravyn.chat.repository.UserRepository;
+import com.ravyn.chat.repository.MessageRepository;
 import com.ravyn.chat.user.UserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,7 +12,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class ConversationServiceTest {
@@ -19,12 +20,16 @@ public class ConversationServiceTest {
     private ConversationRepository conversationRepository;
 
     @Mock
-    private UserRepository userRepository;
+    private MessageRepository messageRepository;
+
+    @Mock
+    private ConversationReadStateRepository conversationReadStateRepository;
+
+    @Mock
+    private UserService userService;
 
     @InjectMocks
     private ConversationService conversationService;
-    @InjectMocks
-    private UserService userService;
 
     @Test
     public void testCreateConversationWithSelf() {
@@ -37,5 +42,4 @@ public class ConversationServiceTest {
         );
         verifyNoInteractions(conversationRepository);
     }
-
 }
