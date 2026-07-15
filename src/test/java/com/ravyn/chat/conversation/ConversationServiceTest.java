@@ -32,7 +32,7 @@ public class ConversationServiceTest {
     private ConversationService conversationService;
 
     @Test
-    public void testCreateConversationWithSelf() {
+    public void rejectCreateConversationWithSelf() {
         Long currentUserId = 0L;
         Long otherUserId = currentUserId;
 
