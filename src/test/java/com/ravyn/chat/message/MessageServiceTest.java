@@ -6,12 +6,16 @@ import com.ravyn.chat.exception.ConversationAccessDeniedException;
 import com.ravyn.chat.exception.EmptyMessageContentException;
 import com.ravyn.chat.exception.MessageContentTooLongException;
 import com.ravyn.chat.repository.MessageRepository;
+import com.ravyn.chat.user.ChatUser;
+import com.ravyn.chat.user.UserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -23,6 +27,9 @@ public class MessageServiceTest {
 
     @Mock
     private ConversationService conversationService;
+
+    @Mock
+    private UserService userService;
 
     @InjectMocks
     private MessageService  messageService;
@@ -77,6 +84,8 @@ public class MessageServiceTest {
 
         when(conversationService.getConversationForUserOrThrow(conversationId, authorizedUserId))
                 .thenReturn(conversation);
+        when(userService.findUserEntityById(authorizedUserId))
+                .thenReturn(Optional.of(new ChatUser("username", "password")));
         when(messageRepository.save(any(Message.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
