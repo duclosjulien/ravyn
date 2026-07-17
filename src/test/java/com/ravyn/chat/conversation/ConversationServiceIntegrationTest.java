@@ -3,7 +3,7 @@ package com.ravyn.chat.conversation;
 import com.ravyn.chat.repository.ConversationRepository;
 import com.ravyn.chat.repository.UserRepository;
 import com.ravyn.chat.user.ChatUser;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
