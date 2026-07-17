@@ -47,6 +47,7 @@ const logoutButton = document.querySelector('#logoutButton') as HTMLElement;
 const chatHeaderAvatar = document.querySelector('#chatHeaderAvatar') as HTMLElement;
 const chatHeaderTitle = document.querySelector('#chatHeaderTitle') as HTMLElement;
 const chatHeaderStatus = document.querySelector('#chatHeaderStatus') as HTMLElement;
+const conversationError = document.querySelector('#conversationError') as HTMLElement;
 
 async function startUp(): Promise<void> {
     showBootPage();
@@ -300,7 +301,7 @@ async function startConversation(event: MouseEvent): Promise<void> {
 
     try {
         const conversationId = await createConversation(recipientUser.id);
-        recipientError.textContent = ""
+        recipientError.textContent = "";
         recipientUsernameInput.value = "";
 
         if(!conversations.some(c => c.id === conversationId)){
@@ -392,27 +393,36 @@ function createConversationButton(conversation: Conversation): void{
     conversationList.appendChild(conversationElement);
 }
 
-async function selectConversation(conversationId: number, otherUsername: string) {
-    if (!stompClient)
-        return;
-
+async function selectConversation(conversationId: number, otherUsername: string): Promise<void> {
     messageArea.textContent = "";
+    hideConversationError();
 
     const selectedConversationId = conversationId;
     currentConversationId = selectedConversationId;
 
+    renderConversations();
     updateComposerState();
 
     chatHeaderAvatar.textContent = otherUsername.charAt(0).toUpperCase();
     chatHeaderTitle.textContent = otherUsername;
     chatHeaderStatus.textContent = "Online";
 
-    renderConversations();
-
     try {
         const previousMessages = await getMessagesForConversation(selectedConversationId);
-        await markConversationAsRead(selectedConversationId);
+        if (currentConversationId !== selectedConversationId) {
+            return;
+        }
+        previousMessages.forEach(renderMessage);
+    } catch (error) {
+        console.error("Failed to load message history", error);
+        if(selectedConversationId === currentConversationId) {
+            showConversationError("Couldn’t load earlier messages. Try selecting the conversation again.");
+        }
+        return;
+    }
 
+    try {
+        await markConversationAsRead(selectedConversationId);
         if (currentConversationId !== selectedConversationId)
             return;
 
@@ -425,22 +435,45 @@ async function selectConversation(conversationId: number, otherUsername: string)
         }
 
         renderConversations();
-
-        previousMessages.forEach(renderMessage);
     } catch (error) {
-        console.error("Failed to load message history", error);
+        console.error("Failed to mark the conversation as read", error);
+        return;
     }
 }
 
+function showConversationError(errorMessage: string): void {
+    conversationError.classList.remove('hidden');
+    conversationError.textContent = errorMessage;
+}
+
+function hideConversationError(): void {
+    conversationError.classList.add('hidden');
+    conversationError.textContent = "";
+}
+
 function updateComposerState(): void {
-    const hasSelectedConversation = currentConversationId !== null;
+    if(currentConversationId === null) {
+        messageInput.disabled = true;
+        sendMessageButton.disabled = true;
+        messageInput.placeholder = "Select a conversation to start messaging";
+        return;
+    }
 
-    messageInput.disabled = !hasSelectedConversation;
-    sendMessageButton.disabled = !hasSelectedConversation;
+    const conversation = conversations.find(conversation => conversation.id === currentConversationId);
+    if(conversation === undefined) {
+        messageInput.disabled = true;
+        sendMessageButton.disabled = true;
+        messageInput.placeholder = "Conversation unavailable";
 
-    messageInput.placeholder = hasSelectedConversation
-        ? 'Write something thoughtful...'
-        : 'Select a conversation to start messaging';
+    }
+    else {
+        messageInput.placeholder = conversation.lastMessageContent === null
+            ? "Begin the conversation..."
+            : "Write something thoughtful...";
+        messageInput.disabled = false;
+        sendMessageButton.disabled = false;
+    }
+
 }
 
 const allPages = [bootPage, usernamePage, registerPage, chatPage];
@@ -462,7 +495,7 @@ function showChatPage(){
 }
 
 function showBootPage() {
-    bootPageMessage.textContent = "Loading Ravyn..."
+    bootPageMessage.textContent = "Loading Ravyn...";
     showPage(bootPage);
 }
 
