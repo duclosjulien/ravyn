@@ -31,3 +31,21 @@ jobs:
 
       - name: Build frontend
         run: npm run build
+
+  backend:
+    name: Backend tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - name: Run backend tests
+        run: ./mvnw --batch-mode --no-transfer-progress test
