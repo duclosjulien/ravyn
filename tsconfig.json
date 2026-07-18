@@ -19,8 +19,8 @@
 
     // Other Outputs
     "sourceMap": true,
-    "declaration": true,
-    "declarationMap": true,
+    "declaration": false,
+    "declarationMap": false,
 
     // Stricter Typechecking Options
     "noUncheckedIndexedAccess": true,
@@ -44,5 +44,10 @@
     "skipLibCheck": true,
   },
   "include": ["frontend/**/*.ts"],
-  "exclude": ["mobile", "node_modules", "target"]
+  "exclude": [
+    "frontend/mock/**",
+    "mobile",
+    "node_modules",
+    "target"
+  ]
 }
