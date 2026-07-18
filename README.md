@@ -90,3 +90,33 @@ Open the app at:
 ```text
 http://localhost:8080
 ```
+
+## Frontend build
+
+Ravyn's frontend is written in TypeScript and compiled into Spring Boot's static resources.
+
+Install the exact dependencies from `package-lock.json`:
+
+```bash
+npm ci
+```
+
+Check the TypeScript without generating JavaScript:
+
+```bash
+npm run typecheck
+```
+
+Create a clean frontend build:
+
+```bash
+npm run build
+```
+
+The build generates browser-ready files in:
+
+```text
+src/main/resources/static/js/
+```
+
+This directory contains generated files and is intentionally excluded from Git. Run the frontend build before starting the Spring Boot application after a clean clone.
