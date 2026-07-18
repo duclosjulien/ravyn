@@ -49,3 +49,14 @@ jobs:
 
       - name: Run backend tests
         run: ./mvnw --batch-mode --no-transfer-progress test
+
+  docker:
+    name: Docker build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Build Docker image
+        run: docker build --tag ravyn:ci .
