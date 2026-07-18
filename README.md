@@ -95,6 +95,16 @@ http://localhost:8080
 
 Ravyn's frontend is written in TypeScript and compiled into Spring Boot's static resources.
 
+### Requirements
+
+- Node.js 24 LTS
+
+If you use `nvm`, select the supported Node.js version with:
+
+```bash
+nvm use
+```
+
 Install the exact dependencies from `package-lock.json`:
 
 ```bash
