@@ -7,8 +7,20 @@ RUN chmod +x mvnw
 RUN ./mvnw dependency:go-offline
 
 # Build
+
+# Node
+FROM node:24-alpine AS frontend-builder
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+COPY tsconfig.json ./
+COPY frontend ./frontend
+RUN npm run build
+
+# Maven
 FROM dependencies AS builder
 COPY src ./src
+COPY --from=frontend-builder /app/src/main/resources/static/js /build/src/main/resources/static/js
 RUN ./mvnw clean package -DskipTests
 
 # Run
