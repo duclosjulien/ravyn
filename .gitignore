@@ -38,3 +38,6 @@ src/main/resources/static/js/
 
 ### Docker ###
 .env
+
+### macOS Finder metadata ###
+.DS_Store
