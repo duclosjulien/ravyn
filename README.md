@@ -8,6 +8,14 @@ The project is also a way for me to learn how full-stack software is designed pr
 
 The goal is to build a chat app that feels simple on the surface, while being thoughtfully structured underneath.
 
+
+## Project status
+
+Ravyn is under active development and is not yet intended for production deployment.
+
+The current application supports session-based authentication, private one-to-one conversations, persistent message history, and real-time messaging through WebSockets.
+
+
 ## Running Ravyn locally
 
 ### Option 1: Docker Compose
@@ -34,7 +42,7 @@ The `.env` file is used by Docker Compose to configure the local PostgreSQL cont
 #### Start
 
 ```bash
-docker-compose up --build
+docker compose up --build
 ```
 
 Open the app at:
@@ -46,7 +54,7 @@ http://localhost:8080
 #### Stop
 
 ```bash
-docker-compose down
+docker compose down
 ```
 
 #### Reset the Docker database
@@ -54,8 +62,8 @@ docker-compose down
 This removes the local Docker PostgreSQL volume. On the next startup, Flyway recreates the schema from the migration files.
 
 ```bash
-docker-compose down -v
-docker-compose up --build
+docker compose down -v
+docker compose up --build
 ```
 
 #### Smoke test
@@ -76,8 +84,19 @@ Use this if you want to run the Spring Boot app directly from your machine.
 #### Requirements
 
 - Java 21
+- Node.js 24 LTS
 - Local PostgreSQL running with the `ravyn` database and matching credentials, or `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, and `SPRING_DATASOURCE_PASSWORD` set explicitly
-- Maven wrapper included in the project
+
+A separate Maven installation is not required because the Maven wrapper is included in the project.
+
+#### Build the frontend
+
+After a clean clone, install the frontend dependencies and generate the browser-ready JavaScript:
+
+```bash
+npm ci
+npm run build
+```
 
 #### Start
 
@@ -130,3 +149,31 @@ src/main/resources/static/js/
 ```
 
 This directory contains generated files and is intentionally excluded from Git. Run the frontend build before starting the Spring Boot application after a clean clone.
+
+
+## Backend tests
+
+Ravyn's integration tests use Testcontainers to start a temporary PostgreSQL container. A separately configured local PostgreSQL database is not required.
+
+### Requirements
+
+- Java 21
+- Docker Desktop or Docker Engine running
+
+Run the backend test suite with:
+
+```bash
+./mvnw test
+```
+
+Testcontainers creates the PostgreSQL container for the test run and removes it afterward.
+
+## Pull request verification
+
+Pull requests targeting `dev` or `main` automatically run the following checks:
+
+- Type-check and build the TypeScript frontend
+- Run the backend test suite with Testcontainers
+- Build the complete Docker image
+
+All three checks must pass before the pull request can be merged.
