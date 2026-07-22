@@ -1,12 +1,10 @@
 package com.ravyn.chat.auth;
 
-import com.ravyn.chat.exception.AuthenticationRequiredException;
 import com.ravyn.chat.exception.InvalidCredentialsException;
 import com.ravyn.chat.exception.UserAlreadyAuthenticatedException;
 import com.ravyn.chat.user.ChatUser;
 import com.ravyn.chat.user.ChatUserResponse;
 import com.ravyn.chat.user.UserService;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -52,12 +50,7 @@ public class AuthService {
         return toResponse(user);
     }
 
-    public ChatUserResponse me(Authentication authentication){
-        if(authentication == null) {
-            throw new AuthenticationRequiredException();
-        }
-
-        AuthenticatedUser user = (AuthenticatedUser) authentication.getPrincipal();
+    public ChatUserResponse me(AuthenticatedUser user){
         return userService.findUserById(user.id());
     }
 
