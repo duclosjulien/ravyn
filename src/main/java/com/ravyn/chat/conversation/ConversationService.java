@@ -8,6 +8,7 @@ import com.ravyn.chat.repository.MessageRepository;
 import com.ravyn.chat.user.ChatUser;
 import com.ravyn.chat.user.UserService;
 import jakarta.transaction.Transactional;
+import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -47,18 +48,22 @@ public class ConversationService {
         Conversation conversation = conversationRepository.findByParticipantLowIdAndParticipantHighId(participantAId, participantBId)
                 .orElseGet(() -> createConversationWithReadStates(participantAId, participantBId, currentUserId, otherUserId));
 
-        Long conversationId = conversation.getId();
-        boolean needsAttention = messageRepository.existsUnreadMessage(
-                conversation.getId(),
-                currentUserId,
-                getLastReadAtOrThrow(conversation.getId(), currentUserId));
+        return buildConversationResponse(conversation, currentUserId, otherUser.getId(), otherUser.getUsername());
+    }
 
+    private ConversationResponse buildConversationResponse(Conversation conversation, Long currentUserId, Long otherUserId, String otherUserUsername){
+        Long conversationId = conversation.getId();
         Optional<Message> lastMessage = messageRepository.findFirstByConversationIdOrderByCreatedAtDesc(conversationId);
 
+        boolean needsAttention = messageRepository.existsUnreadMessage(
+                conversationId,
+                currentUserId,
+                getLastReadAtOrThrow(conversationId, currentUserId));
+
         return new ConversationResponse(
-                conversation.getId(),
-                otherUser.getId(),
-                otherUser.getUsername(),
+                conversationId,
+                otherUserId,
+                otherUserUsername,
                 lastMessage.map(Message::getContent).orElse(null),
                 lastMessage.map(Message::getCreatedAt).orElse(null),
                 lastMessage.map(Message::getSenderId).orElse(null),
@@ -71,11 +76,11 @@ public class ConversationService {
 
     private Conversation createConversationWithReadStates(Long participantAId, Long participantBId, Long currentUserId, Long otherUserId) {
         Conversation conversation = createConversation(participantAId, participantBId);
-        createConversationReadState(conversation.getId(), currentUserId, otherUserId);
+        createConversationReadStates(conversation.getId(), currentUserId, otherUserId);
         return conversation;
     }
 
-    private void createConversationReadState(Long conversationId, Long currentUserId, Long otherUserId){
+    private void createConversationReadStates(Long conversationId, Long currentUserId, Long otherUserId){
         conversationReadStateRepository.save(ConversationReadState.readAt(conversationId, currentUserId, Instant.now()));
         conversationReadStateRepository.save(ConversationReadState.readAt(conversationId, otherUserId, Instant.now()));
     }
@@ -114,26 +119,13 @@ public class ConversationService {
         List<ConversationResponse> conversationResponses = new ArrayList<>();
 
         for(Conversation conversation: conversations) {
-            Long conversationId = conversation.getId();
             Long otherUserId = getOtherUserId(conversation, userId);
             String otherUsername = usernameByUserId.get(otherUserId);
 
             if (otherUsername == null)
                 continue;
 
-            Optional<Message> lastMessage = messageRepository.findFirstByConversationIdOrderByCreatedAtDesc(conversationId);
-
-            conversationResponses.add(new ConversationResponse(
-                    conversationId,
-                    otherUserId,
-                    otherUsername,
-                    lastMessage.map(Message::getContent).orElse(null),
-                    lastMessage.map(Message::getCreatedAt).orElse(null),
-                    lastMessage.map(Message::getSenderId).orElse(null),
-                    messageRepository.existsUnreadMessage(
-                            conversationId,
-                            userId,
-                            getLastReadAtOrThrow(conversationId, userId))));
+            conversationResponses.add(buildConversationResponse(conversation, userId, otherUserId, otherUsername));
         }
 
         return conversationResponses;
