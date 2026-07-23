@@ -1,5 +1,6 @@
 package com.ravyn.chat.auth;
 
+import com.ravyn.chat.exception.AuthenticationRequiredException;
 import com.ravyn.chat.user.ChatUserResponse;
 import com.ravyn.chat.user.LoginRequest;
 import com.ravyn.chat.user.RegisterRequest;
@@ -45,7 +46,15 @@ public class AuthController {
 
     @GetMapping("/me")
     public ChatUserResponse me(Authentication authentication) {
-        return authService.me(authentication);
+        return authService.me(requireAuthenticatedUser(authentication));
+    }
+
+    private AuthenticatedUser requireAuthenticatedUser(Authentication authentication) {
+        if (!isAlreadyAuthenticated(authentication)) {
+            throw new AuthenticationRequiredException();
+        }
+
+        return (AuthenticatedUser) authentication.getPrincipal();
     }
 
     @PostMapping("/logout")
