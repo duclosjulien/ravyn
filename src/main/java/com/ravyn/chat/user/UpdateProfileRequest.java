@@ -3,8 +3,6 @@ package com.ravyn.chat.user;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-public record UpdateProfileRequest() {
-    @NotBlank
-    @Size(max = 50)
-    static String displayName;
+public record UpdateProfileRequest(
+        @NotBlank @Size(max = 50) String displayName) {
 }
