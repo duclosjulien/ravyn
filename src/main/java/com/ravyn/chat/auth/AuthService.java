@@ -5,10 +5,15 @@ import com.ravyn.chat.exception.UserAlreadyAuthenticatedException;
 import com.ravyn.chat.user.ChatUser;
 import com.ravyn.chat.user.ChatUserResponse;
 import com.ravyn.chat.user.UserService;
+import com.ravyn.chat.validation.TrimmedSize;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 @Service
+@Validated
 public class AuthService {
     private final UserService userService;
     private final AuthSessionService authSessionService;
@@ -21,25 +26,35 @@ public class AuthService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public ChatUserResponse register(String username, String password, boolean alreadyAuthenticated){
+    public ChatUserResponse register(
+            @NotBlank @TrimmedSize(min = 2, max = 20)String username,
+            @NotBlank @Size(min = 8, max = 72) String password,
+            boolean alreadyAuthenticated){
+
         if(alreadyAuthenticated){
             throw new UserAlreadyAuthenticatedException();
         }
 
+        String normalizedUsername = normalizeUsername(username);
         String passwordHash = passwordEncoder.encode(password);
 
-        ChatUser newUser = userService.createUser(username, passwordHash);
+        ChatUser newUser = userService.createUser(normalizedUsername, passwordHash);
         authSessionService.establishSessionForUser(newUser);
 
         return toResponse(newUser);
     }
 
     public ChatUserResponse login(String username, String password, boolean alreadyAuthenticated){
+        if (username == null || password == null) {
+            throw new InvalidCredentialsException();
+        }
+
         if(alreadyAuthenticated){
             throw new UserAlreadyAuthenticatedException();
         }
 
-        ChatUser user = userService.findUserEntityByUsername(username)
+        String normalizedUsername = normalizeUsername(username);
+        ChatUser user = userService.findUserEntityByUsername(normalizedUsername)
                 .orElseThrow(InvalidCredentialsException::new);
 
         if(!passwordEncoder.matches(password, user.getPasswordHash())) {
@@ -48,6 +63,10 @@ public class AuthService {
 
         authSessionService.establishSessionForUser(user);
         return toResponse(user);
+    }
+
+    private String normalizeUsername(String username) {
+        return username.strip();
     }
 
     public ChatUserResponse me(AuthenticatedUser user){
