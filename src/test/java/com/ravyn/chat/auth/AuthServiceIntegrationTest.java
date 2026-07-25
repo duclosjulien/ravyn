@@ -53,4 +53,12 @@ class AuthServiceIntegrationTest {
                 () -> authService.register(" a ", "password123", false)
         );
     }
+
+    @Test
+    void registrationRejectsNullPassword() {
+        assertThrows(
+                ConstraintViolationException.class,
+                () -> authService.register("username", null, false)
+        );
+    }
 }
