@@ -1,5 +1,6 @@
 package com.ravyn.chat.user;
 
+import com.ravyn.chat.validation.TrimmedSize;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -9,7 +10,7 @@ import lombok.Setter;
 @Setter
 public class RegisterRequest {
     @NotBlank
-    @Size(min = 2, max = 20)
+    @TrimmedSize(min = 2, max = 20)
     private String username;
 
     @NotBlank

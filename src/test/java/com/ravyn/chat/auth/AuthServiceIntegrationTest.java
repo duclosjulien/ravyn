@@ -2,6 +2,7 @@ package com.ravyn.chat.auth;
 
 import com.ravyn.chat.repository.UserRepository;
 import com.ravyn.chat.user.ChatUser;
+import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -12,6 +13,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 @Testcontainers
@@ -42,5 +44,13 @@ class AuthServiceIntegrationTest {
 
         assertEquals("username", user.getUsername());
         assertEquals("username", user.getDisplayName());
+    }
+
+    @Test
+    void registrationRejectsUsernameThatIsTooShortAfterTrimming () {
+        assertThrows(
+                ConstraintViolationException.class,
+                () -> authService.register(" a ", "password123", false)
+        );
     }
 }
