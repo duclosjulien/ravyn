@@ -7,6 +7,7 @@ import com.ravyn.chat.user.RegisterRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
@@ -31,7 +32,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ChatUserResponse register(@RequestBody RegisterRequest request, Authentication authentication){
+    public ChatUserResponse register(@Valid @RequestBody RegisterRequest request, Authentication authentication){
         return authService.register(
                 request.getUsername(),
                 request.getPassword(),

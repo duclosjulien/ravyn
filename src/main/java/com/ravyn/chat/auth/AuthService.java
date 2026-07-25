@@ -26,9 +26,10 @@ public class AuthService {
             throw new UserAlreadyAuthenticatedException();
         }
 
+        String normalizedUsername = username.strip();
         String passwordHash = passwordEncoder.encode(password);
 
-        ChatUser newUser = userService.createUser(username, passwordHash);
+        ChatUser newUser = userService.createUser(normalizedUsername, passwordHash);
         authSessionService.establishSessionForUser(newUser);
 
         return toResponse(newUser);
