@@ -7,6 +7,7 @@ import com.ravyn.chat.user.ChatUserResponse;
 import com.ravyn.chat.user.UserService;
 import com.ravyn.chat.validation.TrimmedSize;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -27,7 +28,7 @@ public class AuthService {
 
     public ChatUserResponse register(
             @NotBlank @TrimmedSize(min = 2, max = 20)String username,
-            String password,
+            @Size(min = 8, max = 72) String password,
             boolean alreadyAuthenticated){
 
         if(alreadyAuthenticated){
@@ -44,6 +45,10 @@ public class AuthService {
     }
 
     public ChatUserResponse login(String username, String password, boolean alreadyAuthenticated){
+        if (username == null || password == null) {
+            throw new InvalidCredentialsException();
+        }
+
         if(alreadyAuthenticated){
             throw new UserAlreadyAuthenticatedException();
         }

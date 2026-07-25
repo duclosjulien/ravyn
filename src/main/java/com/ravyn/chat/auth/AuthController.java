@@ -6,11 +6,8 @@ import com.ravyn.chat.user.LoginRequest;
 import com.ravyn.chat.user.RegisterRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,7 +21,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ChatUserResponse login(@RequestBody LoginRequest request, Authentication authentication){
+    public ChatUserResponse login(@Valid @RequestBody LoginRequest request, Authentication authentication){
         return authService.login(
                 request.getUsername(),
                 request.getPassword(),
