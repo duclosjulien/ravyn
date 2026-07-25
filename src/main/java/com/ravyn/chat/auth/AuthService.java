@@ -28,7 +28,7 @@ public class AuthService {
 
     public ChatUserResponse register(
             @NotBlank @TrimmedSize(min = 2, max = 20)String username,
-            @Size(min = 8, max = 72) String password,
+            @NotBlank @Size(min = 8, max = 72) String password,
             boolean alreadyAuthenticated){
 
         if(alreadyAuthenticated){
