@@ -1,7 +1,9 @@
 package com.ravyn.chat.auth;
 
+import com.ravyn.chat.exception.AuthenticatedUserNotFoundException;
 import com.ravyn.chat.exception.InvalidCredentialsException;
 import com.ravyn.chat.exception.UserAlreadyAuthenticatedException;
+import com.ravyn.chat.repository.UserRepository;
 import com.ravyn.chat.user.ChatUser;
 import com.ravyn.chat.user.ChatUserResponse;
 import com.ravyn.chat.user.UserService;
@@ -18,12 +20,14 @@ public class AuthService {
     private final UserService userService;
     private final AuthSessionService authSessionService;
     private final PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
 
 
-    public AuthService(UserService userService, AuthSessionService authSessionService, PasswordEncoder passwordEncoder) {
+    public AuthService(UserService userService, AuthSessionService authSessionService, PasswordEncoder passwordEncoder, UserRepository userRepository) {
         this.userService = userService;
         this.authSessionService = authSessionService;
         this.passwordEncoder = passwordEncoder;
+        this.userRepository = userRepository;
     }
 
     public ChatUserResponse register(
@@ -41,7 +45,7 @@ public class AuthService {
         ChatUser newUser = userService.createUser(normalizedUsername, passwordHash);
         authSessionService.establishSessionForUser(newUser);
 
-        return toResponse(newUser);
+        return toChatUserResponse(newUser);
     }
 
     public ChatUserResponse login(String username, String password, boolean alreadyAuthenticated){
@@ -62,18 +66,33 @@ public class AuthService {
         }
 
         authSessionService.establishSessionForUser(user);
-        return toResponse(user);
+        return toChatUserResponse(user);
     }
 
-    private String normalizeUsername(String username) {
-        return username.strip();
-    }
+    private String normalizeUsername(String username) { return username.strip(); }
 
     public ChatUserResponse me(AuthenticatedUser user){
         return userService.findUserById(user.id());
     }
 
-    private ChatUserResponse toResponse(ChatUser user){
-        return new ChatUserResponse(user.getId(), user.getUsername());
+    private ChatUserResponse toChatUserResponse(ChatUser user){
+        return new ChatUserResponse(user.getId(), user.getUsername(), user.getDisplayName());
+    }
+
+    public void changePassword(
+            Long userId,
+            @NotBlank String currentPassword,
+            @NotBlank @Size(min = 8, max = 72) String newPassword) {
+
+        ChatUser user = userService.findUserEntityById(userId)
+                .orElseThrow(() -> new AuthenticatedUserNotFoundException(userId));
+
+        if(!passwordEncoder.matches(currentPassword, user.getPasswordHash())) {
+            throw new InvalidCredentialsException();
+        }
+
+        String passwordHash = passwordEncoder.encode(newPassword);
+        user.setPasswordHash(passwordHash);
+        userRepository.save(user);
     }
 }

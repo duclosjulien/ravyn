@@ -78,4 +78,10 @@ public class GlobalExceptionHandler {
     public ErrorResponse handleUserAlreadyAuthenticatedException(UserAlreadyAuthenticatedException exception){
         return new ErrorResponse(exception.getMessage(), ErrorCode.ALREADY_AUTHENTICATED);
     }
+
+    @ExceptionHandler(AuthenticatedUserNotFoundException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handleAuthenticatedUserNotFoundException(AuthenticatedUserNotFoundException exception){
+        return new ErrorResponse(exception.getMessage(), ErrorCode.AUTHENTICATED_USER_NOT_FOUND);
+    }
 }

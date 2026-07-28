@@ -1,12 +1,14 @@
 package com.ravyn.chat.auth;
 
 import com.ravyn.chat.exception.AuthenticationRequiredException;
+import com.ravyn.chat.user.ChangePasswordRequest;
 import com.ravyn.chat.user.ChatUserResponse;
 import com.ravyn.chat.user.LoginRequest;
 import com.ravyn.chat.user.RegisterRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.*;
@@ -58,5 +60,21 @@ public class AuthController {
     @PostMapping("/logout")
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
         new SecurityContextLogoutHandler().logout(request, response, authentication);
+    }
+
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PatchMapping("/password")
+    public void changePassword(
+            Authentication authentication,
+            @Valid @RequestBody ChangePasswordRequest request
+    ) {
+
+        AuthenticatedUser authenticatedUser = requireAuthenticatedUser(authentication);
+
+        authService.changePassword(
+                authenticatedUser.id(),
+                request.currentPassword(),
+                request.newPassword()
+        );
     }
 }
