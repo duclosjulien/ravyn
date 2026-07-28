@@ -73,6 +73,10 @@ public class AuthService {
         return username.strip();
     }
 
+    private String normalizeUsername(String username) {
+        return username.strip();
+    }
+
     public ChatUserResponse me(AuthenticatedUser user){
         return userService.findUserById(user.id());
     }
