@@ -10,7 +10,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.*;
 
@@ -66,11 +65,14 @@ public class AuthController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PatchMapping("/password")
     public void changePassword(
-            @AuthenticationPrincipal AuthenticatedUser user,
+            Authentication authentication,
             @Valid @RequestBody ChangePasswordRequest request
     ) {
+
+        AuthenticatedUser authenticatedUser = requireAuthenticatedUser(authentication);
+
         authService.changePassword(
-                user.id(),
+                authenticatedUser.id(),
                 request.currentPassword(),
                 request.newPassword()
         );

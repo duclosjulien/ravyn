@@ -1,8 +1,9 @@
 package com.ravyn.chat.user;
 
 import com.ravyn.chat.auth.AuthenticatedUser;
+import com.ravyn.chat.exception.AuthenticationRequiredException;
 import jakarta.validation.Valid;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,9 +18,22 @@ public class ProfileController {
 
     @PatchMapping("/profile")
     public ChatUserResponse updateProfile(
-            @AuthenticationPrincipal AuthenticatedUser user,
+            Authentication authentication,
             @Valid @RequestBody UpdateProfileRequest request
     ) {
-        return userService.updateDisplayName(user.id(), request.displayName());
+
+        AuthenticatedUser authenticatedUser =   requireAuthenticatedUser(authentication);
+
+        return userService.updateDisplayName(authenticatedUser.id(), request.displayName());
+    }
+
+    private AuthenticatedUser requireAuthenticatedUser(Authentication authentication) {
+        if (authentication == null
+                || !authentication.isAuthenticated()
+                || !(authentication.getPrincipal() instanceof AuthenticatedUser user)) {
+            throw new AuthenticationRequiredException();
+        }
+
+        return user;
     }
 }
