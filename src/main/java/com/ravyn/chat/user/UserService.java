@@ -2,6 +2,9 @@ package com.ravyn.chat.user;
 
 import com.ravyn.chat.exception.*;
 import com.ravyn.chat.repository.UserRepository;
+import com.ravyn.chat.validation.TrimmedSize;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -28,7 +31,9 @@ public class UserService {
 
     // profile
 
-    public SelfProfileResponse updateDisplayName(Long userId, String newDisplayName) {
+    public SelfProfileResponse updateDisplayName(
+            @NotNull Long userId,
+            @NotBlank @TrimmedSize(min = 2, max = 50) String newDisplayName) {
         Optional<ChatUser> user = userRepository.findById(userId);
         if(user.isEmpty()) {
             throw new AuthenticatedUserNotFoundException(userId);
@@ -39,7 +44,7 @@ public class UserService {
         return toSelfProfileResponse(userRepository.save(userFound));
     }
 
-    public SelfProfileResponse getSelfProfile(Long userId) {
+    public SelfProfileResponse getSelfProfile(@NotNull Long userId) {
         ChatUser user = userRepository.findById(userId)
                 .orElseThrow(() -> new AuthenticatedUserNotFoundException(userId));
 
