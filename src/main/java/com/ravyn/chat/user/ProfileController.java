@@ -4,11 +4,10 @@ import com.ravyn.chat.auth.AuthenticatedUser;
 import com.ravyn.chat.exception.AuthenticationRequiredException;
 import jakarta.validation.Valid;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequestMapping("/profile")
 public class ProfileController {
     private final UserService userService;
 
@@ -16,8 +15,8 @@ public class ProfileController {
         this.userService = userService;
     }
 
-    @PatchMapping("/profile")
-    public ChatUserResponse updateProfile(
+    @PatchMapping
+    public SelfProfileResponse updateProfile(
             Authentication authentication,
             @Valid @RequestBody UpdateProfileRequest request
     ) {
@@ -36,4 +35,12 @@ public class ProfileController {
 
         return user;
     }
+
+    @GetMapping
+    public SelfProfileResponse getSelfProfile(Authentication authentication){
+        AuthenticatedUser authenticatedUser = requireAuthenticatedUser(authentication);
+        return userService.getSelfProfile(authenticatedUser.id());
+
+    }
+
 }
