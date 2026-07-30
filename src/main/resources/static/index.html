@@ -96,13 +96,65 @@
                 Start conversation
             </button>
 
-            <button id="logoutButton" type="button">
-                Logout
-            </button>
-
             <div id="recipientError"></div>
             <div class="conversation-section-label">Conversations</div>
             <div id="conversationList"></div>
+
+            <div class="account-menu">
+                <button id="accountMenuButton" class="account-menu__trigger" type="button">
+                    <span id="currentUserAvatar" class="account-avatar">J</span>
+
+                    <span class="account-menu__trigger-text">
+            <span id="currentUserDisplayName" class="account-display-name">
+                Julien
+            </span>
+
+            <span id="currentUsername" class="account-username">
+                @julien
+            </span>
+        </span>
+
+                    <span class="account-menu__chevron">⌃</span>
+                </button>
+
+                <div id="accountDropdown" class="account-dropdown hidden">
+                    <div class="account-dropdown__profile">
+                        <span class="account-avatar account-avatar--large">J</span>
+
+                        <div class="account-dropdown__identity">
+                            <div class="account-dropdown__name-row">
+                                <span id="dropdownDisplayName">Julien</span>
+
+                                <button id="editDisplayNameButton" class="account-dropdown__edit" type="button">
+                                    Edit
+                                </button>
+                            </div>
+
+                            <span id="dropdownUsername" class="account-username">
+                                @julien
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="account-dropdown__divider"></div>
+
+                    <button
+                            id="settingsButton"
+                            class="account-dropdown__action"
+                            type="button"
+                    >
+                        Settings
+                    </button>
+
+                    <button
+                            id="logoutButton"
+                            class="account-dropdown__action account-dropdown__action--danger"
+                            type="button"
+                    >
+                        Log out
+                    </button>
+                </div>
+            </div>
         </aside>
 
         <main class="chat-panel">
