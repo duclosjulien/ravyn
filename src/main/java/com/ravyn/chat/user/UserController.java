@@ -10,7 +10,12 @@ public class UserController {
     public UserController(UserService userService) {this.userService = userService;}
 
     @GetMapping("/search")
-    public ChatUserResponse findUserByUsername(@RequestParam String username){
+    public UserSummaryResponse findUserByUsername(@RequestParam String username){
         return userService.findUserByUsername(username);
+    }
+
+    @GetMapping("/{userId}")
+    public PublicProfileResponse findPublicProfileById(@PathVariable Long userId) {
+        return userService.findPublicProfileById(userId);
     }
 }
