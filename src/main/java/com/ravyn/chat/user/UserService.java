@@ -5,6 +5,7 @@ import com.ravyn.chat.repository.UserRepository;
 import com.ravyn.chat.validation.TrimmedSize;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -51,12 +52,18 @@ public class UserService {
         return toSelfProfileResponse(user);
     }
 
+    public PublicProfileResponse findPublicProfileById(@NotNull Long userId) {
+        ChatUser user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+        return toPublicProfileResponse(user);
+    }
+
     // utility functions
 
-    public ChatUserResponse findUserByUsername(String username){
+    public UserSummaryResponse findUserByUsername(String username){
         ChatUser user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException(username));
-        return toChatUserResponse(user);
+        return toUserSummaryResponse(user);
     }
 
     public Optional<ChatUser> findUserEntityByUsername(String username) {
@@ -88,5 +95,13 @@ public class UserService {
 
     private SelfProfileResponse toSelfProfileResponse(ChatUser user) {
         return new SelfProfileResponse(user.getId(), user.getUsername(), user.getDisplayName());
+    }
+
+    private UserSummaryResponse toUserSummaryResponse(ChatUser user) {
+        return new UserSummaryResponse(user.getId(), user.getUsername(), user.getDisplayName());
+    }
+
+    private PublicProfileResponse toPublicProfileResponse(ChatUser user) {
+        return new PublicProfileResponse(user.getId(), user.getUsername(), user.getDisplayName());
     }
 }
