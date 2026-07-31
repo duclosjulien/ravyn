@@ -8,6 +8,12 @@ export interface User {
     username: string;
 }
 
+export interface SelfProfile {
+    id: number;
+    username: string;
+    displayName: string;
+}
+
 export interface StompPayload {
     body: string;
 }

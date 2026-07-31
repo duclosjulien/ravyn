@@ -11,6 +11,9 @@ import {
     userLogin,
     userLogout
 } from './api.js';
+
+import {initializeAccountMenu, loadAccountMenu} from './accountMenu.js';
+
 import {ApiError} from "./errors.js";
 
 declare var SockJS: any;
@@ -537,5 +540,8 @@ goToLogin.addEventListener('click', () => {
 logoutButton.addEventListener('click', () => {
     void logout();
 });
+
+initializeAccountMenu();
+void loadAccountMenu();
 
 void startUp();

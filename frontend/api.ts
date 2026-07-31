@@ -1,4 +1,4 @@
-import {User, Conversation, UserSummary, MessageResponse, CreateConversationResponse} from './types.js';
+import {User, Conversation, UserSummary, MessageResponse, CreateConversationResponse, SelfProfile} from './types.js';
 import {ApiError} from "./errors.js";
 
 export async function userLogin(username: string, password: string): Promise<User> {
@@ -116,6 +116,17 @@ export async function getCurrentUser(): Promise<User> {
 
     const currentUser: User = await response.json();
     return currentUser;
+}
+
+export async function getCurrentUserProfile(): Promise<SelfProfile> {
+    const response = await fetch("/profile", {
+        method: "GET"
+    });
+
+    await throwIfApiError(response);
+
+    const selfProfile: SelfProfile = await response.json();
+    return selfProfile;
 }
 
 export async function markConversationAsRead(conversationId: number) : Promise<void> {
