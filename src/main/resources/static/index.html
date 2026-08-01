@@ -117,11 +117,23 @@
 
                         <div class="account-dropdown__identity">
                             <div class="account-dropdown__name-row">
-                                <span id="dropdownDisplayName"></span>
+                                <div id="displayNameView">
+                                    <span id="dropdownDisplayName"></span>
+                                    <button id="editDisplayNameButton" type="button">Edit</button>
+                                </div>
 
-                                <button id="editDisplayNameButton" class="account-dropdown__edit" type="button">
-                                    Edit
-                                </button>
+                                <form id="displayNameForm" class="hidden">
+                                    <input
+                                            id="displayNameInput"
+                                            type="text"
+                                            maxlength="50"
+                                    >
+
+                                    <button type="submit">Save</button>
+                                    <button id="cancelDisplayNameButton" type="button">
+                                        Cancel
+                                    </button>
+                                </form>
                             </div>
 
                             <span id="dropdownUsername" class="account-username"></span>

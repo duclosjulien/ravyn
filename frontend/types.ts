@@ -8,7 +8,7 @@ export interface User {
     username: string;
 }
 
-export interface SelfProfile {
+export interface SelfProfileResponse {
     id: number;
     username: string;
     displayName: string;
