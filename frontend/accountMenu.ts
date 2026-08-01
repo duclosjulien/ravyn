@@ -1,3 +1,6 @@
+import {changeDisplayName, getCurrentUserProfile} from "./api.js";
+import {SelfProfileResponse} from "./types.js";
+
 const accountMenuButton = document.querySelector('#accountMenuButton') as HTMLButtonElement;
 const accountDropdownMenu = document.querySelector('#accountDropdown') as HTMLElement;
 const currentMenuDisplayName = document.querySelector('#currentUserDisplayName') as HTMLElement;
@@ -8,10 +11,9 @@ const displayNameInput = document.querySelector('#displayNameInput') as HTMLInpu
 const displayNameForm = document.querySelector('#displayNameForm') as HTMLFormElement;
 const cancelDisplayNameButton = document.querySelector('#cancelDisplayNameButton') as HTMLButtonElement;
 const displayNameView = document.querySelector('#displayNameView') as HTMLElement;
-
-import {changeDisplayName, getCurrentUserProfile} from "./api.js";
-import {SelfProfileResponse} from "./types.js";
-
+const settingsButton = document.querySelector('#settingsButton') as HTMLButtonElement;
+const settingsModal = document.querySelector('#settingsModal') as HTMLElement;
+const closeSettingsButton = document.querySelector('#closeSettingsButton') as HTMLButtonElement;
 
 function toggleAccountMenu() {
     accountDropdownMenu.classList.toggle('hidden');
@@ -22,6 +24,8 @@ export function initializeAccountMenu(): void {
     editDisplayNameButton.addEventListener('click', editDisplayName);
     displayNameForm.addEventListener('submit', handleDisplayNameSubmit);
     cancelDisplayNameButton.addEventListener('click', handleDisplayNameCancel);
+    settingsButton.addEventListener('click', showSettingsPanel);
+    closeSettingsButton.addEventListener('click', hideSettingsPanel);
 }
 
 export async function loadAccountMenu(): Promise<void> {
@@ -40,7 +44,7 @@ function renderAccountDropdown(profile: SelfProfileResponse) {
     dropdownUsername.textContent = "@" + profile.username;
 }
 
-async function editDisplayName() {
+async function editDisplayName(): Promise<void> {
     const profile = await getCurrentUserProfile();
     displayNameInput.value = profile.displayName;
 
@@ -77,5 +81,15 @@ function showEditMode(): void {
 function showViewMode(): void {
     displayNameForm.classList.add('hidden');
     displayNameView.classList.remove('hidden');
+}
+
+function showSettingsPanel(): void {
+    settingsModal.classList.remove('hidden');
+    showViewMode();
+    accountDropdownMenu.classList.add('hidden');
+}
+
+function hideSettingsPanel(): void {
+    settingsModal.classList.add('hidden');
 }
 
