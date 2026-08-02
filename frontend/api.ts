@@ -118,6 +118,16 @@ export async function getCurrentUser(): Promise<User> {
     return currentUser;
 }
 
+export async function markConversationAsRead(conversationId: number) : Promise<void> {
+    const response = await fetch(`/conversations/${conversationId}/read`, {
+        method: "POST"
+    });
+
+    await throwIfApiError(response);
+}
+
+// profile
+
 export async function getCurrentUserProfile(): Promise<SelfProfileResponse> {
     const response = await fetch("/profile", {
         method: "GET"
@@ -142,10 +152,13 @@ export async function changeDisplayName(displayName: string): Promise<SelfProfil
     return selfProfile;
 }
 
-export async function markConversationAsRead(conversationId: number) : Promise<void> {
-    const response = await fetch(`/conversations/${conversationId}/read`, {
-        method: "POST"
+export async function changePassword(currentPassword: string, newPassword: string) {
+    const response = await fetch("/auth/password", {
+        method: "PATCH",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({currentPassword, newPassword})
     });
 
     await throwIfApiError(response);
 }
+

@@ -15,6 +15,7 @@ import {
 import {initializeAccountMenu, loadAccountMenu} from './accountMenu.js';
 
 import {ApiError} from "./errors.js";
+import {initializeSettingsMenu} from "./settings.js";
 
 declare var SockJS: any;
 declare var Stomp: any;
@@ -542,6 +543,7 @@ logoutButton.addEventListener('click', () => {
 });
 
 initializeAccountMenu();
+initializeSettingsMenu();
 void loadAccountMenu();
 
 void startUp();
