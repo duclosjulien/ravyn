@@ -33,11 +33,29 @@ export function initializeAccountMenu(): void {
 
 }
 
+let accountMenuLoadGeneration = 0;
+
 export async function loadAccountMenu(): Promise<void> {
+    const generation = ++accountMenuLoadGeneration;
     const profile = await getCurrentUserProfile();
+
+    if (generation !== accountMenuLoadGeneration) {
+        return;
+    }
 
     renderAccountMenuTrigger(profile);
     renderAccountDropdown(profile);
+}
+
+export function clearAccountMenu(): void {
+    accountMenuLoadGeneration++;
+    currentMenuDisplayName.textContent = "";
+    dropdownDisplayName.textContent = "";
+    dropdownUsername.textContent = "";
+    currentUserAvatar.textContent = "";
+    dropdownUserAvatar.textContent = "";
+    accountDropdownMenu.classList.add("hidden");
+    showViewMode();
 }
 
 function renderAccountMenuTrigger(profile: SelfProfileResponse) {

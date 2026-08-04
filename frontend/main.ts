@@ -12,7 +12,7 @@ import {
     userLogout
 } from './api.js';
 
-import {initializeAccountMenu, loadAccountMenu} from './accountMenu.js';
+import {initializeAccountMenu, loadAccountMenu, clearAccountMenu} from './accountMenu.js';
 
 import {ApiError} from "./errors.js";
 import {initializeSettingsMenu} from "./settings.js";
@@ -512,6 +512,9 @@ function showErrorPage() {
 }
 
 async function logout() {
+    clearAccountMenu();
+    currentUser = null;
+    
     try {
         await userLogout();
     } catch(error) {
