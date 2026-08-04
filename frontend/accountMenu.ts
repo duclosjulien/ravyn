@@ -54,10 +54,8 @@ function getAvatarInitial(profile: SelfProfileResponse): string {
     return profile.displayName.trim().charAt(0).toUpperCase();
 }
 
-async function editDisplayName(): Promise<void> {
-    const profile = await getCurrentUserProfile();
-    displayNameInput.value = profile.displayName;
-
+function editDisplayName(): void {
+    displayNameInput.value = dropdownDisplayName.textContent ?? "";
     displayNameError.textContent = "";
     showEditMode();
 }
