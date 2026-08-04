@@ -1,6 +1,6 @@
 import {changeDisplayName, getCurrentUserProfile} from "./api.js";
 import {SelfProfileResponse} from "./types.js";
-import {ApiError} from "./errors";
+import {ApiError} from "./errors.js";
 
 const accountMenuButton = document.querySelector('#accountMenuButton') as HTMLButtonElement;
 const accountDropdownMenu = document.querySelector('#accountDropdown') as HTMLElement;
