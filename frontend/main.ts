@@ -75,16 +75,14 @@ async function enterApp(): Promise<void> {
     sortConversationList();
     renderConversations();
 
+    await loadAccountMenu();
+
     showChatPage();
     updateComposerState();
 
     const socket = new SockJS('/ws');
     stompClient = Stomp.over(socket);
     stompClient.connect({}, onConnected, onError);
-
-    void loadAccountMenu().catch(error => {
-        console.error("Failed to load account menu", error);
-    });
 }
 
 async function connect(event: SubmitEvent): Promise<void> {
@@ -514,7 +512,7 @@ function showErrorPage() {
 async function logout() {
     clearAccountMenu();
     currentUser = null;
-    
+
     try {
         await userLogout();
     } catch(error) {

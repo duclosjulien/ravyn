@@ -5,13 +5,14 @@ import com.ravyn.chat.repository.UserRepository;
 import com.ravyn.chat.validation.TrimmedSize;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+
+import static com.ravyn.chat.validation.TextNormalizer.stripBoundaryWhitespace;
 
 @Service
 @Validated
@@ -41,7 +42,7 @@ public class UserService {
         }
 
         ChatUser userFound = user.get();
-        userFound.setDisplayName(newDisplayName.strip());
+        userFound.setDisplayName(stripBoundaryWhitespace(newDisplayName));
         return toSelfProfileResponse(userRepository.save(userFound));
     }
 

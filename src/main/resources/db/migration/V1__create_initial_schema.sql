@@ -4,8 +4,8 @@ CREATE TABLE chat_user (
     display_name VARCHAR(50) NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
     CONSTRAINT uk_chat_user_username UNIQUE (username),
-    CONSTRAINT chk_chat_user_username_length CHECK (char_length(trim(username)) BETWEEN 2 AND 20),
-    CONSTRAINT chk_display_name_length CHECK (char_length(trim(display_name)) BETWEEN 2 AND 50)
+    CONSTRAINT chk_chat_user_username_length CHECK (char_length(btrim(username, E' \t\n\r\f\x0B')) BETWEEN 2 AND 20),
+    CONSTRAINT chk_display_name_length CHECK (char_length(btrim(display_name, E' \t\n\r\f\x0B')) BETWEEN 2 AND 50)
 );
 
 CREATE TABLE conversation (

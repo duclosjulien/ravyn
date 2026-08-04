@@ -19,6 +19,11 @@ const displayNameError = document.querySelector('#displayNameError') as HTMLElem
 const currentUserAvatar = document.querySelector('#currentUserAvatar') as HTMLElement;
 const dropdownUserAvatar = document.querySelector('#dropdownUserAvatar') as HTMLElement;
 
+const displayNameSubmitButton =
+    displayNameForm.querySelector('button[type="submit"]') as HTMLButtonElement;
+
+let isDisplayNameChangePending = false;
+
 function toggleAccountMenu() {
     accountDropdownMenu.classList.toggle('hidden');
 }
@@ -82,26 +87,36 @@ function editDisplayName(): void {
 async function handleDisplayNameSubmit(event: SubmitEvent): Promise<void> {
     event.preventDefault();
 
+    if (isDisplayNameChangePending) return;
+
+    isDisplayNameChangePending = true;
+    displayNameSubmitButton.disabled = true;
+    cancelDisplayNameButton.disabled = true;
+    displayNameError.textContent = "";
+
     try {
         const profile = await changeDisplayName(displayNameInput.value);
+
         renderAccountMenuTrigger(profile);
         renderAccountDropdown(profile);
         showViewMode();
-    }
-
-    catch(error) {
-        if(error instanceof ApiError){
-            displayNameError.textContent = error.message;
-        }
-        else {
-            displayNameError.textContent = "An unexpected error occurred.";
-        }
-        return;
+    } catch (error) {
+        displayNameError.textContent =
+            error instanceof ApiError
+                ? error.message
+                : "An unexpected error occurred.";
+    } finally {
+        isDisplayNameChangePending = false;
+        displayNameSubmitButton.disabled = false;
+        cancelDisplayNameButton.disabled = false;
     }
 }
 
-function handleDisplayNameCancel() {
+function handleDisplayNameCancel(): void {
+    if (isDisplayNameChangePending) return;
+
     displayNameInput.value = "";
+    displayNameError.textContent = "";
     showViewMode();
 }
 

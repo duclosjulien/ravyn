@@ -3,6 +3,8 @@ package com.ravyn.chat.validation;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
+import static com.ravyn.chat.validation.TextNormalizer.stripBoundaryWhitespace;
+
 public class TrimmedSizeValidator
         implements ConstraintValidator<TrimmedSize, String> {
 
@@ -24,7 +26,9 @@ public class TrimmedSizeValidator
             return true;
         }
 
-        int trimmedLength = value.strip().length();
+        String trimmedValue = stripBoundaryWhitespace(value);
+        int trimmedLength = trimmedValue.codePointCount(0, trimmedValue.length());
+
         return trimmedLength >= min && trimmedLength <= max;
     }
 }

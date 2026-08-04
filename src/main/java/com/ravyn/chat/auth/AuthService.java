@@ -14,6 +14,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
+import static com.ravyn.chat.validation.TextNormalizer.stripBoundaryWhitespace;
+
 @Service
 @Validated
 public class AuthService {
@@ -31,7 +33,7 @@ public class AuthService {
     }
 
     public ChatUserResponse register(
-            @NotBlank @TrimmedSize(min = 2, max = 20)String username,
+            @NotBlank @TrimmedSize(min = 2, max = 20) String username,
             @NotBlank @Size(min = 8, max = 72) String password,
             boolean alreadyAuthenticated){
 
@@ -69,7 +71,9 @@ public class AuthService {
         return toChatUserResponse(user);
     }
 
-    private String normalizeUsername(String username) { return username.strip(); }
+    private String normalizeUsername(String username) {
+        return stripBoundaryWhitespace(username);
+    }
 
     public ChatUserResponse me(AuthenticatedUser user){
         return userService.findUserById(user.id());
