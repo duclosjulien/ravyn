@@ -102,7 +102,7 @@
 
             <div class="account-menu">
                 <button id="accountMenuButton" class="account-menu__trigger" type="button">
-                    <span id="currentUserAvatar" class="account-avatar">J</span>
+                    <span id="currentUserAvatar" class="account-avatar"></span>
 
                     <span class="account-menu__trigger-text">
             <span id="currentUserDisplayName" class="account-display-name"></span>
@@ -113,7 +113,7 @@
 
                 <div id="accountDropdown" class="account-dropdown hidden">
                     <div class="account-dropdown__profile">
-                        <span class="account-avatar account-avatar--large">J</span>
+                        <span id="dropdownUserAvatar" class="account-avatar account-avatar--large"></span>
 
                         <div class="account-dropdown__identity">
                             <div class="account-dropdown__name-row">
@@ -128,6 +128,7 @@
                                             type="text"
                                             maxlength="50"
                                     >
+                                    <div id="displayNameError"></div>
 
                                     <button type="submit">Save</button>
                                     <button id="cancelDisplayNameButton" type="button">
