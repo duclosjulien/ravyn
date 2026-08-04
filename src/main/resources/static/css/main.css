@@ -59,6 +59,7 @@
     --color-error:       var(--clay-500);
     --color-shadow: rgb(from var(--slate-900) r g b / 0.15);
     --color-focus-shadow: rgb(from var(--color-accent) r g b / 0.25);
+    --color-overlay: rgb(from var(--slate-900) r g b / 0.35);
 }
 
 [data-theme="dark"] {
@@ -656,7 +657,7 @@ button:disabled {
     align-items: center;
     justify-content: center;
     padding: 20px;
-    background: rgb(45 57 56 / 0.35);
+    background: var(--color-overlay);
 }
 
 .password-panel {
@@ -734,12 +735,11 @@ button:disabled {
     position: fixed;
     inset: 0;
     z-index: 100;
-
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 20px;
-    background: rgb(45 57 56 / 0.35);
+    background: var(--color-overlay);
 }
 
 .settings-panel {
