@@ -64,7 +64,10 @@ async function handleDisplayNameSubmit(event: SubmitEvent): Promise<void> {
     event.preventDefault();
 
     try {
-        await changeDisplayName(displayNameInput.value);
+        const profile = await changeDisplayName(displayNameInput.value);
+        renderAccountMenuTrigger(profile);
+        renderAccountDropdown(profile);
+        showViewMode();
     }
 
     catch(error) {
@@ -76,8 +79,6 @@ async function handleDisplayNameSubmit(event: SubmitEvent): Promise<void> {
         }
         return;
     }
-    await loadAccountMenu();
-    showViewMode();
 }
 
 function handleDisplayNameCancel() {
