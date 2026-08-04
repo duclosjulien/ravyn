@@ -11,7 +11,11 @@ import {
     userLogin,
     userLogout
 } from './api.js';
+
+import {initializeAccountMenu, loadAccountMenu, clearAccountMenu} from './accountMenu.js';
+
 import {ApiError} from "./errors.js";
+import {initializeSettingsMenu} from "./settings.js";
 
 declare var SockJS: any;
 declare var Stomp: any;
@@ -71,13 +75,16 @@ async function enterApp(): Promise<void> {
     sortConversationList();
     renderConversations();
 
-
     showChatPage();
     updateComposerState();
 
     const socket = new SockJS('/ws');
     stompClient = Stomp.over(socket);
     stompClient.connect({}, onConnected, onError);
+
+    void loadAccountMenu().catch(error => {
+        console.error("Failed to load account menu", error);
+    });
 }
 
 async function connect(event: SubmitEvent): Promise<void> {
@@ -505,6 +512,9 @@ function showErrorPage() {
 }
 
 async function logout() {
+    clearAccountMenu();
+    currentUser = null;
+    
     try {
         await userLogout();
     } catch(error) {
@@ -537,5 +547,8 @@ goToLogin.addEventListener('click', () => {
 logoutButton.addEventListener('click', () => {
     void logout();
 });
+
+initializeAccountMenu();
+initializeSettingsMenu();
 
 void startUp();

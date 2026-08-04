@@ -1,4 +1,4 @@
-import {User, Conversation, UserSummary, MessageResponse, CreateConversationResponse} from './types.js';
+import {User, Conversation, UserSummary, MessageResponse, CreateConversationResponse, SelfProfileResponse} from './types.js';
 import {ApiError} from "./errors.js";
 
 export async function userLogin(username: string, password: string): Promise<User> {
@@ -125,3 +125,40 @@ export async function markConversationAsRead(conversationId: number) : Promise<v
 
     await throwIfApiError(response);
 }
+
+// profile
+
+export async function getCurrentUserProfile(): Promise<SelfProfileResponse> {
+    const response = await fetch("/profile", {
+        method: "GET"
+    });
+
+    await throwIfApiError(response);
+    const selfProfile: SelfProfileResponse = await response.json();
+
+    return selfProfile;
+}
+
+export async function changeDisplayName(displayName: string): Promise<SelfProfileResponse> {
+    const response = await fetch("/profile", {
+        method: "PATCH",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ displayName })
+    });
+
+    await throwIfApiError(response);
+    const selfProfile: SelfProfileResponse = await response.json();
+
+    return selfProfile;
+}
+
+export async function changePassword(currentPassword: string, newPassword: string) {
+    const response = await fetch("/auth/password", {
+        method: "PATCH",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({currentPassword, newPassword})
+    });
+
+    await throwIfApiError(response);
+}
+
