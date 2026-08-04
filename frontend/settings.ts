@@ -8,7 +8,10 @@ const changePasswordFormCancelButton = document.querySelector('#cancelPasswordBu
 const currentPasswordInput = document.querySelector('#currentPassword') as HTMLInputElement;
 const newPasswordInput = document.querySelector('#newPassword') as HTMLInputElement;
 const passwordErrorBox = document.querySelector('#passwordError') as HTMLElement;
+const changePasswordSubmitButton =
+    changePasswordForm.querySelector('button[type="submit"]') as HTMLButtonElement;
 
+let isPasswordChangePending = false;
 let previouslyFocusedElement: HTMLElement | null = null;
 
 export function initializeSettingsMenu() {
@@ -39,8 +42,19 @@ function hidePasswordChangePanel() {
 
 async function handlePasswordSubmit(event: SubmitEvent): Promise<void> {
     event.preventDefault();
+
+    if (isPasswordChangePending) return;
+
+    isPasswordChangePending = true;
+    changePasswordSubmitButton.disabled = true;
+    passwordErrorBox.textContent = "";
+
     try {
-        await changePassword(currentPasswordInput.value, newPasswordInput.value);
+        await changePassword(
+            currentPasswordInput.value,
+            newPasswordInput.value
+        );
+
         hidePasswordChangePanel();
     } catch (error) {
         if (error instanceof ApiError) {
@@ -48,7 +62,9 @@ async function handlePasswordSubmit(event: SubmitEvent): Promise<void> {
         } else {
             passwordErrorBox.textContent = "An unexpected error occurred.";
         }
-        return;
+    } finally {
+        isPasswordChangePending = false;
+        changePasswordSubmitButton.disabled = false;
     }
 }
 
