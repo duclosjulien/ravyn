@@ -30,6 +30,7 @@ export function initializeAccountMenu(): void {
     cancelDisplayNameButton.addEventListener('click', handleDisplayNameCancel);
     settingsButton.addEventListener('click', showSettingsPanel);
     closeSettingsButton.addEventListener('click', hideSettingsPanel);
+
 }
 
 export async function loadAccountMenu(): Promise<void> {

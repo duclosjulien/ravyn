@@ -9,20 +9,32 @@ const currentPasswordInput = document.querySelector('#currentPassword') as HTMLI
 const newPasswordInput = document.querySelector('#newPassword') as HTMLInputElement;
 const passwordErrorBox = document.querySelector('#passwordError') as HTMLElement;
 
+let previouslyFocusedElement: HTMLElement | null = null;
+
 export function initializeSettingsMenu() {
     changePasswordButton.addEventListener('click', showPasswordChangePanel);
     changePasswordForm.addEventListener('submit', handlePasswordSubmit);
     changePasswordFormCancelButton.addEventListener('click', hidePasswordChangePanel);
+    changePasswordModal.addEventListener('keydown', trapPasswordModalFocus);
 }
 
 function showPasswordChangePanel() {
+    previouslyFocusedElement =
+        document.activeElement instanceof HTMLElement
+            ? document.activeElement
+            : null;
+
     changePasswordModal.classList.remove('hidden');
+    currentPasswordInput.focus();
 }
 
 function hidePasswordChangePanel() {
     changePasswordModal.classList.add('hidden');
     changePasswordForm.reset();
     passwordErrorBox.textContent = "";
+
+    previouslyFocusedElement?.focus();
+    previouslyFocusedElement = null;
 }
 
 async function handlePasswordSubmit(event: SubmitEvent): Promise<void> {
@@ -30,16 +42,38 @@ async function handlePasswordSubmit(event: SubmitEvent): Promise<void> {
     try {
         await changePassword(currentPasswordInput.value, newPasswordInput.value);
         hidePasswordChangePanel();
-    } catch(error) {
-        if(error instanceof  ApiError) {
+    } catch (error) {
+        if (error instanceof ApiError) {
             passwordErrorBox.textContent = error.message;
-        }
-        else {
+        } else {
             passwordErrorBox.textContent = "An unexpected error occurred.";
         }
         return;
     }
 }
+
+function trapPasswordModalFocus(event: KeyboardEvent): void {
+    if (event.key !== "Tab") return;
+
+    const focusableElements =
+        changePasswordModal.querySelectorAll<HTMLElement>(
+            'input, button:not([disabled])'
+        );
+
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    if (!firstElement || !lastElement) return;
+
+    if (event.shiftKey && document.activeElement === firstElement) {
+        event.preventDefault();
+        lastElement.focus();
+    } else if (!event.shiftKey && document.activeElement === lastElement) {
+        event.preventDefault();
+        firstElement.focus();
+    }
+}
+
 
 
 
