@@ -101,9 +101,11 @@ function showSettingsPanel(): void {
     settingsModal.classList.remove('hidden');
     showViewMode();
     accountDropdownMenu.classList.add('hidden');
+    closeSettingsButton.focus();
 }
 
 function hideSettingsPanel(): void {
     settingsModal.classList.add('hidden');
+    accountMenuButton.focus();
 }
 
