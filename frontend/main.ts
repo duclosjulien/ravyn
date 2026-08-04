@@ -75,9 +75,10 @@ async function enterApp(): Promise<void> {
     sortConversationList();
     renderConversations();
 
-
     showChatPage();
     updateComposerState();
+
+    await loadAccountMenu();
 
     const socket = new SockJS('/ws');
     stompClient = Stomp.over(socket);
@@ -544,6 +545,5 @@ logoutButton.addEventListener('click', () => {
 
 initializeAccountMenu();
 initializeSettingsMenu();
-void loadAccountMenu();
 
 void startUp();
