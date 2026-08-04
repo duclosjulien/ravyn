@@ -78,11 +78,13 @@ async function enterApp(): Promise<void> {
     showChatPage();
     updateComposerState();
 
-    await loadAccountMenu();
-
     const socket = new SockJS('/ws');
     stompClient = Stomp.over(socket);
     stompClient.connect({}, onConnected, onError);
+
+    void loadAccountMenu().catch(error => {
+        console.error("Failed to load account menu", error);
+    });
 }
 
 async function connect(event: SubmitEvent): Promise<void> {
