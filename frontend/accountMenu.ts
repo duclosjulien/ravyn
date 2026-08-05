@@ -1,0 +1,145 @@
+import {changeDisplayName, getCurrentUserProfile} from "./api.js";
+import {SelfProfileResponse} from "./types.js";
+import {ApiError} from "./errors.js";
+
+const accountMenuButton = document.querySelector('#accountMenuButton') as HTMLButtonElement;
+const accountDropdownMenu = document.querySelector('#accountDropdown') as HTMLElement;
+const currentMenuDisplayName = document.querySelector('#currentUserDisplayName') as HTMLElement;
+const dropdownDisplayName = document.querySelector('#dropdownDisplayName') as HTMLElement;
+const dropdownUsername = document.querySelector('#dropdownUsername') as HTMLElement;
+const editDisplayNameButton = document.querySelector('#editDisplayNameButton') as HTMLButtonElement;
+const displayNameInput = document.querySelector('#displayNameInput') as HTMLInputElement;
+const displayNameForm = document.querySelector('#displayNameForm') as HTMLFormElement;
+const cancelDisplayNameButton = document.querySelector('#cancelDisplayNameButton') as HTMLButtonElement;
+const displayNameView = document.querySelector('#displayNameView') as HTMLElement;
+const settingsButton = document.querySelector('#settingsButton') as HTMLButtonElement;
+const settingsModal = document.querySelector('#settingsModal') as HTMLElement;
+const closeSettingsButton = document.querySelector('#closeSettingsButton') as HTMLButtonElement;
+const displayNameError = document.querySelector('#displayNameError') as HTMLElement;
+const currentUserAvatar = document.querySelector('#currentUserAvatar') as HTMLElement;
+const dropdownUserAvatar = document.querySelector('#dropdownUserAvatar') as HTMLElement;
+
+const displayNameSubmitButton =
+    displayNameForm.querySelector('button[type="submit"]') as HTMLButtonElement;
+
+let isDisplayNameChangePending = false;
+
+function toggleAccountMenu() {
+    accountDropdownMenu.classList.toggle('hidden');
+}
+
+export function initializeAccountMenu(): void {
+    accountMenuButton.addEventListener('click', toggleAccountMenu);
+    editDisplayNameButton.addEventListener('click', editDisplayName);
+    displayNameForm.addEventListener('submit', handleDisplayNameSubmit);
+    cancelDisplayNameButton.addEventListener('click', handleDisplayNameCancel);
+    settingsButton.addEventListener('click', showSettingsPanel);
+    closeSettingsButton.addEventListener('click', hideSettingsPanel);
+
+}
+
+let accountMenuLoadGeneration = 0;
+
+export async function loadAccountMenu(): Promise<void> {
+    const generation = ++accountMenuLoadGeneration;
+    const profile = await getCurrentUserProfile();
+
+    if (generation !== accountMenuLoadGeneration) {
+        return;
+    }
+
+    renderAccountMenuTrigger(profile);
+    renderAccountDropdown(profile);
+}
+
+export function clearAccountMenu(): void {
+    accountMenuLoadGeneration++;
+    currentMenuDisplayName.textContent = "";
+    dropdownDisplayName.textContent = "";
+    dropdownUsername.textContent = "";
+    currentUserAvatar.textContent = "";
+    dropdownUserAvatar.textContent = "";
+    accountDropdownMenu.classList.add("hidden");
+    showViewMode();
+}
+
+function renderAccountMenuTrigger(profile: SelfProfileResponse) {
+    currentMenuDisplayName.textContent = profile.displayName;
+    currentUserAvatar.textContent = getAvatarInitial(profile);
+}
+
+function renderAccountDropdown(profile: SelfProfileResponse) {
+    dropdownDisplayName.textContent = profile.displayName;
+    dropdownUsername.textContent = `@${profile.username}`;
+    dropdownUserAvatar.textContent = getAvatarInitial(profile);
+}
+
+function getAvatarInitial(profile: SelfProfileResponse): string {
+    return profile.displayName.trim().charAt(0).toUpperCase();
+}
+
+function editDisplayName(): void {
+    displayNameInput.value = dropdownDisplayName.textContent ?? "";
+    displayNameError.textContent = "";
+    showEditMode();
+}
+
+async function handleDisplayNameSubmit(event: SubmitEvent): Promise<void> {
+    event.preventDefault();
+
+    if (isDisplayNameChangePending) return;
+
+    isDisplayNameChangePending = true;
+    displayNameSubmitButton.disabled = true;
+    cancelDisplayNameButton.disabled = true;
+    displayNameError.textContent = "";
+
+    try {
+        const profile = await changeDisplayName(displayNameInput.value);
+
+        renderAccountMenuTrigger(profile);
+        renderAccountDropdown(profile);
+        showViewMode();
+    } catch (error) {
+        displayNameError.textContent =
+            error instanceof ApiError
+                ? error.message
+                : "An unexpected error occurred.";
+    } finally {
+        isDisplayNameChangePending = false;
+        displayNameSubmitButton.disabled = false;
+        cancelDisplayNameButton.disabled = false;
+    }
+}
+
+function handleDisplayNameCancel(): void {
+    if (isDisplayNameChangePending) return;
+
+    displayNameInput.value = "";
+    displayNameError.textContent = "";
+    showViewMode();
+}
+
+function showEditMode(): void {
+    displayNameView.classList.add('hidden');
+    displayNameForm.classList.remove('hidden');
+    displayNameInput.focus();
+}
+
+function showViewMode(): void {
+    displayNameForm.classList.add('hidden');
+    displayNameView.classList.remove('hidden');
+}
+
+function showSettingsPanel(): void {
+    settingsModal.classList.remove('hidden');
+    showViewMode();
+    accountDropdownMenu.classList.add('hidden');
+    closeSettingsButton.focus();
+}
+
+function hideSettingsPanel(): void {
+    settingsModal.classList.add('hidden');
+    accountMenuButton.focus();
+}
+

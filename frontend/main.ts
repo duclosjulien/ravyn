@@ -11,7 +11,11 @@ import {
     userLogin,
     userLogout
 } from './api.js';
+
+import {initializeAccountMenu, loadAccountMenu, clearAccountMenu} from './accountMenu.js';
+
 import {ApiError} from "./errors.js";
+import {initializeSettingsMenu} from "./settings.js";
 
 declare var SockJS: any;
 declare var Stomp: any;
@@ -71,6 +75,7 @@ async function enterApp(): Promise<void> {
     sortConversationList();
     renderConversations();
 
+    await loadAccountMenu();
 
     showChatPage();
     updateComposerState();
@@ -505,6 +510,9 @@ function showErrorPage() {
 }
 
 async function logout() {
+    clearAccountMenu();
+    currentUser = null;
+
     try {
         await userLogout();
     } catch(error) {
@@ -537,5 +545,8 @@ goToLogin.addEventListener('click', () => {
 logoutButton.addEventListener('click', () => {
     void logout();
 });
+
+initializeAccountMenu();
+initializeSettingsMenu();
 
 void startUp();

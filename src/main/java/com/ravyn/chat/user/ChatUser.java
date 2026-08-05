@@ -13,8 +13,12 @@ public class ChatUser {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, length = 20)
     private String username;
+
+    @Column(name ="display_name", nullable = false, length = 50)
+    private String displayName;
+
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
 
@@ -23,6 +27,7 @@ public class ChatUser {
     public ChatUser(String username, String passwordHash){
         this.username = username;
         this.passwordHash = passwordHash;
+        this.displayName = username;
     }
 }
 

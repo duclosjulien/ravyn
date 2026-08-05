@@ -96,13 +96,70 @@
                 Start conversation
             </button>
 
-            <button id="logoutButton" type="button">
-                Logout
-            </button>
-
             <div id="recipientError"></div>
             <div class="conversation-section-label">Conversations</div>
             <div id="conversationList"></div>
+
+            <div class="account-menu">
+                <button id="accountMenuButton" class="account-menu__trigger" type="button">
+                    <span id="currentUserAvatar" class="account-avatar"></span>
+
+                    <span class="account-menu__trigger-text">
+            <span id="currentUserDisplayName" class="account-display-name"></span>
+        </span>
+
+                    <span class="account-menu__chevron">⌃</span>
+                </button>
+
+                <div id="accountDropdown" class="account-dropdown hidden">
+                    <div class="account-dropdown__profile">
+                        <span id="dropdownUserAvatar" class="account-avatar account-avatar--large"></span>
+
+                        <div class="account-dropdown__identity">
+                            <div class="account-dropdown__name-row">
+                                <div id="displayNameView">
+                                    <span id="dropdownDisplayName"></span>
+                                    <button id="editDisplayNameButton" class="account-dropdown__edit" type="button">Edit</button>
+                                </div>
+
+                                <form id="displayNameForm" class="hidden">
+                                    <input
+                                            id="displayNameInput"
+                                            type="text"
+                                            maxlength="50"
+                                    >
+                                    <div id="displayNameError"></div>
+
+                                    <button type="submit">Save</button>
+                                    <button id="cancelDisplayNameButton" type="button">
+                                        Cancel
+                                    </button>
+                                </form>
+                            </div>
+
+                            <span id="dropdownUsername" class="account-username"></span>
+                        </div>
+                    </div>
+
+                    <div class="account-dropdown__divider"></div>
+
+                    <button
+                            id="settingsButton"
+                            class="account-dropdown__action"
+                            type="button"
+                    >
+                        Settings
+                    </button>
+
+                    <button
+                            id="logoutButton"
+                            class="account-dropdown__action account-dropdown__action--danger"
+                            type="button"
+                    >
+                        Log out
+                    </button>
+                </div>
+            </div>
         </aside>
 
         <main class="chat-panel">
@@ -142,6 +199,92 @@
         </main>
 
     </div>
+    <div id="settingsModal" class="settings-modal hidden">
+        <div class="settings-panel">
+            <div class="settings-panel__header">
+                <h2>Settings</h2>
+
+                <button id="closeSettingsButton" type="button">
+                    ×
+                </button>
+            </div>
+
+            <div class="settings-section">
+                <h3>Appearance</h3>
+
+                <button
+                        id="themeSettingsButton"
+                        class="settings-option"
+                        type="button"
+                >
+                <span>
+                    <strong>Theme</strong>
+                    <small>Choose how Ravyn looks</small>
+                </span>
+
+                    <span>›</span>
+                </button>
+            </div>
+
+            <div class="settings-section">
+                <h3>Account</h3>
+
+                <button
+                        id="changePasswordButton"
+                        class="settings-option"
+                        type="button"
+                >
+                <span>
+                    <strong>Change password</strong>
+                    <small>Update your account password</small>
+                </span>
+
+                    <span>›</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div id="passwordModal" class="password-modal hidden">
+        <div class="password-panel">
+            <h2>Change password</h2>
+
+            <form id="changePasswordForm">
+                <label for="currentPassword">Current password</label>
+                <input
+                        id="currentPassword"
+                        type="password"
+                        autocomplete="current-password"
+                >
+
+                <label for="newPassword">New password</label>
+                <input
+                        id="newPassword"
+                        type="password"
+                        autocomplete="new-password"
+                >
+
+                <div id="passwordError"></div>
+
+                <div class="password-panel__actions">
+                    <button
+                            id="cancelPasswordButton"
+                            class="password-panel__cancel"
+                            type="button"
+                    >
+                        Cancel
+                    </button>
+
+                    <button
+                            class="password-panel__save"
+                            type="submit"
+                    >
+                        Change password
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>

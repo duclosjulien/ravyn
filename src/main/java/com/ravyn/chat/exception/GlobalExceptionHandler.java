@@ -1,6 +1,10 @@
 package com.ravyn.chat.exception;
 
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -77,5 +81,40 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handleUserAlreadyAuthenticatedException(UserAlreadyAuthenticatedException exception){
         return new ErrorResponse(exception.getMessage(), ErrorCode.ALREADY_AUTHENTICATED);
+    }
+
+    @ExceptionHandler(AuthenticatedUserNotFoundException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handleAuthenticatedUserNotFoundException(AuthenticatedUserNotFoundException exception){
+        return new ErrorResponse(exception.getMessage(), ErrorCode.AUTHENTICATED_USER_NOT_FOUND);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleMethodArgumentNotValid(
+            MethodArgumentNotValidException exception
+    ) {
+        String message = exception.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .findFirst()
+                .map(FieldError::getDefaultMessage)
+                .orElse("Validation failed.");
+
+        return new ErrorResponse(message, ErrorCode.VALIDATION_FAILED);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleConstraintViolation(
+            ConstraintViolationException exception
+    ) {
+        String message = exception.getConstraintViolations()
+                .stream()
+                .findFirst()
+                .map(ConstraintViolation::getMessage)
+                .orElse("Validation failed.");
+
+        return new ErrorResponse(message, ErrorCode.VALIDATION_FAILED);
     }
 }
