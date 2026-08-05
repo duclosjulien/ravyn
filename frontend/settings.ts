@@ -32,7 +32,11 @@ function showPasswordChangePanel() {
 }
 
 function hidePasswordChangePanel() {
-    changePasswordModal.classList.add('hidden');
+    if (isPasswordChangePending) {
+        return;
+    }
+
+    changePasswordModal.classList.add("hidden");
     changePasswordForm.reset();
     passwordErrorBox.textContent = "";
 
@@ -47,7 +51,10 @@ async function handlePasswordSubmit(event: SubmitEvent): Promise<void> {
 
     isPasswordChangePending = true;
     changePasswordSubmitButton.disabled = true;
+    changePasswordFormCancelButton.disabled = true;
     passwordErrorBox.textContent = "";
+
+    let passwordChanged = false;
 
     try {
         await changePassword(
@@ -55,16 +62,20 @@ async function handlePasswordSubmit(event: SubmitEvent): Promise<void> {
             newPasswordInput.value
         );
 
-        hidePasswordChangePanel();
+        passwordChanged = true;
     } catch (error) {
-        if (error instanceof ApiError) {
-            passwordErrorBox.textContent = error.message;
-        } else {
-            passwordErrorBox.textContent = "An unexpected error occurred.";
-        }
+        passwordErrorBox.textContent =
+            error instanceof ApiError
+                ? error.message
+                : "An unexpected error occurred.";
     } finally {
         isPasswordChangePending = false;
         changePasswordSubmitButton.disabled = false;
+        changePasswordFormCancelButton.disabled = false;
+    }
+
+    if (passwordChanged) {
+        hidePasswordChangePanel();
     }
 }
 
