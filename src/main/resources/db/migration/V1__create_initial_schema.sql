@@ -50,6 +50,7 @@ CREATE TABLE connection (
     status VARCHAR(20) NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
     resolved_at TIMESTAMP WITH TIME ZONE,
+    version BIGINT NOT NULL DEFAULT 0,
     CONSTRAINT fk_connection_sender FOREIGN KEY (request_sender_id) REFERENCES chat_user(id),
     CONSTRAINT fk_connection_receiver FOREIGN KEY (request_receiver_id) REFERENCES chat_user(id),
     CONSTRAINT chk_connection_not_self CHECK (request_sender_id != request_receiver_id),
