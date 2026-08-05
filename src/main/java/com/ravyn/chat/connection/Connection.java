@@ -23,7 +23,7 @@ public class Connection {
     @Column(nullable = false)
     private ConnectionStatus status;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
     @Column(name = "resolved_at")
