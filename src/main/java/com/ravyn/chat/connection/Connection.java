@@ -13,10 +13,10 @@ public class Connection {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "request_sender_id", nullable = false, updatable = false)
+    @Column(name = "request_sender_id", nullable = false)
     private Long requestSenderId;
 
-    @Column(name = "request_receiver_id", nullable = false, updatable = false)
+    @Column(name = "request_receiver_id", nullable = false)
     private Long requestReceiverId;
 
     @Enumerated(EnumType.STRING)
@@ -28,6 +28,10 @@ public class Connection {
 
     @Column(name = "resolved_at")
     private Instant resolvedAt;
+
+    @Version
+    @Column(nullable = false)
+    private Long version;
 
     protected Connection() {}
 
@@ -54,5 +58,17 @@ public class Connection {
         if (status != ConnectionStatus.PENDING) {
             throw new IllegalStateException("Only pending connections can be resolved");
         }
+    }
+
+    public void reopen(Long newSenderId, Long newReceiverId) {
+        if (status != ConnectionStatus.REJECTED) {
+            throw new IllegalStateException();
+        }
+
+        this.requestSenderId = newSenderId;
+        this.requestReceiverId = newReceiverId;
+        this.status = ConnectionStatus.PENDING;
+        this.createdAt = Instant.now();
+        this.resolvedAt = null;
     }
 }
