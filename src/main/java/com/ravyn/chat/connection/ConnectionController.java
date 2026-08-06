@@ -6,6 +6,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Validated
 @RestController
 @RequestMapping("/connections")
@@ -22,5 +24,10 @@ public class ConnectionController {
             @PathVariable @Positive Long receiverId) {
 
         return connectionService.requestConnection(user.id(), receiverId);
+    }
+
+    @GetMapping("/requests/incoming")
+    public List<IncomingConnectionRequestResponse> getIncomingConnectionRequests(@AuthenticationPrincipal AuthenticatedUser user) {
+        return connectionService.getIncomingConnectionRequests(user.id());
     }
 }

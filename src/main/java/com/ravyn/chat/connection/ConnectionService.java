@@ -2,11 +2,11 @@ package com.ravyn.chat.connection;
 
 import com.ravyn.chat.exception.*;
 import com.ravyn.chat.user.UserService;
-import org.springframework.dao.DataIntegrityViolationException;
+import com.ravyn.chat.user.UserSummary;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class ConnectionService {
@@ -24,16 +24,12 @@ public class ConnectionService {
             throw new SelfConnectionException();
         }
 
-        userService.ensureUserExists(requestSenderId);
+        userService.ensureAuthenticatedUserExists(requestSenderId);
         userService.ensureUserExists(requestReceiverId);
 
         Optional<Connection> existingConnection = connectionRepository.findConnectionBetweenUserIds(requestSenderId, requestReceiverId);
         if (existingConnection.isEmpty()) {
-            try {
-                return createConnection(requestSenderId, requestReceiverId);
-            } catch(DataIntegrityViolationException exception) {
-                throw new ConnectionRequestAlreadyPendingException();
-            }
+            return createConnection(requestSenderId, requestReceiverId);
         }
 
         Connection connection = existingConnection.get();
@@ -62,6 +58,18 @@ public class ConnectionService {
         throw new IncomingConnectionRequestExistsException();
     }
 
+    @Transactional(readOnly = true)
+    public List<IncomingConnectionRequestResponse> getIncomingConnectionRequests(Long userId) {
+        userService.ensureAuthenticatedUserExists(userId);
+
+        List<Connection> pendingConnections =
+                connectionRepository.findByRequestReceiverIdAndStatusOrderByCreatedAtDesc(userId, ConnectionStatus.PENDING);
+
+        return toIncomingConnectionRequestResponses(pendingConnections);
+    }
+
+    // helper methods
+
     private ConnectionResponse toConnectionResponse(Connection connection) {
         return new ConnectionResponse(
                 connection.getId(),
@@ -69,5 +77,31 @@ public class ConnectionService {
                 connection.getRequestReceiverId(),
                 connection.getStatus(),
                 connection.getCreatedAt());
+    }
+
+    private List<IncomingConnectionRequestResponse> toIncomingConnectionRequestResponses(List<Connection> connections) {
+        List<IncomingConnectionRequestResponse> connectionResponses = new ArrayList<>();
+        Map<Long, UserSummary> userSummaryMap = userService.buildUserSummaryMap(extractSenderIds(connections));
+        for(Connection connection : connections) {
+            connectionResponses.add(toIncomingRequestResponse(connection, userSummaryMap.get(connection.getRequestSenderId())));
+        }
+        return connectionResponses;
+    }
+
+    private IncomingConnectionRequestResponse toIncomingRequestResponse(Connection connection, UserSummary userSummary) {
+        return new IncomingConnectionRequestResponse(
+                connection.getId(),
+                connection.getStatus(),
+                connection.getCreatedAt(),
+                userSummary
+        );
+    }
+
+    private Set<Long> extractSenderIds(List<Connection> connections) {
+        Set<Long> userIds = new HashSet<>();
+        for(Connection connection : connections) {
+            userIds.add(connection.getRequestSenderId());
+        }
+        return userIds;
     }
 }
