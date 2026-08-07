@@ -69,13 +69,13 @@ public class ConnectionService {
     }
 
     @Transactional
-    public ConnectionResolutionResponse acceptConnection(Long currentUserId, Long connectionId) {
-        userService.ensureAuthenticatedUserExists(currentUserId);
+    public ConnectionResolutionResponse acceptConnection(Long userId, Long connectionId) {
+        userService.ensureAuthenticatedUserExists(userId);
 
         Connection connection = connectionRepository.findById(connectionId)
                 .orElseThrow(() -> new ConnectionRequestNotFoundException(connectionId));
 
-        validateRequestReceiver(currentUserId, connection);
+        validateRequestReceiver(userId, connection);
         connection.accept();
         return toConnectionResolutionResponse(connection);
     }
@@ -90,6 +90,25 @@ public class ConnectionService {
         validateRequestReceiver(currentUserId, connection);
         connection.reject();
         return toConnectionResolutionResponse(connection);
+    }
+
+    @Transactional(readOnly = true)
+    public List<AcceptedConnectionResponse> getAcceptedConnections(Long userId) {
+        userService.ensureAuthenticatedUserExists(userId);
+
+        List<Connection> acceptedConnections =
+                connectionRepository.findConnectionsByUserIdAndStatus(userId, ConnectionStatus.ACCEPTED);
+
+        Map<Long, UserSummary> otherUserSummaryMap = getOtherUserSummaryMap(userId, acceptedConnections);
+
+        List<AcceptedConnectionResponse> acceptedConnectionResponses = toAcceptedConnectionResponses(userId, acceptedConnections, otherUserSummaryMap);
+        acceptedConnectionResponses.sort(
+                Comparator.comparing(
+                        response -> response.connectedUser().getDisplayName()
+                )
+        );
+
+        return acceptedConnectionResponses;
     }
 
     // utility methods
@@ -133,9 +152,47 @@ public class ConnectionService {
         return userIds;
     }
 
+    private Set<Long> extractOtherUserIds(Long currentUserId, List<Connection> connections) {
+        Set<Long> otherUserIds = new HashSet<>();
+        for(Connection connection : connections) {
+            otherUserIds.add(getOtherUserId(currentUserId, connection));
+        }
+
+        return otherUserIds;
+    }
+
     private void validateRequestReceiver(Long currentUserId, Connection connection) {
         if(!currentUserId.equals(connection.getRequestReceiverId())) {
             throw new ConnectionRequestAccessDeniedException();
         }
     }
+
+    private AcceptedConnectionResponse toAcceptedConnectionResponse(Connection connection, UserSummary userSummary) {
+        return new AcceptedConnectionResponse(connection.getId(), userSummary);
+    }
+
+    private List<AcceptedConnectionResponse> toAcceptedConnectionResponses(Long currentUserId, List<Connection> connections, Map<Long, UserSummary> userSummaryMap) {
+        List<AcceptedConnectionResponse> acceptedConnectionResponses = new ArrayList<>();
+
+        for(Connection connection : connections) {
+            acceptedConnectionResponses.add(toAcceptedConnectionResponse(connection, userSummaryMap.get(getOtherUserId(currentUserId, connection))));
+        }
+
+        return acceptedConnectionResponses;
+    }
+
+    private Long getOtherUserId(Long currentUserId, Connection connection) {
+        Long requestSenderId = connection.getRequestSenderId();
+
+        return currentUserId.equals(requestSenderId)
+                ? connection.getRequestReceiverId()
+                : requestSenderId;
+    }
+
+    private Map<Long, UserSummary> getOtherUserSummaryMap(Long currentUserId, List<Connection> connections) {
+        Set<Long> otherUserIds = extractOtherUserIds(currentUserId, connections);
+
+        return userService.buildUserSummaryMap(otherUserIds);
+    }
 }
+

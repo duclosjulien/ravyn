@@ -104,6 +104,13 @@ public class UserService {
         return new PublicProfileResponse(user.getId(), user.getUsername(), user.getDisplayName());
     }
 
+    public UserSummary toUserSummary(ChatUser user) {
+        return new UserSummary(
+                user.getId(),
+                user.getUsername(),
+                user.getDisplayName());
+    }
+
     public Map<Long, UserSummary> buildUserSummaryMap(Set<Long> userIds) {
         List<ChatUser> users = userRepository.findAllById(userIds);
         Map<Long, UserSummary> chatUserSummaryMap = new HashMap<>();
@@ -111,11 +118,7 @@ public class UserService {
         for(ChatUser user : users) {
             chatUserSummaryMap.put(
                     user.getId(),
-                    new UserSummary(
-                            user.getId(),
-                            user.getUsername(),
-                            user.getDisplayName()
-                            ));
+                    toUserSummary(user));
         }
 
         if (chatUserSummaryMap.size() != userIds.size()) {
