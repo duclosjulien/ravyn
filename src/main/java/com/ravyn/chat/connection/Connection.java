@@ -1,5 +1,6 @@
 package com.ravyn.chat.connection;
 
+import com.ravyn.chat.exception.ConnectionRequestAlreadyResolvedException;
 import jakarta.persistence.*;
 import lombok.Getter;
 
@@ -56,7 +57,7 @@ public class Connection {
 
     private void ensurePending() {
         if (status != ConnectionStatus.PENDING) {
-            throw new IllegalStateException("Only pending connections can be resolved");
+            throw new ConnectionRequestAlreadyResolvedException();
         }
     }
 
