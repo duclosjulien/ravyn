@@ -50,4 +50,9 @@ public class ConnectionController {
     ) {
         return connectionService.rejectConnection(user.id(), connectionId);
     }
+
+    @GetMapping
+    public List<AcceptedConnectionResponse> getAcceptedConnections(@AuthenticationPrincipal AuthenticatedUser user) {
+        return connectionService.getAcceptedConnections(user.id());
+    }
 }
