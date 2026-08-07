@@ -121,7 +121,7 @@ public class UserService {
         if (chatUserSummaryMap.size() != userIds.size()) {
             throw new DataIntegrityException();
         }
-        
+
         return chatUserSummaryMap;
     }
 }

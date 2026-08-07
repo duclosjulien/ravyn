@@ -165,4 +165,22 @@ public class GlobalExceptionHandler {
                         ErrorCode.CORRUPTED_DATA
                 ));
     }
+
+    @ExceptionHandler(ConnectionRequestNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleConnectionNotFoundException(ConnectionRequestNotFoundException exception) {
+        return new ErrorResponse(exception.getMessage(), ErrorCode.CONNECTION_REQUEST_NOT_FOUND);
+    }
+
+    @ExceptionHandler(ConnectionRequestAccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorResponse handleConnectionRequestAccessDeniedException(ConnectionRequestAccessDeniedException exception) {
+        return new ErrorResponse(exception.getMessage(), ErrorCode.CONNECTION_REQUEST_ACCESS_DENIED);
+    }
+
+    @ExceptionHandler(ConnectionRequestAlreadyResolvedException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleConnectionRequestAlreadyResolvedException(ConnectionRequestAlreadyResolvedException exception) {
+        return new ErrorResponse(exception.getMessage(), ErrorCode.CONNECTION_REQUEST_ALREADY_RESOLVED);
+    }
 }

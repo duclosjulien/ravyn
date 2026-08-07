@@ -21,13 +21,33 @@ public class ConnectionController {
     @PostMapping("/requests/{receiverId}")
     public ConnectionResponse requestConnection(
             @AuthenticationPrincipal AuthenticatedUser user,
-            @PathVariable @Positive Long receiverId) {
+            @PathVariable @Positive Long receiverId
+    ) {
 
         return connectionService.requestConnection(user.id(), receiverId);
     }
 
     @GetMapping("/requests/incoming")
-    public List<IncomingConnectionRequestResponse> getIncomingConnectionRequests(@AuthenticationPrincipal AuthenticatedUser user) {
+    public List<IncomingConnectionRequestResponse> getIncomingConnectionRequests(
+            @AuthenticationPrincipal AuthenticatedUser user
+    ) {
+
         return connectionService.getIncomingConnectionRequests(user.id());
+    }
+
+    @PatchMapping("/requests/{connectionId}/accept")
+    public ConnectionResolutionResponse acceptConnection(
+            @AuthenticationPrincipal AuthenticatedUser user,
+            @PathVariable @Positive Long connectionId
+    ) {
+        return connectionService.acceptConnection(user.id(), connectionId);
+    }
+
+    @PatchMapping("/requests/{connectionId}/reject")
+    public ConnectionResolutionResponse rejectConnection(
+            @AuthenticationPrincipal AuthenticatedUser user,
+            @PathVariable @Positive Long connectionId
+    ) {
+        return connectionService.rejectConnection(user.id(), connectionId);
     }
 }

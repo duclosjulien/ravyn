@@ -68,7 +68,31 @@ public class ConnectionService {
         return toIncomingConnectionRequestResponses(pendingConnections);
     }
 
-    // helper methods
+    @Transactional
+    public ConnectionResolutionResponse acceptConnection(Long currentUserId, Long connectionId) {
+        userService.ensureAuthenticatedUserExists(currentUserId);
+
+        Connection connection = connectionRepository.findById(connectionId)
+                .orElseThrow(() -> new ConnectionRequestNotFoundException(connectionId));
+
+        validateRequestReceiver(currentUserId, connection);
+        connection.accept();
+        return toConnectionResolutionResponse(connection);
+    }
+
+    @Transactional
+    public ConnectionResolutionResponse rejectConnection(Long currentUserId, Long connectionId) {
+        userService.ensureAuthenticatedUserExists(currentUserId);
+
+        Connection connection = connectionRepository.findById(connectionId)
+                .orElseThrow(() -> new ConnectionRequestNotFoundException(connectionId));
+
+        validateRequestReceiver(currentUserId, connection);
+        connection.reject();
+        return toConnectionResolutionResponse(connection);
+    }
+
+    // utility methods
 
     private ConnectionResponse toConnectionResponse(Connection connection) {
         return new ConnectionResponse(
@@ -77,6 +101,10 @@ public class ConnectionService {
                 connection.getRequestReceiverId(),
                 connection.getStatus(),
                 connection.getCreatedAt());
+    }
+
+    private ConnectionResolutionResponse toConnectionResolutionResponse(Connection connection) {
+        return new ConnectionResolutionResponse(connection.getId(), connection.getStatus());
     }
 
     private List<IncomingConnectionRequestResponse> toIncomingConnectionRequestResponses(List<Connection> connections) {
@@ -103,5 +131,11 @@ public class ConnectionService {
             userIds.add(connection.getRequestSenderId());
         }
         return userIds;
+    }
+
+    private void validateRequestReceiver(Long currentUserId, Connection connection) {
+        if(!currentUserId.equals(connection.getRequestReceiverId())) {
+            throw new ConnectionRequestAccessDeniedException();
+        }
     }
 }
