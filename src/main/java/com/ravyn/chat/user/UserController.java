@@ -10,7 +10,7 @@ public class UserController {
     public UserController(UserService userService) {this.userService = userService;}
 
     @GetMapping("/search")
-    public UserSummaryResponse findUserByUsername(@RequestParam String username){
+    public UserSearchResponse findUserByUsername(@RequestParam String username){
         return userService.findUserByUsername(username);
     }
 
