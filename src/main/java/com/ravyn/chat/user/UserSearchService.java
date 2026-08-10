@@ -7,9 +7,11 @@ import com.ravyn.chat.connection.ConnectionStatus;
 import com.ravyn.chat.exception.CannotSearchSelfException;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.Optional;
 
+@Validated
 @Service
 public class UserSearchService {
     private final UserService userService;
