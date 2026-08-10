@@ -3,6 +3,7 @@ package com.ravyn.chat.connection;
 import com.ravyn.chat.exception.*;
 import com.ravyn.chat.user.UserService;
 import com.ravyn.chat.user.UserSummary;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +17,10 @@ public class ConnectionService {
     public ConnectionService(ConnectionRepository connectionRepository, UserService userService) {
         this.connectionRepository = connectionRepository;
         this.userService = userService;
+    }
+
+    public Optional<Connection> getConnectionBetweenUserIds(@NotNull Long currentUserId, @NotNull Long otherUserId) {
+        return connectionRepository.findConnectionBetweenUserIds(currentUserId, otherUserId);
     }
 
     @Transactional
