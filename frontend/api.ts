@@ -195,7 +195,7 @@ export async function acceptConnection(connectionId: number): Promise<Connection
 
     await throwIfApiError(response);
 
-    const connection: ConnectionResolutionResponse = await respone.json();
+    const connection: ConnectionResolutionResponse = await response.json();
     return connection;
 }
 
