@@ -305,15 +305,15 @@ async function startConversation(event: MouseEvent): Promise<void> {
     }
 
     try {
-        const conversationId = await createConversation(recipientUser.id);
+        const conversationId = await createConversation(recipientUser.user.id);
         recipientError.textContent = "";
         recipientUsernameInput.value = "";
 
         if(!conversations.some(c => c.id === conversationId)){
             conversations.push({
                 id: conversationId,
-                otherUserId: recipientUser.id,
-                otherUsername: recipientUser.username,
+                otherUserId: recipientUser.user.id,
+                otherUsername: recipientUser.user.username,
                 lastMessageContent: null,
                 lastMessageCreatedAt: null,
                 lastMessageSenderId: null,
@@ -321,7 +321,7 @@ async function startConversation(event: MouseEvent): Promise<void> {
             });
             renderConversations();
         }
-        await selectConversation(conversationId, recipientUser.username);
+        await selectConversation(conversationId, recipientUser.user.username);
     }
     catch (error) {
         if (error instanceof Error)
