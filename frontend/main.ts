@@ -298,13 +298,13 @@ function formatMessageTime(createdAt: string | null): string {
 async function startConversation(event: MouseEvent): Promise<void> {
     event.preventDefault();
 
-    const recipientUser = await findUserByUsername(recipientUsernameInput.value.trim());
-    if(recipientUser == null) {
-        recipientError.textContent = "User not found";
-        return;
-    }
-
     try {
+        const recipientUser = await findUserByUsername(recipientUsernameInput.value.trim());
+        if(recipientUser == null) {
+            recipientError.textContent = "User not found";
+            return;
+        }
+
         const conversationId = await createConversation(recipientUser.user.id);
         recipientError.textContent = "";
         recipientUsernameInput.value = "";
