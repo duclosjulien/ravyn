@@ -32,9 +32,51 @@ export interface CreateConversationResponse {
     id: number;
 }
 
+export interface UserSearchResponse {
+    user: UserSummary
+    relationshipState: ConnectionRelationshipState
+}
+
 export interface UserSummary {
     id: number;
     username: string;
+    displayName: string;
+}
+
+export interface ConnectionResponse {
+    id: number;
+    requestSenderId: number;
+    requestReceiverId: number;
+    status: ConnectionStatus;
+    createdAt: string;
+}
+
+export type ConnectionRelationshipState =
+    "NONE" |
+    "OUTGOING_PENDING" |
+    "INCOMING_PENDING" |
+    "CONNECTED" |
+    "REJECTED"
+;
+
+export interface IncomingConnectionRequestResponse {
+    id: number;
+    status: ConnectionStatus;
+    createdAt: string;
+    requestSenderSummary: UserSummary;
+}
+
+export type ConnectionStatus =
+    "PENDING" | "ACCEPTED" | "REJECTED";
+
+export interface ConnectionResolutionResponse {
+    connectionId: number;
+    status: ConnectionStatus;
+}
+
+export interface AcceptedConnectionResponse {
+    connectionId: number;
+    connectedUser: UserSummary;
 }
 
 export interface MessageResponse{
