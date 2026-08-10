@@ -54,10 +54,9 @@ public class UserService {
 
     // utility functions
 
-    public UserSearchResponse findUserByUsername(String username){
-        ChatUser user = userRepository.findByUsername(username)
+    public ChatUser findUserByUsername(String username){
+        return userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException(username));
-        return toUserSearchResponse(user);
     }
 
     public Optional<ChatUser> findUserEntityByUsername(String username) {
@@ -94,10 +93,6 @@ public class UserService {
 
     private SelfProfileResponse toSelfProfileResponse(ChatUser user) {
         return new SelfProfileResponse(user.getId(), user.getUsername(), user.getDisplayName());
-    }
-
-    private UserSearchResponse toUserSearchResponse(ChatUser user) {
-        return new UserSearchResponse(user.getId(), user.getUsername(), user.getDisplayName());
     }
 
     private PublicProfileResponse toPublicProfileResponse(ChatUser user) {

@@ -183,4 +183,16 @@ public class GlobalExceptionHandler {
     public ErrorResponse handleConnectionRequestAlreadyResolvedException(ConnectionRequestAlreadyResolvedException exception) {
         return new ErrorResponse(exception.getMessage(), ErrorCode.CONNECTION_REQUEST_ALREADY_RESOLVED);
     }
+
+    @ExceptionHandler(ConnectionNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleConnectionNotFoundException(ConnectionNotFoundException exception) {
+        return new ErrorResponse(exception.getMessage(), ErrorCode.CONNECTION_NOT_FOUND);
+    }
+
+    @ExceptionHandler(CannotSearchSelfException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleCannotSearchForSelfException(CannotSearchSelfException exception) {
+        return new ErrorResponse(exception.getMessage(), ErrorCode.SEARCH_FOR_SELF);
+    }
 }
