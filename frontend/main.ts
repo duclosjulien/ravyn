@@ -2,8 +2,6 @@
 
 import { MessageRequest, Conversation, StompPayload, User, MessageResponse } from './types.js';
 import {
-    createConversation,
-    findUserByUsername,
     getCurrentUser,
     getCurrentUserConversations,
     getMessagesForConversation, markConversationAsRead,
@@ -16,6 +14,7 @@ import {initializeAccountMenu, loadAccountMenu, clearAccountMenu} from './accoun
 
 import {ApiError} from "./errors.js";
 import {initializeSettingsMenu} from "./settings.js";
+import {initializeUserSearch} from "./userSearch.js";
 
 declare var SockJS: any;
 declare var Stomp: any;
@@ -37,12 +36,9 @@ const messageForm = document.querySelector('#messageForm') as HTMLFormElement;
 const messageInput = document.querySelector('#message') as HTMLInputElement;
 const sendMessageButton = document.querySelector('#messageForm button') as HTMLButtonElement;
 const messageArea = document.querySelector('#messageArea') as HTMLElement;
-const recipientUsernameInput = document.querySelector('#recipientUsername') as HTMLInputElement;
 const conversationList = document.querySelector('#conversationList') as HTMLElement;
-const startConversationButton = document.querySelector('#startConversationButton') as HTMLButtonElement;
 const goToRegister = document.querySelector('#goToRegister') as HTMLButtonElement;
 const goToLogin = document.querySelector('#goToLogin') as HTMLButtonElement;
-const recipientError = document.querySelector('#recipientError') as HTMLElement;
 const loginError = document.querySelector('#loginError') as HTMLElement;
 const registerError = document.querySelector('#registerError') as HTMLElement;
 const registerButton = document.querySelector('#registerButton') as HTMLButtonElement;
@@ -52,6 +48,7 @@ const chatHeaderAvatar = document.querySelector('#chatHeaderAvatar') as HTMLElem
 const chatHeaderTitle = document.querySelector('#chatHeaderTitle') as HTMLElement;
 const chatHeaderStatus = document.querySelector('#chatHeaderStatus') as HTMLElement;
 const conversationError = document.querySelector('#conversationError') as HTMLElement;
+
 
 async function startUp(): Promise<void> {
     showBootPage();
@@ -294,7 +291,7 @@ function formatMessageTime(createdAt: string | null): string {
 
     return new Date(createdAt).toLocaleDateString();
 }
-
+/*
 async function startConversation(event: MouseEvent): Promise<void> {
     event.preventDefault();
 
@@ -328,7 +325,7 @@ async function startConversation(event: MouseEvent): Promise<void> {
             recipientError.textContent = error.message;
     }
 }
-
+*/
 function renderConversations(): void {
     conversationList.innerHTML = '';
     for (const conversation of conversations)
@@ -533,7 +530,6 @@ async function logout() {
 usernameForm.addEventListener('submit', connect, true);
 registerForm.addEventListener('submit', register, true);
 messageForm.addEventListener('submit', sendMessage, true);
-startConversationButton.addEventListener('click', startConversation);
 
 goToRegister.addEventListener('click', () => {
     showRegisterPage();
@@ -548,5 +544,6 @@ logoutButton.addEventListener('click', () => {
 
 initializeAccountMenu();
 initializeSettingsMenu();
+initializeUserSearch();
 
 void startUp();
