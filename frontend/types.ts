@@ -33,8 +33,9 @@ export interface CreateConversationResponse {
 }
 
 export interface UserSearchResponse {
-    user: UserSummary
-    relationshipState: ConnectionRelationshipState
+    user: UserSummary;
+    relationshipState: ConnectionRelationshipState;
+    connectionId: number | null;
 }
 
 export interface UserSummary {

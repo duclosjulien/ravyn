@@ -90,13 +90,42 @@
                 <p>CHAT SIMPLY. CONNECT DEEPLY.</p>
             </div>
 
-            <input id="recipientUsername" placeholder="Search Ravyn" />
+            <div class="user-search">
+                <form id="userSearchForm" class="user-search-form">
+                    <div class="user-search-input-row">
+                        <label for="userSearchUsernameInput" class="visually-hidden">
+                            Search by username
+                        </label>
 
-            <button id="startConversationButton" type="button">
-                Start conversation
-            </button>
+                        <input
+                                id="userSearchUsernameInput"
+                                class="user-search-input"
+                                type="text"
+                                autocomplete="off"
+                                placeholder="Search"
+                        />
+                    </div>
+                </form>
+                <div id="userSearchStatus"
+                     class="user-search-status"
+                     aria-live="polite"></div>
+                <div id="userSearchError"
+                     class="user-search-error"
+                     aria-live="polite"></div>
 
-            <div id="recipientError"></div>
+                <div id="userSearchResult" class="user-search-result hidden">
+                    <div class="user-search-identity">
+                        <div id="userSearchDisplayName"
+                             class="user-search-display-name"></div>
+                        <div id="userSearchUsername"
+                             class="user-search-username"></div>
+                    </div>
+
+                    <div id="userSearchAction"
+                         class="user-search-action"></div>
+                </div>
+            </div>
+
             <div class="conversation-section-label">Conversations</div>
             <div id="conversationList"></div>
 

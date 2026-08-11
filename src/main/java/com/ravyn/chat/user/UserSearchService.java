@@ -38,11 +38,15 @@ public class UserSearchService {
                         .map(c -> getConnectionRelationshipState(currentUserId, c))
                         .orElse(ConnectionRelationshipState.NONE);
 
-        return toUserSearchResponse(otherUser, state);
+        Long connectionId = connection
+                .map(Connection::getId)
+                .orElse(null);
+
+        return toUserSearchResponse(otherUser, state, connectionId);
     }
 
-    private UserSearchResponse toUserSearchResponse(@NotNull ChatUser user, @NotNull ConnectionRelationshipState state) {
-        return new UserSearchResponse(userService.toUserSummary(user), state);
+    private UserSearchResponse toUserSearchResponse(@NotNull ChatUser user, @NotNull ConnectionRelationshipState state, Long connectionId) {
+        return new UserSearchResponse(userService.toUserSummary(user), state, connectionId);
     }
 
     private ConnectionRelationshipState getConnectionRelationshipState(@NotNull Long currentUserId, @NotNull Connection connection) {

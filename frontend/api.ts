@@ -188,7 +188,7 @@ export async function getIncomingConnectionRequests(): Promise<IncomingConnectio
     return request;
 }
 
-export async function acceptConnection(connectionId: number): Promise<ConnectionResolutionResponse> {
+export async function acceptConnectionRequest(connectionId: number): Promise<ConnectionResolutionResponse> {
     const response = await fetch(`/connections/requests/${connectionId}/accept`, {
         method: "PATCH"
     })
@@ -199,7 +199,7 @@ export async function acceptConnection(connectionId: number): Promise<Connection
     return connection;
 }
 
-export async function rejectConnection(connectionId: number): Promise<ConnectionResolutionResponse> {
+export async function rejectConnectionRequest(connectionId: number): Promise<ConnectionResolutionResponse> {
     const response = await fetch(`/connections/requests/${connectionId}/reject`, {
         method: "PATCH"
     })
