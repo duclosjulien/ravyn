@@ -866,18 +866,6 @@ button:disabled {
     box-shadow: 0 0 0 3px var(--color-focus-shadow);
 }
 
-.user-search-submit {
-    padding: 10px 14px;
-    border-radius: 12px;
-    background: var(--color-soft-surface);
-    color: var(--color-link);
-    font-weight: 600;
-}
-
-.user-search-submit:hover:not(:disabled) {
-    background: var(--sage-200);
-}
-
 .user-search-error {
     min-height: 20px;
     margin-bottom: 8px;
