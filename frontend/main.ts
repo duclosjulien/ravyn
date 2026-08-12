@@ -16,7 +16,7 @@ import {ApiError} from "./errors.js";
 import {initializeSettingsMenu} from "./settings.js";
 import {initializeUserSearch} from "./userSearch.js";
 import {initializeSidebar} from "./sidebar.js";
-import {loadConnections} from "./connections.js";
+import {clearConnections, loadConnections} from "./connections.js";
 
 declare var SockJS: any;
 declare var Stomp: any;
@@ -522,6 +522,7 @@ function showErrorPage() {
 
 async function logout() {
     clearAccountMenu();
+    clearConnections();
     currentUser = null;
 
     try {
