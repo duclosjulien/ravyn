@@ -126,8 +126,39 @@
                 </div>
             </div>
 
-            <div class="conversation-section-label">Conversations</div>
-            <div id="conversationList"></div>
+            <div class="sidebar-tabs">
+                <button
+                        id="conversationsTabButton"
+                        class="sidebar-tab sidebar-tab--active"
+                        type="button"
+                >
+                    Conversations
+                </button>
+
+                <button
+                        id="connectionsTabButton"
+                        class="sidebar-tab"
+                        type="button"
+                >
+                    Connections
+                </button>
+            </div>
+
+            <div id="conversationsView">
+                <div id="conversationError" aria-live="polite"></div>
+                <div id="conversationList"></div>
+            </div>
+
+            <div id="connectionsView" class="hidden">
+                <div id="connectionError" aria-live="polite"></div>
+                <div id="incomingConnectionsSection">
+                    <div class="connections-section-label">Requests</div>
+                    <div id="incomingConnectionsList"></div>
+                </div>
+
+                <div class="connections-section-label">Connections</div>
+                <div id="acceptedConnectionsList"></div>
+            </div>
 
             <div class="account-menu">
                 <button id="accountMenuButton" class="account-menu__trigger" type="button">
@@ -209,8 +240,6 @@
                     <p>Search Ravyn or choose someone from your conversations.</p>
                 </li>
             </ul>
-
-            <div id="conversationError" class="hidden"></div>
 
             <form id="messageForm" name="messageForm">
                 <div class="form-group">

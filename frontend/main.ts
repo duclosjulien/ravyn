@@ -15,6 +15,8 @@ import {initializeAccountMenu, loadAccountMenu, clearAccountMenu} from './accoun
 import {ApiError} from "./errors.js";
 import {initializeSettingsMenu} from "./settings.js";
 import {initializeUserSearch} from "./userSearch.js";
+import {initializeSidebar} from "./sidebar.js";
+import {loadConnections} from "./connections.js";
 
 declare var SockJS: any;
 declare var Stomp: any;
@@ -24,6 +26,7 @@ let currentUser: User | null = null;
 let currentConversationId: number | null = null;
 let conversations: Conversation[] = [];
 let inboxSubscription: any = null;
+let connectionStateSubscription: any = null;
 
 const bootPage = document.querySelector('#boot-page') as HTMLElement;
 const bootPageMessage = document.querySelector('#boot-page-message') as HTMLElement;
@@ -173,8 +176,11 @@ function onConnected(): void {
 
     if (inboxSubscription !== null)
         inboxSubscription.unsubscribe();
+    if (connectionStateSubscription !== null)
+        connectionStateSubscription.unsubscribe();
 
     inboxSubscription = stompClient.subscribe('/user/queue/messages', onMessageReceived);
+    connectionStateSubscription = stompClient.subscribe('/user/queue/connection-state', onConnectionStateChanged);
 }
 
 function onError(): void {
@@ -203,6 +209,14 @@ async function onMessageReceived(payload: StompPayload): Promise<void> {
     if (messageConversationId === currentConversationId) {
         renderMessage(message);
         await markConversationAsRead(currentConversationId);
+    }
+}
+
+async function onConnectionStateChanged(): Promise<void> {
+    try {
+        await loadConnections();
+    } catch (error) {
+        console.error("Failed to refresh connection state", error);
     }
 }
 
@@ -326,7 +340,7 @@ async function startConversation(event: MouseEvent): Promise<void> {
     }
 }
 */
-function renderConversations(): void {
+export function renderConversations(): void {
     conversationList.innerHTML = '';
     for (const conversation of conversations)
         createConversationButton(conversation);
@@ -519,6 +533,10 @@ async function logout() {
             inboxSubscription.unsubscribe();
             inboxSubscription = null;
         }
+        if (connectionStateSubscription !== null) {
+            connectionStateSubscription.unsubscribe();
+            connectionStateSubscription = null;
+        }
         if (stompClient){
             stompClient.disconnect();
             stompClient = null;
@@ -545,5 +563,6 @@ logoutButton.addEventListener('click', () => {
 initializeAccountMenu();
 initializeSettingsMenu();
 initializeUserSearch();
+initializeSidebar();
 
 void startUp();
