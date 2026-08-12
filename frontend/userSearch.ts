@@ -1,5 +1,6 @@
-import {acceptConnectionRequest, findUserByUsername, rejectConnectionRequest, requestConnection} from "./api.js";
+import {findUserByUsername, requestConnection} from "./api.js";
 import {ConnectionRelationshipState, UserSearchResponse} from "./types.js";
+import {acceptConnection, rejectConnection} from "./connections.js";
 
 const userSearchForm = document.querySelector('#userSearchForm') as HTMLFormElement;
 const userSearchUsernameInput = document.querySelector('#userSearchUsernameInput') as HTMLInputElement;
@@ -96,7 +97,7 @@ async function sendConnectionRequest(userId: number, connectButton: HTMLButtonEl
 
         await requestConnection(userId);
         renderRelationshipAction("OUTGOING_PENDING", userId, null);
-        
+
         userSearchUsernameInput.focus();
     }
     catch(error){
@@ -109,19 +110,21 @@ async function sendConnectionRequest(userId: number, connectButton: HTMLButtonEl
     }
 }
 
-async function acceptConnection(userId: number, connectionId: number, acceptButton: HTMLButtonElement, rejectButton: HTMLButtonElement) {
+async function handleAcceptConnectionButton(userId: number, connectionId: number, acceptButton: HTMLButtonElement, rejectButton: HTMLButtonElement) {
     userSearchError.textContent = "";
 
     try {
         acceptButton.disabled = true;
         rejectButton.disabled = true;
+
         userSearchStatus.textContent = "Accepting..";
 
-        await acceptConnectionRequest(connectionId);
+        await acceptConnection(connectionId);
         renderRelationshipAction("CONNECTED", userId, null);
 
         userSearchUsernameInput.focus();
-    } catch (error) {
+
+    } catch(error) {
         if(error instanceof Error) {
             userSearchError.textContent = error.message;
         }
@@ -132,7 +135,7 @@ async function acceptConnection(userId: number, connectionId: number, acceptButt
     }
 }
 
-async function rejectConnection(userId: number, connectionId: number, acceptButton: HTMLButtonElement ,rejectButton: HTMLButtonElement) {
+async function handleRejectConnectionButton(userId: number, connectionId: number, acceptButton: HTMLButtonElement, rejectButton: HTMLButtonElement) {
     userSearchError.textContent = "";
 
     try {
@@ -140,7 +143,7 @@ async function rejectConnection(userId: number, connectionId: number, acceptButt
         rejectButton.disabled = true;
         userSearchStatus.textContent = "Rejecting...";
 
-        await rejectConnectionRequest(connectionId);
+        await rejectConnection(connectionId);
         renderRelationshipAction("REJECTED", userId, null);
 
         userSearchUsernameInput.focus();
@@ -180,7 +183,7 @@ function renderAcceptRejectButtons(userId: number, connectionId: number | null) 
     acceptButton.textContent = "Accept";
     userSearchAction.appendChild(acceptButton);
     acceptButton.addEventListener('click', () => {
-        void acceptConnection(userId, connectionId, acceptButton, rejectButton);
+        void handleAcceptConnectionButton(userId, connectionId, acceptButton, rejectButton);
     })
 
     const rejectButton = document.createElement("button");
@@ -192,7 +195,7 @@ function renderAcceptRejectButtons(userId: number, connectionId: number | null) 
     rejectButton.textContent = "Reject";
     userSearchAction.appendChild(rejectButton);
     rejectButton.addEventListener('click', () => {
-        void rejectConnection(userId, connectionId, acceptButton, rejectButton);
+        void handleRejectConnectionButton(userId, connectionId, acceptButton, rejectButton);
     })
 }
 
