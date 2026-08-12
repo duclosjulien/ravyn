@@ -8,6 +8,7 @@ import {
 
 let incomingConnections: IncomingConnectionRequestResponse[] = [];
 let acceptedConnections: AcceptedConnectionResponse[] = [];
+let connectionGeneration = 0;
 
 const incomingConnectionsSection = document.querySelector('#incomingConnectionsSection') as HTMLElement;
 const incomingConnectionsList = document.querySelector('#incomingConnectionsList') as HTMLElement;
@@ -17,20 +18,32 @@ const connectionError = document.querySelector("#connectionError") as HTMLElemen
 
 export async function loadConnections(): Promise<void> {
     connectionError.textContent = "";
+
+    const generationAtStart = connectionGeneration;
+
     try {
         const [incoming, accepted] = await Promise.all([
             getIncomingConnectionRequests(),
             getAcceptedConnections()
         ]);
 
+        if (generationAtStart !== connectionGeneration) {
+            return;
+        }
+
         incomingConnections = incoming;
         acceptedConnections = accepted;
 
         renderConnections();
     } catch (error) {
-        if(error instanceof Error) {
+        if (generationAtStart !== connectionGeneration) {
+            return;
+        }
+
+        if (error instanceof Error) {
             connectionError.textContent = error.message;
         }
+
         throw error;
     }
 }
@@ -190,4 +203,16 @@ function createAcceptedConnectionItem(accepted: AcceptedConnectionResponse): voi
     connectionElement.appendChild(identityElement);
 
     acceptedConnectionsList.appendChild(connectionElement);
+}
+
+export function clearConnections(): void {
+    connectionGeneration++;
+
+    incomingConnections = [];
+    acceptedConnections = [];
+
+    incomingConnectionsList.innerHTML = "";
+    acceptedConnectionsList.innerHTML = "";
+    incomingConnectionsSection.classList.add("hidden");
+    connectionError.textContent = "";
 }
