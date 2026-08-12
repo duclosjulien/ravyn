@@ -40,9 +40,8 @@ export async function loadConnections(): Promise<void> {
             return;
         }
 
-        if (error instanceof Error) {
-            connectionError.textContent = error.message;
-        }
+        connectionError.textContent = "Couldn’t refresh connections. Try reopening the Connections tab.";
+
 
         throw error;
     }
@@ -50,12 +49,20 @@ export async function loadConnections(): Promise<void> {
 
 export async function acceptConnection(connectionId: number): Promise<void> {
     await acceptConnectionRequest(connectionId);
-    await loadConnections();
+    try {
+        await loadConnections();
+    } catch {
+        // loadConnections already displays the synchronization error
+    }
 }
 
-export async function rejectConnection(connectionId: number):Promise<void> {
+export async function rejectConnection(connectionId: number): Promise<void> {
     await rejectConnectionRequest(connectionId);
-    await loadConnections();
+    try {
+        await loadConnections();
+    } catch {
+        // loadConnections already displays the synchronization error
+    }
 }
 
 function renderConnections(): void {
