@@ -10,7 +10,7 @@ export function initializeSidebar() {
     connectionsTabButton.addEventListener('click', showConnectionsView);
 }
 
-function showConversationsView(): void {
+export function showConversationsView(): void {
     connectionsView.classList.add("hidden");
     conversationsView.classList.remove("hidden");
 
@@ -34,3 +34,4 @@ async function showConnectionsView(): Promise<void> {
         connectionsTabButton.disabled = false;
     }
 }
+

@@ -1,10 +1,11 @@
-import {AcceptedConnectionResponse, IncomingConnectionRequestResponse} from "./types.js";
+import {AcceptedConnectionResponse, IncomingConnectionRequestResponse, UserSummary} from "./types.js";
 import {
     acceptConnectionRequest,
     getAcceptedConnections,
     getIncomingConnectionRequests,
     rejectConnectionRequest
 } from "./api.js";
+import {startConversationWith} from "./conversations.js";
 
 let incomingConnections: IncomingConnectionRequestResponse[] = [];
 let acceptedConnections: AcceptedConnectionResponse[] = [];
@@ -206,10 +207,30 @@ function createAcceptedConnectionItem(accepted: AcceptedConnectionResponse): voi
     identityElement.appendChild(displayNameElement);
     identityElement.appendChild(usernameElement);
 
+    const messageButton = document.createElement('button');
+    messageButton.setAttribute(
+        "aria-label",
+        `Message ${accepted.connectedUser.displayName}`
+    );
+    messageButton.type = 'button';
+    messageButton.addEventListener('click', () => startConversationFromConnection(accepted.connectedUser, messageButton));
+
     connectionElement.appendChild(avatarElement);
     connectionElement.appendChild(identityElement);
+    connectionElement.appendChild(messageButton);
 
     acceptedConnectionsList.appendChild(connectionElement);
+}
+
+async function startConversationFromConnection(connectedUser: UserSummary, messageButton: HTMLButtonElement) {
+    try {
+        messageButton.disabled = true;
+        await startConversationWith(connectedUser);
+    } catch(error) {
+
+    } finally {
+        messageButton.disabled = false;
+    }
 }
 
 export function clearConnections(): void {
@@ -223,3 +244,4 @@ export function clearConnections(): void {
     incomingConnectionsSection.classList.add("hidden");
     connectionError.textContent = "";
 }
+

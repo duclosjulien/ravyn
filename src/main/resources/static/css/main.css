@@ -1283,7 +1283,7 @@ button:disabled {
     box-shadow: 0 0 0 3px var(--color-focus-shadow);
 }
 
-#message {
+#messageInput {
     flex: 1;
     min-height: 40px;
     padding: 8px 10px;
@@ -1293,7 +1293,7 @@ button:disabled {
     font-size: 15px;
 }
 
-#message:focus {
+#messageInput:focus {
     box-shadow: none;
 }
 
@@ -1306,12 +1306,12 @@ button:disabled {
     font-weight: 600;
 }
 
-#message:disabled {
+#messageInput:disabled {
     color: var(--color-text-muted);
     cursor: not-allowed;
 }
 
-.input-group:has(#message:disabled) {
+.input-group:has(#messageInput:disabled) {
     opacity: 0.75;
 }
 

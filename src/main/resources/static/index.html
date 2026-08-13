@@ -224,30 +224,23 @@
 
         <main class="chat-panel">
             <header class="chat-header">
-                <div class="chat-header-avatar chat-header-avatar--brand" id="chatHeaderAvatar">
-                    <img src="/images/ravyn_icon_only.png" alt="" />
-                </div>
+                <div class="chat-header-avatar chat-header-avatar--brand" id="chatHeaderAvatar"></div>
 
                 <div class="chat-header-text">
-                    <h2 id="chatHeaderTitle">Ravyn</h2>
-                    <p id="chatHeaderStatus">Private messages</p>
+                    <h2 id="chatHeaderTitle"></h2>
+                    <p id="chatHeaderStatus"></p>
                 </div>
             </header>
 
-            <ul id="messageArea">
-                <li class="empty-chat-state">
-                    <h3>Select a conversation</h3>
-                    <p>Search Ravyn or choose someone from your conversations.</p>
-                </li>
-            </ul>
+            <ul id="messageArea"></ul>
 
             <form id="messageForm" name="messageForm">
                 <div class="form-group">
                     <div class="input-group clearfix">
                         <input
                                 type="text"
-                                id="message"
-                                placeholder="Write something thoughtful..."
+                                id="messageInput"
+                                placeholder=""
                                 autocomplete="off"
                         />
                         <button type="submit">Send</button>
