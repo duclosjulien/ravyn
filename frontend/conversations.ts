@@ -45,8 +45,8 @@ export async function startConversationWith(connectedUser: UserSummary): Promise
         });
     }
 
-    await selectConversation(conversationId, connectedUser.username);
     showConversationsView();
+    await selectConversation(conversationId, connectedUser.username);
 }
 
 function renderConversations(): void {
@@ -272,7 +272,7 @@ function sortConversationList(): void {
         if (bTime == null)
             return -1;
 
-        return bTime.localeCompare(aTime);
+        return Date.parse(bTime) - Date.parse(aTime);
     });
 }
 

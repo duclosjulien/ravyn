@@ -47,8 +47,10 @@ export function formatMessageTime(createdAt: string | null): string {
         });
     }
 
-    const oneDay = 24 * 60 * 60 * 1000
-    if(today === messageDate + oneDay){
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    if (messageDate === yesterday.getTime()) {
         return "Yesterday";
     }
 
