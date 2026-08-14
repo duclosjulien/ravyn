@@ -70,10 +70,10 @@ async function startUp(): Promise<void> {
 }
 
 async function enterApp(): Promise<void> {
-    if(currentUser === null) {
-        // write a user-friendly error somewhere
-        return;
+    if (currentUser === null) {
+        throw new Error("Cannot enter app without an authenticated user");
     }
+    
     await initializeConversations(currentUser.id);
     initializeMessages(currentUser.id)
     await loadAccountMenu();

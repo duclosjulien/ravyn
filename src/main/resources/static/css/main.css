@@ -1087,6 +1087,30 @@ button:disabled {
 }
 
 
+/* Connections to messages button*/
+
+.connection-message-button {
+    width: 32px;
+    height: 32px;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--color-text-muted);
+}
+
+.connection-message-button:hover {
+    background: var(--color-soft-surface);
+    color: var(--color-text);
+}
+
+.connection-message-button svg {
+    width: 18px;
+    height: 18px;
+}
+
+
 /* =========================================================
    7. Chat Panel
    ========================================================= */
