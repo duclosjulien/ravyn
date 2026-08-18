@@ -11,6 +11,7 @@ import {showConversationsView} from "./sidebar.js";
 let currentUserId: number | null = null;
 let conversations: Conversation[] = [];
 let currentConversationId: number | null = null;
+let conversationGeneration = 0;
 
 const conversationList = document.querySelector('#conversationList') as HTMLElement;
 const conversationError = document.querySelector('#conversationError') as HTMLElement;
@@ -119,6 +120,9 @@ function createConversationButton(conversation: Conversation): void{
 }
 
 async function selectConversation(conversationId: number, otherUsername: string): Promise<void> {
+    ++conversationGeneration;
+    const actionGeneration = conversationGeneration;
+
     clearMessageArea();
     hideConversationError();
 
@@ -131,7 +135,8 @@ async function selectConversation(conversationId: number, otherUsername: string)
 
     try {
         const previousMessages = await getMessagesForConversation(selectedConversationId);
-        if (currentConversationId !== selectedConversationId) {
+        if (currentConversationId !== selectedConversationId ||
+            actionGeneration !== conversationGeneration) {
             return;
         }
         previousMessages.forEach(renderMessage);
@@ -145,8 +150,10 @@ async function selectConversation(conversationId: number, otherUsername: string)
 
     try {
         await markConversationAsRead(selectedConversationId);
-        if (currentConversationId !== selectedConversationId)
+        if (currentConversationId !== selectedConversationId ||
+            actionGeneration !== conversationGeneration) {
             return;
+        }
 
         const selectedConversation = conversations.find(
             conversation => conversation.id === selectedConversationId
@@ -159,6 +166,13 @@ async function selectConversation(conversationId: number, otherUsername: string)
         renderConversations();
     } catch (error) {
         console.error("Failed to mark the conversation as read", error);
+
+        if (
+            selectedConversationId === currentConversationId &&
+            actionGeneration === conversationGeneration
+        ) {
+            showConversationError("Couldn’t load earlier messages. Try selecting the conversation again.");
+        }
         return;
     }
 }

@@ -11,12 +11,15 @@ const userSearchUsername = document.querySelector('#userSearchUsername') as HTML
 const userSearchAction = document.querySelector('#userSearchAction') as HTMLElement;
 const userSearchStatus = document.querySelector("#userSearchStatus") as HTMLElement;
 
+let userSearchGeneration = 0;
+
 export function initializeUserSearch() {
     userSearchForm.addEventListener('submit', searchUser);
 }
 
 async function searchUser(event: SubmitEvent) {
     event.preventDefault();
+    userSearchGeneration++;
 
     userSearchError.textContent = "";
     userSearchResult.classList.add("hidden");
@@ -89,6 +92,8 @@ function renderRelationshipAction(relationshipState: ConnectionRelationshipState
 }
 
 async function sendConnectionRequest(userId: number, connectButton: HTMLButtonElement) {
+    const actionGeneration = userSearchGeneration;
+
     userSearchError.textContent = "";
 
     try {
@@ -96,6 +101,7 @@ async function sendConnectionRequest(userId: number, connectButton: HTMLButtonEl
         userSearchStatus.textContent = "Sending ...";
 
         await requestConnection(userId);
+        if (actionGeneration !== userSearchGeneration) return;
         renderRelationshipAction("OUTGOING_PENDING", userId, null);
 
         userSearchUsernameInput.focus();
@@ -111,6 +117,7 @@ async function sendConnectionRequest(userId: number, connectButton: HTMLButtonEl
 }
 
 async function handleAcceptConnectionButton(userId: number, connectionId: number, acceptButton: HTMLButtonElement, rejectButton: HTMLButtonElement) {
+    const actionGeneration = userSearchGeneration;
     userSearchError.textContent = "";
 
     try {
@@ -120,6 +127,7 @@ async function handleAcceptConnectionButton(userId: number, connectionId: number
         userSearchStatus.textContent = "Accepting..";
 
         await acceptConnection(connectionId);
+        if (actionGeneration !== userSearchGeneration) return;
         renderRelationshipAction("CONNECTED", userId, null);
 
         userSearchUsernameInput.focus();
@@ -136,6 +144,7 @@ async function handleAcceptConnectionButton(userId: number, connectionId: number
 }
 
 async function handleRejectConnectionButton(userId: number, connectionId: number, acceptButton: HTMLButtonElement, rejectButton: HTMLButtonElement) {
+    const actionGeneration = userSearchGeneration;
     userSearchError.textContent = "";
 
     try {
@@ -144,6 +153,7 @@ async function handleRejectConnectionButton(userId: number, connectionId: number
         userSearchStatus.textContent = "Rejecting...";
 
         await rejectConnection(connectionId);
+        if (actionGeneration !== userSearchGeneration) return;
         renderRelationshipAction("REJECTED", userId, null);
 
         userSearchUsernameInput.focus();

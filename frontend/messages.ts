@@ -28,8 +28,21 @@ export function renderMessage(message: MessageResponse): void {
 
     messageElement.appendChild(textElement);
     messageElement.appendChild(timestampElement);
+
+    const wasNearBottom = isNearBottom();
     messageArea.appendChild(messageElement);
-    messageArea.scrollTop = messageArea.scrollHeight;
+    if (message.senderId === currentUserId || wasNearBottom) {
+        messageArea.scrollTop = messageArea.scrollHeight;
+    }
+}
+
+function isNearBottom(): boolean {
+    const distanceFromBottom =
+        messageArea.scrollHeight
+        - messageArea.scrollTop
+        - messageArea.clientHeight;
+
+    return distanceFromBottom < 80;
 }
 
 

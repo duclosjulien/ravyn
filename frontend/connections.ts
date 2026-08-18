@@ -20,7 +20,7 @@ const connectionError = document.querySelector("#connectionError") as HTMLElemen
 export async function loadConnections(): Promise<void> {
     connectionError.textContent = "";
 
-    const generationAtStart = connectionGeneration;
+    const generationAtStart = ++connectionGeneration;
 
     try {
         const [incoming, accepted] = await Promise.all([
