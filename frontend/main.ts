@@ -216,6 +216,8 @@ async function onMessageReceived(payload: StompPayload): Promise<void> {
 }
 
 async function onConnectionStateChanged(): Promise<void> {
+    if (currentUser == null) return;
+
     try {
         await loadConnections();
     } catch (error) {
@@ -252,6 +254,16 @@ function showErrorPage() {
 }
 
 async function logout() {
+    if (inboxSubscription !== null) {
+        inboxSubscription.unsubscribe();
+        inboxSubscription = null;
+    }
+
+    if (connectionStateSubscription !== null) {
+        connectionStateSubscription.unsubscribe();
+        connectionStateSubscription = null;
+    }
+
     clearAccountMenu();
     clearConnections();
     clearConversations();
@@ -260,21 +272,14 @@ async function logout() {
 
     try {
         await userLogout();
-    } catch(error) {
+    } catch (error) {
         console.error(error);
     } finally {
-        if (inboxSubscription !== null){
-            inboxSubscription.unsubscribe();
-            inboxSubscription = null;
-        }
-        if (connectionStateSubscription !== null) {
-            connectionStateSubscription.unsubscribe();
-            connectionStateSubscription = null;
-        }
-        if (stompClient){
+        if (stompClient) {
             stompClient.disconnect();
             stompClient = null;
         }
+
         showLoginPage();
     }
 }
