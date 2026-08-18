@@ -19,7 +19,8 @@ export function initializeUserSearch() {
 
 async function searchUser(event: SubmitEvent) {
     event.preventDefault();
-    userSearchGeneration++;
+    
+    const actionGeneration = ++userSearchGeneration;
 
     userSearchError.textContent = "";
     userSearchResult.classList.add("hidden");
@@ -36,6 +37,7 @@ async function searchUser(event: SubmitEvent) {
         userSearchStatus.textContent = "Searching…";
 
         const searchResult = await findUserByUsername(username);
+        if (actionGeneration !== userSearchGeneration) return;
         if(searchResult == null) {
             userSearchError.textContent = "User not found";
             return;
@@ -45,12 +47,15 @@ async function searchUser(event: SubmitEvent) {
         userSearchError.textContent = "";
 
     } catch (error) {
+        if (actionGeneration !== userSearchGeneration) return;
         if (error instanceof Error) {
             userSearchError.textContent = error.message;
         }
     } finally {
-        userSearchUsernameInput.disabled = false;
-        userSearchStatus.textContent = "";
+        if (actionGeneration === userSearchGeneration) {
+            userSearchUsernameInput.disabled = false;
+            userSearchStatus.textContent = "";
+        }
     }
 }
 

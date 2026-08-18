@@ -171,7 +171,7 @@ async function selectConversation(conversationId: number, otherUsername: string)
             selectedConversationId === currentConversationId &&
             actionGeneration === conversationGeneration
         ) {
-            showConversationError("Couldn’t load earlier messages. Try selecting the conversation again.");
+            showConversationError("Couldn’t update the conversation’s read status.");
         }
         return;
     }
