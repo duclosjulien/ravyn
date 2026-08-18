@@ -2,7 +2,9 @@ package com.ravyn.chat.exception;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -116,5 +118,81 @@ public class GlobalExceptionHandler {
                 .orElse("Validation failed.");
 
         return new ErrorResponse(message, ErrorCode.VALIDATION_FAILED);
+    }
+
+    @ExceptionHandler(SelfConnectionException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleSelfConnectionException(SelfConnectionException exception) {
+        return new ErrorResponse(exception.getMessage(), ErrorCode.CONNECTION_WITH_SELF);
+    }
+
+    @ExceptionHandler(ConnectionRequestAlreadyPendingException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleConnectionRequestAlreadyPendingException(ConnectionRequestAlreadyPendingException exception) {
+        return new ErrorResponse(exception.getMessage(), ErrorCode.CONNECTION_REQUEST_ALREADY_PENDING);
+    }
+
+    @ExceptionHandler(IncomingConnectionRequestExistsException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleIncomingConnectionRequestExistsException(IncomingConnectionRequestExistsException exception) {
+        return new ErrorResponse(exception.getMessage(), ErrorCode.INCOMING_CONNECTION_REQUEST_EXISTS);
+    }
+
+    @ExceptionHandler(AlreadyConnectedException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleAlreadyConnectedException(AlreadyConnectedException exception) {
+        return new ErrorResponse(exception.getMessage(), ErrorCode.ALREADY_CONNECTED);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponse> handleDataIntegrityViolation(
+            DataIntegrityViolationException exception
+    ) {
+        Throwable cause = exception.getMostSpecificCause();
+        String message = cause.getMessage();
+
+        if (message != null && message.contains("uk_connection_users")) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(new ErrorResponse(
+                            "A connection relationship already exists between these users.",
+                            ErrorCode.CONNECTION_RELATIONSHIP_CONFLICT
+                    ));
+        }
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ErrorResponse(
+                        "A database constraint was violated.",
+                        ErrorCode.CORRUPTED_DATA
+                ));
+    }
+
+    @ExceptionHandler(ConnectionRequestNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleConnectionNotFoundException(ConnectionRequestNotFoundException exception) {
+        return new ErrorResponse(exception.getMessage(), ErrorCode.CONNECTION_REQUEST_NOT_FOUND);
+    }
+
+    @ExceptionHandler(ConnectionRequestAccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorResponse handleConnectionRequestAccessDeniedException(ConnectionRequestAccessDeniedException exception) {
+        return new ErrorResponse(exception.getMessage(), ErrorCode.CONNECTION_REQUEST_ACCESS_DENIED);
+    }
+
+    @ExceptionHandler(ConnectionRequestAlreadyResolvedException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleConnectionRequestAlreadyResolvedException(ConnectionRequestAlreadyResolvedException exception) {
+        return new ErrorResponse(exception.getMessage(), ErrorCode.CONNECTION_REQUEST_ALREADY_RESOLVED);
+    }
+
+    @ExceptionHandler(ConnectionNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleConnectionNotFoundException(ConnectionNotFoundException exception) {
+        return new ErrorResponse(exception.getMessage(), ErrorCode.CONNECTION_NOT_FOUND);
+    }
+
+    @ExceptionHandler(CannotSearchSelfException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleCannotSearchForSelfException(CannotSearchSelfException exception) {
+        return new ErrorResponse(exception.getMessage(), ErrorCode.SEARCH_FOR_SELF);
     }
 }

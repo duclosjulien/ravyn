@@ -1,4 +1,7 @@
-import {User, Conversation, UserSummary, MessageResponse, CreateConversationResponse, SelfProfileResponse} from './types.js';
+import {
+    User, Conversation, UserSearchResponse, MessageResponse, CreateConversationResponse, SelfProfileResponse,
+    IncomingConnectionRequestResponse, ConnectionResolutionResponse, AcceptedConnectionResponse, ConnectionResponse
+} from './types.js';
 import {ApiError} from "./errors.js";
 
 export async function userLogin(username: string, password: string): Promise<User> {
@@ -59,7 +62,7 @@ export async function getCurrentUserConversations() : Promise<Conversation[]>{
     return conversations;
 }
 
-export async function findUserByUsername(username: string): Promise<UserSummary | null> {
+export async function findUserByUsername(username: string): Promise<UserSearchResponse | null> {
     const response = await fetch(`/users/search?username=${encodeURIComponent(username)}`, {
         method: "GET"
     });
@@ -68,7 +71,7 @@ export async function findUserByUsername(username: string): Promise<UserSummary 
 
     await throwIfApiError(response);
 
-    const userSummary: UserSummary = await response.json();
+    const userSummary: UserSearchResponse = await response.json();
     return userSummary;
 }
 
@@ -160,5 +163,61 @@ export async function changePassword(currentPassword: string, newPassword: strin
     });
 
     await throwIfApiError(response);
+}
+
+// connections
+
+export async function requestConnection(userId: number): Promise<ConnectionResponse> {
+    const response = await fetch(`/connections/requests/${userId}`, {
+        method: "POST"
+    })
+
+    await throwIfApiError(response);
+    const connection: ConnectionResponse = await response.json();
+    return connection;
+}
+
+export async function getIncomingConnectionRequests(): Promise<IncomingConnectionRequestResponse[]> {
+    const response = await fetch("/connections/requests/incoming", {
+        method: "GET"
+    })
+
+    await throwIfApiError(response);
+
+    const request: IncomingConnectionRequestResponse[] = await response.json();
+    return request;
+}
+
+export async function acceptConnectionRequest(connectionId: number): Promise<ConnectionResolutionResponse> {
+    const response = await fetch(`/connections/requests/${connectionId}/accept`, {
+        method: "PATCH"
+    })
+
+    await throwIfApiError(response);
+
+    const connection: ConnectionResolutionResponse = await response.json();
+    return connection;
+}
+
+export async function rejectConnectionRequest(connectionId: number): Promise<ConnectionResolutionResponse> {
+    const response = await fetch(`/connections/requests/${connectionId}/reject`, {
+        method: "PATCH"
+    })
+
+    await throwIfApiError(response);
+
+    const connection: ConnectionResolutionResponse = await response.json();
+    return connection;
+}
+
+export async function getAcceptedConnections(): Promise<AcceptedConnectionResponse[]> {
+    const response = await fetch("/connections", {
+        method: "GET"
+    })
+
+    await throwIfApiError(response);
+
+    const connection: AcceptedConnectionResponse[] = await response.json();
+    return connection;
 }
 

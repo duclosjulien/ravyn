@@ -83,22 +83,81 @@
     <div class="app-shell">
         <aside class="sidebar">
             <div class="brand">
-                <div class="brand-row">
-                    <img src="/images/ravyn_icon_only.png" alt="Ravyn logo" class="brand-logo" />
-                    <h1>Ravyn</h1>
-                </div>
+                <img src="/images/RavynLogoAndFeatherIcon.png"
+                     alt="Ravyn"
+                     class="brand-logo" />
                 <p>CHAT SIMPLY. CONNECT DEEPLY.</p>
             </div>
 
-            <input id="recipientUsername" placeholder="Search Ravyn" />
+            <div class="user-search">
+                <form id="userSearchForm" class="user-search-form">
+                    <div class="user-search-input-row">
+                        <label for="userSearchUsernameInput" class="visually-hidden">
+                            Search by username
+                        </label>
 
-            <button id="startConversationButton" type="button">
-                Start conversation
-            </button>
+                        <input
+                                id="userSearchUsernameInput"
+                                class="user-search-input"
+                                type="text"
+                                autocomplete="off"
+                                placeholder="Search"
+                        />
+                    </div>
+                </form>
+                <div id="userSearchStatus"
+                     class="user-search-status"
+                     aria-live="polite"></div>
+                <div id="userSearchError"
+                     class="user-search-error"
+                     aria-live="polite"></div>
 
-            <div id="recipientError"></div>
-            <div class="conversation-section-label">Conversations</div>
-            <div id="conversationList"></div>
+                <div id="userSearchResult" class="user-search-result hidden">
+                    <div class="user-search-identity">
+                        <div id="userSearchDisplayName"
+                             class="user-search-display-name"></div>
+                        <div id="userSearchUsername"
+                             class="user-search-username"></div>
+                    </div>
+
+                    <div id="userSearchAction"
+                         class="user-search-action"></div>
+                </div>
+            </div>
+
+            <div class="sidebar-tabs">
+                <button
+                        id="conversationsTabButton"
+                        class="sidebar-tab sidebar-tab--active"
+                        type="button"
+                >
+                    Conversations
+                </button>
+
+                <button
+                        id="connectionsTabButton"
+                        class="sidebar-tab"
+                        type="button"
+                >
+                    Connections
+                </button>
+            </div>
+
+            <div id="conversationsView">
+                <div id="conversationError" aria-live="polite"></div>
+                <div id="conversationList"></div>
+            </div>
+
+            <div id="connectionsView" class="hidden">
+                <div id="connectionError" aria-live="polite"></div>
+                <div id="incomingConnectionsSection">
+                    <div class="connections-section-label">Requests</div>
+                    <div id="incomingConnectionsList"></div>
+                </div>
+
+                <div class="connections-section-label">Connections</div>
+                <div id="acceptedConnectionsList"></div>
+            </div>
 
             <div class="account-menu">
                 <button id="accountMenuButton" class="account-menu__trigger" type="button">
@@ -164,32 +223,23 @@
 
         <main class="chat-panel">
             <header class="chat-header">
-                <div class="chat-header-avatar chat-header-avatar--brand" id="chatHeaderAvatar">
-                    <img src="/images/ravyn_icon_only.png" alt="" />
-                </div>
+                <div class="chat-header-avatar chat-header-avatar--brand" id="chatHeaderAvatar"></div>
 
                 <div class="chat-header-text">
-                    <h2 id="chatHeaderTitle">Ravyn</h2>
-                    <p id="chatHeaderStatus">Private messages</p>
+                    <h2 id="chatHeaderTitle"></h2>
+                    <p id="chatHeaderStatus"></p>
                 </div>
             </header>
 
-            <ul id="messageArea">
-                <li class="empty-chat-state">
-                    <h3>Select a conversation</h3>
-                    <p>Search Ravyn or choose someone from your conversations.</p>
-                </li>
-            </ul>
-
-            <div id="conversationError" class="hidden"></div>
+            <ul id="messageArea"></ul>
 
             <form id="messageForm" name="messageForm">
                 <div class="form-group">
                     <div class="input-group clearfix">
+                        <label for="messageInput" class="visually-hidden">Message</label>
                         <input
                                 type="text"
-                                id="message"
-                                placeholder="Write something thoughtful..."
+                                id="messageInput"
                                 autocomplete="off"
                         />
                         <button type="submit">Send</button>

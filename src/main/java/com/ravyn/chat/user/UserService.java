@@ -8,9 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static com.ravyn.chat.validation.TextNormalizer.stripBoundaryWhitespace;
 
@@ -36,35 +34,29 @@ public class UserService {
     public SelfProfileResponse updateDisplayName(
             @NotNull Long userId,
             @NotBlank @TrimmedSize(min = 2, max = 50) String newDisplayName) {
-        Optional<ChatUser> user = userRepository.findById(userId);
-        if(user.isEmpty()) {
-            throw new AuthenticatedUserNotFoundException(userId);
-        }
 
-        ChatUser userFound = user.get();
-        userFound.setDisplayName(stripBoundaryWhitespace(newDisplayName));
-        return toSelfProfileResponse(userRepository.save(userFound));
+        ChatUser user = ensureAuthenticatedUserExists(userId);
+        user.setDisplayName(stripBoundaryWhitespace(newDisplayName));
+
+        return toSelfProfileResponse(userRepository.save(user));
     }
 
     public SelfProfileResponse getSelfProfile(@NotNull Long userId) {
-        ChatUser user = userRepository.findById(userId)
-                .orElseThrow(() -> new AuthenticatedUserNotFoundException(userId));
+        ChatUser user = ensureAuthenticatedUserExists(userId);
 
         return toSelfProfileResponse(user);
     }
 
     public PublicProfileResponse findPublicProfileById(@NotNull Long userId) {
-        ChatUser user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId));
+        ChatUser user = ensureUserExists(userId);
         return toPublicProfileResponse(user);
     }
 
     // utility functions
 
-    public UserSummaryResponse findUserByUsername(String username){
-        ChatUser user = userRepository.findByUsername(username)
+    public ChatUser findUserByUsername(String username){
+        return userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException(username));
-        return toUserSummaryResponse(user);
     }
 
     public Optional<ChatUser> findUserEntityByUsername(String username) {
@@ -86,6 +78,11 @@ public class UserService {
                 .orElseThrow(() -> new UserNotFoundException(userId));
     }
 
+    public ChatUser ensureAuthenticatedUserExists(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new AuthenticatedUserNotFoundException(userId));
+    }
+
     public List<ChatUser> findUsersByIds(Set<Long> userIds) {
         return userRepository.findAllById(userIds);
     }
@@ -98,11 +95,31 @@ public class UserService {
         return new SelfProfileResponse(user.getId(), user.getUsername(), user.getDisplayName());
     }
 
-    private UserSummaryResponse toUserSummaryResponse(ChatUser user) {
-        return new UserSummaryResponse(user.getId(), user.getUsername(), user.getDisplayName());
-    }
-
     private PublicProfileResponse toPublicProfileResponse(ChatUser user) {
         return new PublicProfileResponse(user.getId(), user.getUsername(), user.getDisplayName());
+    }
+
+    public UserSummary toUserSummary(ChatUser user) {
+        return new UserSummary(
+                user.getId(),
+                user.getUsername(),
+                user.getDisplayName());
+    }
+
+    public Map<Long, UserSummary> buildUserSummaryMap(Set<Long> userIds) {
+        List<ChatUser> users = userRepository.findAllById(userIds);
+        Map<Long, UserSummary> chatUserSummaryMap = new HashMap<>();
+
+        for(ChatUser user : users) {
+            chatUserSummaryMap.put(
+                    user.getId(),
+                    toUserSummary(user));
+        }
+
+        if (chatUserSummaryMap.size() != userIds.size()) {
+            throw new DataIntegrityException();
+        }
+
+        return chatUserSummaryMap;
     }
 }
