@@ -1,8 +1,8 @@
-# Ravyn Mobile Prototype
+# Ravyn Mobile
 
-Expo + React Native + TypeScript prototype for exploring Ravyn mobile UI.
+Minimal Expo Router + React Native + TypeScript scaffold.
 
-This project is UI-only and uses mock data. It does not call the Spring Boot backend, authenticate users, or open WebSocket connections.
+The app currently contains no Ravyn UI, backend integration, authentication, or WebSocket logic.
 
 ## Local Commands
 
