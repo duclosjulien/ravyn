@@ -238,19 +238,25 @@ function hideConversationError(): void {
 
 // ui
 function showDefaultChatHeader(): void {
-    chatHeaderAvatar.innerHTML = "";
+    chatHeaderAvatar.classList.add("hidden");
+    chatHeaderTitle.textContent = "";
 
-    const logo = document.createElement("img");
-    logo.src = "/images/ravyn_icon_only.png";
-    logo.alt = "";
+    chatHeaderStatus.textContent = "";
 
-    chatHeaderAvatar.appendChild(logo);
+    const motto = document.createElement("img");
+    motto.src = "/images/headerMotto1.png";
+    motto.alt = "A quieter way to connect";
+    motto.classList.add("chat-header-motto");
 
-    chatHeaderTitle.textContent = "Ravyn";
-    chatHeaderStatus.textContent = "Private messages";
+    chatHeaderStatus.appendChild(motto);
+    chatHeaderStatus.classList.add("chat-header-status--default");
 }
 
 function showConversationHeader(username: string): void {
+    chatHeaderAvatar.classList.remove("hidden");
+
+    chatHeaderStatus.classList.remove("chat-header-status--default");
+
     chatHeaderAvatar.textContent = username.charAt(0).toUpperCase();
     chatHeaderTitle.textContent = username;
     chatHeaderStatus.textContent = "Online";
