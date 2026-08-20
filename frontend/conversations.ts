@@ -273,6 +273,7 @@ export function clearConversations(): void {
     chatHeaderAvatar.innerHTML = "";
     chatHeaderTitle.innerHTML = "";
     chatHeaderStatus.innerHTML =  "";
+    showDefaultChatHeader();
     clearMessageInput();
 }
 

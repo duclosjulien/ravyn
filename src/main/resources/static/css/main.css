@@ -1193,6 +1193,7 @@ button:disabled {
     width: 300px;
     height: auto;
     display: block;
+    max-width: 100%;
 }
 
 
