@@ -83,34 +83,69 @@
 </div>
 
 <div id="register-page" class="hidden">
-    <div class="auth-page-container">
-        <h1 class="auth-brand">
-            Ravyn
-        </h1>
-        <div class="auth-divider"></div>
-        <p class="auth-subtitle">Start a quieter way to chat.</p>
-        <div class="auth-form">
-            <form id="registerForm" name="registerForm">
-                <div class="form-group">
-                    <input type="text" id="nameRegister" placeholder="Username" autocomplete="off" class="form-control" />
+    <div class="auth-card">
+        <section class="auth-panel">
+            <div class="auth-content">
+                <img
+                        src="/images/RavynLogoAndFeatherIcon.png"
+                        alt="Ravyn"
+                        class="auth-logo"
+                />
+
+                <div class="auth-divider"></div>
+
+                <p class="auth-subtitle">Start a quieter way to chat.</p>
+
+                <div class="auth-form">
+                    <form id="registerForm" name="registerForm">
+                        <div class="form-group">
+                            <input
+                                    type="text"
+                                    id="nameRegister"
+                                    placeholder="Username"
+                                    autocomplete="off"
+                                    class="form-control"
+                            />
+                        </div>
+
+                        <div class="form-group">
+                            <input
+                                    type="password"
+                                    id="passwordRegister"
+                                    placeholder="Password"
+                                    autocomplete="off"
+                                    class="form-control"
+                            />
+                        </div>
+
+                        <div class="form-group">
+                            <button
+                                    type="submit"
+                                    id="registerButton"
+                                    class="accent auth-submit"
+                            >
+                                Sign Up
+                            </button>
+                        </div>
+                    </form>
+
+                    <div id="registerError"></div>
+
+                    <div>
+                        Already have an account?
+                        <button type="button" id="goToLogin">Log In</button>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <input type="password" id="passwordRegister" placeholder="Password" autocomplete="off" class="form-control" />
-                </div>
-                <div class="form-group">
-                    <button type="submit" id="registerButton" class="accent auth-submit">Sign Up</button>
-                </div>
-            </form>
-            <div id="registerError"></div>
-            <div>
-                Already have an account? <button type="button" id="goToLogin">Log In</button>
             </div>
-        </div>
-    </div>
-    <div class="auth-background-logo-wrapper">
-        <div class="auth-background-logo">
-            <img src="images/ravyn-background.jpg" alt="Ravyn background logo">
-        </div>
+        </section>
+
+        <aside class="auth-visual" aria-hidden="true">
+            <img
+                    src="/images/auth_background_panel_asset.png"
+                    alt=""
+                    class="auth-feather"
+            />
+        </aside>
     </div>
 </div>
 
