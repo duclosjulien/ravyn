@@ -1,4 +1,5 @@
 import {
+    changeDisplayName,
     createConversation,
     getCurrentUserConversations,
     getMessagesForConversation,
@@ -243,8 +244,9 @@ function showDefaultChatHeader(): void {
 function showConversationHeader(displayName: string): void {
     chatHeaderAvatar.classList.remove("hidden");
 
-    chatHeaderAvatar.textContent = displayName.charAt(0).toUpperCase();
-    chatHeaderTitle.textContent = displayName;
+    const headerName = displayName || "Unknown user";
+    chatHeaderAvatar.textContent = headerName.charAt(0).toUpperCase();
+    chatHeaderTitle.textContent = headerName;
 }
 
 
