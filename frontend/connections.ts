@@ -14,6 +14,7 @@ let connectionGeneration = 0;
 const incomingConnectionsSection = document.querySelector('#incomingConnectionsSection') as HTMLElement;
 const incomingConnectionsList = document.querySelector('#incomingConnectionsList') as HTMLElement;
 const acceptedConnectionsList = document.querySelector('#acceptedConnectionsList') as HTMLElement;
+const acceptedConnectionsSectionLabel = document.querySelector('#acceptedConnectionsSectionLabel') as HTMLElement;
 const connectionError = document.querySelector("#connectionError") as HTMLElement;
 
 
@@ -67,18 +68,24 @@ export async function rejectConnection(connectionId: number): Promise<void> {
 }
 
 function renderConnections(): void {
+    const hasIncomingRequests = incomingConnections.length > 0;
+
+    incomingConnectionsSection.classList.toggle(
+        "hidden",
+        !hasIncomingRequests
+    );
+
+    acceptedConnectionsSectionLabel.classList.toggle(
+        "hidden",
+        !hasIncomingRequests
+    );
+
     renderIncomingConnections();
     renderAcceptedConnections();
 }
 
 function renderIncomingConnections(): void {
     incomingConnectionsList.innerHTML = "";
-
-    if(incomingConnections.length === 0) {
-        incomingConnectionsSection.classList.add("hidden");
-    } else {
-        incomingConnectionsSection.classList.remove("hidden");
-    }
 
     for(const connection of incomingConnections) {
         createIncomingConnectionItem(connection);
@@ -255,6 +262,7 @@ export function clearConnections(): void {
     incomingConnectionsList.innerHTML = "";
     acceptedConnectionsList.innerHTML = "";
     incomingConnectionsSection.classList.add("hidden");
+    acceptedConnectionsSectionLabel.classList.add("hidden");
     connectionError.textContent = "";
 }
 
