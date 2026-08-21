@@ -7,8 +7,8 @@ import com.ravyn.chat.repository.ConversationRepository;
 import com.ravyn.chat.repository.MessageRepository;
 import com.ravyn.chat.user.ChatUser;
 import com.ravyn.chat.user.UserService;
+import com.ravyn.chat.user.UserSummary;
 import jakarta.transaction.Transactional;
-import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -41,17 +41,19 @@ public class ConversationService {
 
         userService.ensureUserExists(currentUserId);
         ChatUser otherUser = userService.ensureUserExists(otherUserId);
-
         Long participantAId = Math.min(currentUserId, otherUserId);
         Long participantBId = Math.max(currentUserId, otherUserId);
 
         Conversation conversation = conversationRepository.findByParticipantLowIdAndParticipantHighId(participantAId, participantBId)
                 .orElseGet(() -> createConversationWithReadStates(participantAId, participantBId, currentUserId, otherUserId));
 
-        return buildConversationResponse(conversation, currentUserId, otherUser.getId(), otherUser.getUsername());
+        return buildConversationResponse(
+                conversation,
+                currentUserId,
+                userService.toUserSummary(otherUser));
     }
 
-    private ConversationResponse buildConversationResponse(Conversation conversation, Long currentUserId, Long otherUserId, String otherUserUsername){
+    private ConversationResponse buildConversationResponse(Conversation conversation, Long currentUserId, UserSummary otherUser){
         Long conversationId = conversation.getId();
         Optional<Message> lastMessage = messageRepository.findFirstByConversationIdOrderByCreatedAtDesc(conversationId);
 
@@ -62,8 +64,7 @@ public class ConversationService {
 
         return new ConversationResponse(
                 conversationId,
-                otherUserId,
-                otherUserUsername,
+                otherUser,
                 lastMessage.map(Message::getContent).orElse(null),
                 lastMessage.map(Message::getCreatedAt).orElse(null),
                 lastMessage.map(Message::getSenderId).orElse(null),
@@ -101,9 +102,9 @@ public class ConversationService {
     public List<ConversationResponse> getConversationsForUser(Long userId){
         List<Conversation> conversations = getConversationsByUserId(userId);
         Set<Long> otherUserIds = collectOtherUserIds(conversations, userId);
-        Map<Long, String> usernameByUserId = buildUsernameMap(otherUserIds);
+        Map<Long, UserSummary> userSummaryMap = userService.buildUserSummaryMap(otherUserIds);
 
-        return toConversationResponses(usernameByUserId, conversations, userId);
+        return toConversationResponses(userSummaryMap, conversations, userId);
     }
 
     public Conversation getConversationForUserOrThrow(Long conversationId, Long userId){
@@ -115,17 +116,17 @@ public class ConversationService {
         return conversation;
     }
 
-    private List<ConversationResponse> toConversationResponses(Map<Long, String> usernameByUserId, List<Conversation> conversations, Long userId){
+    private List<ConversationResponse> toConversationResponses(Map<Long, UserSummary> userSummaryMap, List<Conversation> conversations, Long userId){
         List<ConversationResponse> conversationResponses = new ArrayList<>();
 
         for(Conversation conversation: conversations) {
             Long otherUserId = getOtherUserId(conversation, userId);
-            String otherUsername = usernameByUserId.get(otherUserId);
+            UserSummary user = userSummaryMap.get(otherUserId);
 
-            if (otherUsername == null)
+            if (user == null)
                 continue;
 
-            conversationResponses.add(buildConversationResponse(conversation, userId, otherUserId, otherUsername));
+            conversationResponses.add(buildConversationResponse(conversation, userId, user));
         }
 
         return conversationResponses;
@@ -137,16 +138,6 @@ public class ConversationService {
             throw new DataIntegrityException();
 
         return conversationReadState.get().getLastReadAt();
-    }
-
-    private Map<Long, String> buildUsernameMap(Set<Long> userIds){
-        List<ChatUser> users = userService.findUsersByIds(userIds);
-
-        Map<Long, String> usernameByUserId = new HashMap<>();
-        for(ChatUser user: users)
-            usernameByUserId.put(user.getId(), user.getUsername());
-
-        return usernameByUserId;
     }
 
     private Set<Long> collectOtherUserIds(List<Conversation> conversations, Long userId){
