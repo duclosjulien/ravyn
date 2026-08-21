@@ -10,6 +10,7 @@ const dropdownUsername = document.querySelector('#dropdownUsername') as HTMLElem
 const editDisplayNameButton = document.querySelector('#editDisplayNameButton') as HTMLButtonElement;
 const displayNameInput = document.querySelector('#displayNameInput') as HTMLInputElement;
 const displayNameForm = document.querySelector('#displayNameForm') as HTMLFormElement;
+const displayNameActions = document.querySelector('#displayNameActions') as HTMLElement;
 const cancelDisplayNameButton = document.querySelector('#cancelDisplayNameButton') as HTMLButtonElement;
 const displayNameView = document.querySelector('#displayNameView') as HTMLElement;
 const settingsButton = document.querySelector('#settingsButton') as HTMLButtonElement;
@@ -20,7 +21,7 @@ const currentUserAvatar = document.querySelector('#currentUserAvatar') as HTMLEl
 const dropdownUserAvatar = document.querySelector('#dropdownUserAvatar') as HTMLElement;
 
 const displayNameSubmitButton =
-    displayNameForm.querySelector('button[type="submit"]') as HTMLButtonElement;
+    document.querySelector('#displayNameSubmitButton') as HTMLButtonElement;
 
 let isDisplayNameChangePending = false;
 
@@ -99,7 +100,7 @@ async function handleDisplayNameSubmit(event: SubmitEvent): Promise<void> {
 
         renderAccountMenuTrigger(profile);
         renderAccountDropdown(profile);
-        showViewMode();
+        showViewMode(true);
     } catch (error) {
         displayNameError.textContent =
             error instanceof ApiError
@@ -117,18 +118,27 @@ function handleDisplayNameCancel(): void {
 
     displayNameInput.value = "";
     displayNameError.textContent = "";
-    showViewMode();
+    showViewMode(true);
 }
 
 function showEditMode(): void {
     displayNameView.classList.add('hidden');
+    dropdownUsername.classList.add('hidden');
+
     displayNameForm.classList.remove('hidden');
+    displayNameActions.classList.remove('hidden');
+
     displayNameInput.focus();
 }
 
-function showViewMode(): void {
+function showViewMode(restoreFocus = false): void {
     displayNameForm.classList.add('hidden');
+    displayNameActions.classList.add('hidden');
+
     displayNameView.classList.remove('hidden');
+    dropdownUsername.classList.remove('hidden');
+
+    if (restoreFocus) editDisplayNameButton.focus();
 }
 
 function showSettingsPanel(): void {

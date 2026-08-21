@@ -4,7 +4,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
     <title>Ravyn Messenger</title>
     <link rel="stylesheet" href="/css/main.css" />
-</head>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+            rel="stylesheet"
+    >
 <body>
 <noscript>
     <h2>Sorry! Your browser doesn't support Javascript</h2>
@@ -83,34 +90,69 @@
 </div>
 
 <div id="register-page" class="hidden">
-    <div class="auth-page-container">
-        <h1 class="auth-brand">
-            Ravyn
-        </h1>
-        <div class="auth-divider"></div>
-        <p class="auth-subtitle">Start a quieter way to chat.</p>
-        <div class="auth-form">
-            <form id="registerForm" name="registerForm">
-                <div class="form-group">
-                    <input type="text" id="nameRegister" placeholder="Username" autocomplete="off" class="form-control" />
+    <div class="auth-card">
+        <section class="auth-panel">
+            <div class="auth-content">
+                <img
+                        src="/images/RavynLogoAndFeatherIcon.png"
+                        alt="Ravyn"
+                        class="auth-logo"
+                />
+
+                <div class="auth-divider"></div>
+
+                <p class="auth-subtitle">Start a quieter way to chat.</p>
+
+                <div class="auth-form">
+                    <form id="registerForm" name="registerForm">
+                        <div class="form-group">
+                            <input
+                                    type="text"
+                                    id="nameRegister"
+                                    placeholder="Username"
+                                    autocomplete="off"
+                                    class="form-control"
+                            />
+                        </div>
+
+                        <div class="form-group">
+                            <input
+                                    type="password"
+                                    id="passwordRegister"
+                                    placeholder="Password"
+                                    autocomplete="off"
+                                    class="form-control"
+                            />
+                        </div>
+
+                        <div class="form-group">
+                            <button
+                                    type="submit"
+                                    id="registerButton"
+                                    class="accent auth-submit"
+                            >
+                                Sign Up
+                            </button>
+                        </div>
+                    </form>
+
+                    <div id="registerError"></div>
+
+                    <div>
+                        Already have an account?
+                        <button type="button" id="goToLogin">Log In</button>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <input type="password" id="passwordRegister" placeholder="Password" autocomplete="off" class="form-control" />
-                </div>
-                <div class="form-group">
-                    <button type="submit" id="registerButton" class="accent auth-submit">Sign Up</button>
-                </div>
-            </form>
-            <div id="registerError"></div>
-            <div>
-                Already have an account? <button type="button" id="goToLogin">Log In</button>
             </div>
-        </div>
-    </div>
-    <div class="auth-background-logo-wrapper">
-        <div class="auth-background-logo">
-            <img src="images/ravyn-background.jpg" alt="Ravyn background logo">
-        </div>
+        </section>
+
+        <aside class="auth-visual" aria-hidden="true">
+            <img
+                    src="/images/auth_background_panel_asset.png"
+                    alt=""
+                    class="auth-feather"
+            />
+        </aside>
     </div>
 </div>
 
@@ -121,7 +163,7 @@
                 <img src="/images/RavynLogoAndFeatherIcon.png"
                      alt="Ravyn"
                      class="brand-logo" />
-                <p>CHAT SIMPLY. CONNECT DEEPLY.</p>
+                <p>A QUIETER WAY TO CONNECT.</p>
             </div>
 
             <div class="user-search">
@@ -136,7 +178,7 @@
                                 class="user-search-input"
                                 type="text"
                                 autocomplete="off"
-                                placeholder="Search"
+                                placeholder="Find someone"
                         />
                     </div>
                 </form>
@@ -190,7 +232,7 @@
                     <div id="incomingConnectionsList"></div>
                 </div>
 
-                <div class="connections-section-label">Connections</div>
+                <div id="acceptedConnectionsSectionLabel" class="connections-section-label">Connections</div>
                 <div id="acceptedConnectionsList"></div>
             </div>
 
@@ -213,7 +255,13 @@
                             <div class="account-dropdown__name-row">
                                 <div id="displayNameView">
                                     <span id="dropdownDisplayName"></span>
-                                    <button id="editDisplayNameButton" class="account-dropdown__edit" type="button">Edit</button>
+                                    <button
+                                            id="editDisplayNameButton"
+                                            class="account-dropdown__edit"
+                                            type="button"
+                                    >
+                                        Edit
+                                    </button>
                                 </div>
 
                                 <form id="displayNameForm" class="hidden">
@@ -222,16 +270,23 @@
                                             type="text"
                                             maxlength="50"
                                     >
-                                    <div id="displayNameError"></div>
 
-                                    <button type="submit">Save</button>
-                                    <button id="cancelDisplayNameButton" type="button">
-                                        Cancel
-                                    </button>
+                                    <div id="displayNameError"></div>
                                 </form>
                             </div>
 
                             <span id="dropdownUsername" class="account-username"></span>
+
+                            <div class="display-name-actions hidden" id="displayNameActions">
+                                <button
+                                        id="displayNameSubmitButton"
+                                        type="submit"
+                                        form="displayNameForm"
+                                >
+                                    Save
+                                </button>
+                                <button id="cancelDisplayNameButton" type="button">Cancel</button>
+                            </div>
                         </div>
                     </div>
 
@@ -262,7 +317,6 @@
 
                 <div class="chat-header-text">
                     <h2 id="chatHeaderTitle"></h2>
-                    <p id="chatHeaderStatus"></p>
                 </div>
             </header>
 

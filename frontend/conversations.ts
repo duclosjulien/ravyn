@@ -17,7 +17,6 @@ const conversationList = document.querySelector('#conversationList') as HTMLElem
 const conversationError = document.querySelector('#conversationError') as HTMLElement;
 const chatHeaderAvatar = document.querySelector('#chatHeaderAvatar') as HTMLElement;
 const chatHeaderTitle = document.querySelector('#chatHeaderTitle') as HTMLElement;
-const chatHeaderStatus = document.querySelector('#chatHeaderStatus') as HTMLElement;
 const sendMessageButton = document.querySelector('#messageForm button') as HTMLButtonElement;
 const messageInput = document.querySelector('#messageInput') as HTMLInputElement;
 
@@ -105,10 +104,10 @@ function createConversationButton(conversation: Conversation): void{
 
     conversationTopLine.appendChild(nameElement);
     conversationTopLine.appendChild(attentionDotElement);
+    conversationTopLine.appendChild(lastMessageTimeElement);
 
     textContainer.appendChild(conversationTopLine);
     textContainer.appendChild(previewElement);
-    textContainer.appendChild(lastMessageTimeElement);
 
     conversationElement.appendChild(avatarElement);
     conversationElement.appendChild(textContainer);
@@ -238,22 +237,15 @@ function hideConversationError(): void {
 
 // ui
 function showDefaultChatHeader(): void {
-    chatHeaderAvatar.innerHTML = "";
-
-    const logo = document.createElement("img");
-    logo.src = "/images/ravyn_icon_only.png";
-    logo.alt = "";
-
-    chatHeaderAvatar.appendChild(logo);
-
-    chatHeaderTitle.textContent = "Ravyn";
-    chatHeaderStatus.textContent = "Private messages";
+    chatHeaderAvatar.classList.add("hidden");
+    chatHeaderTitle.textContent = "";
 }
 
 function showConversationHeader(username: string): void {
+    chatHeaderAvatar.classList.remove("hidden");
+
     chatHeaderAvatar.textContent = username.charAt(0).toUpperCase();
     chatHeaderTitle.textContent = username;
-    chatHeaderStatus.textContent = "Online";
 }
 
 
@@ -266,7 +258,7 @@ export function clearConversations(): void {
     conversationError.textContent = "";
     chatHeaderAvatar.innerHTML = "";
     chatHeaderTitle.innerHTML = "";
-    chatHeaderStatus.innerHTML =  "";
+    showDefaultChatHeader();
     clearMessageInput();
 }
 
