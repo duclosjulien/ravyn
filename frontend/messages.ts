@@ -67,7 +67,10 @@ export function formatMessageTime(createdAt: string | null): string {
         return "Yesterday";
     }
 
-    return new Date(createdAt).toLocaleDateString();
+    return new Date(createdAt).toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "2-digit",
+    });
 }
 
 export function clearMessageArea(): void {
