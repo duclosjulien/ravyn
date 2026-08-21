@@ -17,7 +17,6 @@ const conversationList = document.querySelector('#conversationList') as HTMLElem
 const conversationError = document.querySelector('#conversationError') as HTMLElement;
 const chatHeaderAvatar = document.querySelector('#chatHeaderAvatar') as HTMLElement;
 const chatHeaderTitle = document.querySelector('#chatHeaderTitle') as HTMLElement;
-const chatHeaderStatus = document.querySelector('#chatHeaderStatus') as HTMLElement;
 const sendMessageButton = document.querySelector('#messageForm button') as HTMLButtonElement;
 const messageInput = document.querySelector('#messageInput') as HTMLInputElement;
 
@@ -105,10 +104,10 @@ function createConversationButton(conversation: Conversation): void{
 
     conversationTopLine.appendChild(nameElement);
     conversationTopLine.appendChild(attentionDotElement);
+    conversationTopLine.appendChild(lastMessageTimeElement);
 
     textContainer.appendChild(conversationTopLine);
     textContainer.appendChild(previewElement);
-    textContainer.appendChild(lastMessageTimeElement);
 
     conversationElement.appendChild(avatarElement);
     conversationElement.appendChild(textContainer);
@@ -240,26 +239,13 @@ function hideConversationError(): void {
 function showDefaultChatHeader(): void {
     chatHeaderAvatar.classList.add("hidden");
     chatHeaderTitle.textContent = "";
-
-    chatHeaderStatus.textContent = "";
-
-    const motto = document.createElement("img");
-    motto.src = "/images/headerMotto1.png";
-    motto.alt = "A quieter way to connect";
-    motto.classList.add("chat-header-motto");
-
-    chatHeaderStatus.appendChild(motto);
-    chatHeaderStatus.classList.add("chat-header-status--default");
 }
 
 function showConversationHeader(username: string): void {
     chatHeaderAvatar.classList.remove("hidden");
 
-    chatHeaderStatus.classList.remove("chat-header-status--default");
-
     chatHeaderAvatar.textContent = username.charAt(0).toUpperCase();
     chatHeaderTitle.textContent = username;
-    chatHeaderStatus.textContent = "Online";
 }
 
 
@@ -272,7 +258,6 @@ export function clearConversations(): void {
     conversationError.textContent = "";
     chatHeaderAvatar.innerHTML = "";
     chatHeaderTitle.innerHTML = "";
-    chatHeaderStatus.innerHTML =  "";
     showDefaultChatHeader();
     clearMessageInput();
 }

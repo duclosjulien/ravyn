@@ -4,7 +4,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
     <title>Ravyn Messenger</title>
     <link rel="stylesheet" href="/css/main.css" />
-</head>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+            rel="stylesheet"
+    >
 <body>
 <noscript>
     <h2>Sorry! Your browser doesn't support Javascript</h2>
@@ -156,7 +163,7 @@
                 <img src="/images/RavynLogoAndFeatherIcon.png"
                      alt="Ravyn"
                      class="brand-logo" />
-                <p>CHAT SIMPLY. CONNECT DEEPLY.</p>
+                <p>A QUIETER WAY TO CONNECT.</p>
             </div>
 
             <div class="user-search">
@@ -171,7 +178,7 @@
                                 class="user-search-input"
                                 type="text"
                                 autocomplete="off"
-                                placeholder="Search"
+                                placeholder="Find someone"
                         />
                     </div>
                 </form>
@@ -248,7 +255,13 @@
                             <div class="account-dropdown__name-row">
                                 <div id="displayNameView">
                                     <span id="dropdownDisplayName"></span>
-                                    <button id="editDisplayNameButton" class="account-dropdown__edit" type="button">Edit</button>
+                                    <button
+                                            id="editDisplayNameButton"
+                                            class="account-dropdown__edit"
+                                            type="button"
+                                    >
+                                        Edit
+                                    </button>
                                 </div>
 
                                 <form id="displayNameForm" class="hidden">
@@ -257,16 +270,23 @@
                                             type="text"
                                             maxlength="50"
                                     >
-                                    <div id="displayNameError"></div>
 
-                                    <button type="submit">Save</button>
-                                    <button id="cancelDisplayNameButton" type="button">
-                                        Cancel
-                                    </button>
+                                    <div id="displayNameError"></div>
                                 </form>
                             </div>
 
                             <span id="dropdownUsername" class="account-username"></span>
+
+                            <div class="display-name-actions hidden" id="displayNameActions">
+                                <button
+                                        id="displayNameSubmitButton"
+                                        type="submit"
+                                        form="displayNameForm"
+                                >
+                                    Save
+                                </button>
+                                <button id="cancelDisplayNameButton" type="button">Cancel</button>
+                            </div>
                         </div>
                     </div>
 
@@ -297,7 +317,6 @@
 
                 <div class="chat-header-text">
                     <h2 id="chatHeaderTitle"></h2>
-                    <p id="chatHeaderStatus"></p>
                 </div>
             </header>
 
