@@ -94,7 +94,7 @@ html, body {
 }
 
 body {
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     font-size: 1rem;
     line-height: 1.5;
     color: var(--color-text);
@@ -323,15 +323,15 @@ button:disabled {
 }
 
 .brand-logo {
-    width: 200px;
+    width: 180px;
     height: auto;
 }
 
 .brand p {
     margin: 0;
-    font-size: 14px;
-    letter-spacing: 0.08em;
-    font-weight: 600;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    font-weight: 500;
     color: var(--color-text-muted);
 }
 
@@ -382,19 +382,18 @@ button:disabled {
 #conversationList {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
     min-height: 0;
     overflow-y: auto;
 }
 
 #conversationList button {
     width: 100%;
-    padding: 11px 14px;
+    padding: 10px 14px;
     border-radius: 14px;
     background: transparent;
     color: var(--color-text);
     text-align: left;
-    font-size: 15px;
     transition: background 120ms ease, box-shadow 120ms ease;
 }
 
@@ -423,8 +422,8 @@ button:disabled {
 }
 
 .conversation-avatar {
-    width: 36px;
-    height: 36px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     background: var(--color-accent);
     color: var(--color-on-action);
@@ -438,16 +437,20 @@ button:disabled {
 
 .conversation-text {
     min-width: 0;
+    flex: 1;
 }
 
 .conversation-name {
-    font-size: 0.95rem;
-    font-weight: 650;
-    color: var(--color-text);
+    font-size: 0.9rem;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: 0;
 }
 
 .conversation-preview {
+    margin-top: 2px;
     font-size: 0.82rem;
+    line-height: 1.25;
     color: var(--color-text-muted);
     white-space: nowrap;
     overflow: hidden;
@@ -461,7 +464,19 @@ button:disabled {
 .conversation-top-line {
     display: flex;
     align-items: center;
-    gap: 0.4rem;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+.conversation-lastMessageTime {
+    margin-left: auto;
+    flex-shrink: 0;
+    color: var(--color-text-muted);
+    font-size: 0.7rem;
+    line-height: 1.2;
+    font-weight: 400;
+    opacity: 0.8;
+    letter-spacing: -0.02em;
 }
 
 .conversation-attention-dot {
@@ -471,10 +486,6 @@ button:disabled {
     background-color: var(--color-action);
     flex-shrink: 0;
     opacity: 0.85;
-}
-
-.conversation-item--needs-attention .conversation-name {
-    font-weight: 600;
 }
 
 .conversation-item--needs-attention .conversation-preview {
@@ -542,8 +553,9 @@ button:disabled {
 .account-display-name {
     overflow: hidden;
     color: var(--color-text);
-    font-size: 0.9rem;
-    font-weight: 650;
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1.1;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
@@ -594,26 +606,24 @@ button:disabled {
 
 .account-dropdown__name-row {
     display: flex;
-    align-items: center;
-    gap: 5px;
-    color: var(--color-text);
-    font-size: 0.95rem;
-    font-weight: 650;
+    align-items: baseline;
+    gap: 10px;
 }
 
 .account-dropdown__edit {
-    width: 28px;
-    height: 28px;
-    display: grid;
-    place-items: center;
-    padding: 6px;
-    border-radius: 8px;
+    width: auto;
+    height: auto;
+    padding: 0;
+
     background: transparent;
     color: var(--color-text-muted);
+
+    font-size: 0.75rem;
+    font-weight: 500;
 }
 
 .account-dropdown__edit:hover {
-    background: var(--color-soft-surface);
+    background: transparent;
     color: var(--color-text);
 }
 
@@ -644,22 +654,53 @@ button:disabled {
 }
 
 #displayNameForm {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr;
     gap: 6px;
+    width: 100%;
 }
 
 #displayNameInput {
+    width: 100%;
     min-width: 0;
-    padding: 7px 9px;
-    border: 1px solid var(--color-border);
+}
+
+.display-name-actions {
+    display: flex;
+    gap: 6px;
+    margin-top: 6px;
+}
+
+.display-name-actions button {
+    padding: 6px 8px;
     border-radius: 8px;
-    background: var(--color-surface);
-    color: var(--color-text);
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+#displayNameSubmitButton {
+    background: var(--color-action);
+    color: var(--color-on-action);
+}
+
+#cancelDisplayNameButton {
+    background: var(--color-soft-surface);
+    color: var(--color-text-muted);
+}
+
+#displayNameError:empty {
+    display: none;
 }
 
 #displayNameInput:focus {
     outline: 2px solid var(--color-accent);
     outline-offset: 1px;
+}
+
+#displayNameView {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 8px;
 }
 
 
@@ -864,6 +905,7 @@ button:disabled {
     border-radius: 12px;
     background: var(--color-input-bg);
     color: var(--color-text);
+    font-size: 0.875rem;
 }
 
 .user-search-input:focus {
@@ -943,19 +985,22 @@ button:disabled {
 /* Sidebar tabs */
 
 .sidebar-tabs {
-    display: flex;
-    gap: 20px;
-    margin-bottom: 14px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    margin-bottom: 12px;
     border-bottom: 1px solid var(--color-border);
 }
 
 .sidebar-tab {
     position: relative;
+    width: 100%;
     padding: 8px 0;
     background: transparent;
     color: var(--color-text-muted);
     font-size: 0.85rem;
     font-weight: 600;
+    text-align: center;
+
 }
 
 .sidebar-tab--active {
@@ -969,7 +1014,6 @@ button:disabled {
     bottom: -1px;
     left: 0;
     height: 2px;
-    border-radius: 2px;
     background: var(--color-action);
 }
 
@@ -1173,29 +1217,6 @@ button:disabled {
     margin: 0;
 }
 
-.chat-header-text p {
-    margin: 0;
-    color: var(--color-text-muted);
-    font-size: 0.85rem;
-}
-
-.chat-header-status--default {
-    width: 100%;
-    height: 3.7rem;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.chat-header-motto {
-    position: absolute;
-    width: 300px;
-    height: auto;
-    display: block;
-    max-width: 100%;
-}
-
 
 /* =========================================================
    8. Message Area
@@ -1276,18 +1297,36 @@ button:disabled {
     text-align: center;
 }
 
+.empty-chat-icon {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 18px;
+    border-radius: 50%;
+    background: var(--color-panel);
+    border: 1px solid var(--color-border);
+    color: var(--green-700);
+}
+
+.empty-chat-icon svg {
+    width: 20px;
+    height: 20px;
+}
+
 .empty-chat-state h3 {
     margin: 0 0 8px;
-    font-size: 1.4rem;
-    font-weight: 550;
-    line-height: 1.2;
+    font-size: 1.2rem;
+    font-weight: 600;
+    line-height: 1.3;
     letter-spacing: -0.01em;
     color: var(--color-text);
 }
 
 .empty-chat-state p {
     margin: 0;
-    font-size: 1rem;
+    font-size: 0.875rem;
     line-height: 1.5;
     color: var(--color-text-muted);
 }
@@ -1298,6 +1337,10 @@ button:disabled {
     color: var(--color-error);
     font-size: 0.9rem;
     line-height: 1.4;
+}
+
+#conversationError:empty {
+    display: none;
 }
 
 #conversationError.hidden {
@@ -1337,7 +1380,7 @@ button:disabled {
     border: none;
     border-radius: 12px;
     background: transparent;
-    font-size: 15px;
+    font-size: 0.875rem;
 }
 
 #messageInput:focus {
@@ -1351,6 +1394,7 @@ button:disabled {
     background: var(--color-action);
     color: var(--color-on-action);
     font-weight: 600;
+    font-size: 0.875rem;
 }
 
 #messageInput:disabled {
