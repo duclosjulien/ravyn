@@ -100,7 +100,7 @@ async function handleDisplayNameSubmit(event: SubmitEvent): Promise<void> {
 
         renderAccountMenuTrigger(profile);
         renderAccountDropdown(profile);
-        showViewMode();
+        showViewMode(true);
     } catch (error) {
         displayNameError.textContent =
             error instanceof ApiError
@@ -118,7 +118,7 @@ function handleDisplayNameCancel(): void {
 
     displayNameInput.value = "";
     displayNameError.textContent = "";
-    showViewMode();
+    showViewMode(true);
 }
 
 function showEditMode(): void {
@@ -131,12 +131,14 @@ function showEditMode(): void {
     displayNameInput.focus();
 }
 
-function showViewMode(): void {
+function showViewMode(restoreFocus = false): void {
     displayNameForm.classList.add('hidden');
     displayNameActions.classList.add('hidden');
 
     displayNameView.classList.remove('hidden');
     dropdownUsername.classList.remove('hidden');
+
+    if (restoreFocus) editDisplayNameButton.focus();
 }
 
 function showSettingsPanel(): void {
