@@ -232,9 +232,28 @@ function createAcceptedConnectionItem(accepted: AcceptedConnectionResponse): voi
         void startConversationFromConnection(accepted.connectedUser, messageButton);
     });
 
+    const optionsButton = document.createElement('button');
+    optionsButton.type = 'button';
+    optionsButton.classList.add('connection-options-button');
+    optionsButton.setAttribute(
+        'aria-label',
+        `More options for ${accepted.connectedUser.displayName}`
+    );
+
+    optionsButton.innerHTML = '' +
+        '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-ellipsis-icon lucide-ellipsis">' +
+        '<circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>' +
+        '</svg>'
+
+    const controlsElement = document.createElement("div");
+    controlsElement.classList.add("connection-controls");
+
+    controlsElement.appendChild(messageButton);
+    controlsElement.appendChild(optionsButton);
+
     connectionElement.appendChild(avatarElement);
     connectionElement.appendChild(identityElement);
-    connectionElement.appendChild(messageButton);
+    connectionElement.appendChild(controlsElement);
 
     acceptedConnectionsList.appendChild(connectionElement);
 }
