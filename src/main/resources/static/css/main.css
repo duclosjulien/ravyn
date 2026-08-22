@@ -1147,17 +1147,7 @@ button:disabled {
     transform: translateX(4px);
 }
 
-.connection-message-button {
-    width: 32px;
-    height: 32px;
-    display: grid;
-    place-items: center;
-    flex-shrink: 0;
-    border-radius: 8px;
-    background: transparent;
-    color: var(--color-text-muted);
-}
-
+.connection-message-button,
 .connection-options-button {
     width: 32px;
     height: 32px;
@@ -1169,12 +1159,14 @@ button:disabled {
     color: var(--color-text-muted);
 }
 
-.connection-message-button:hover {
+.connection-message-button:hover,
+.connection-options-button:hover {
     background: var(--color-soft-surface);
     color: var(--color-text);
 }
 
-.connection-message-button svg {
+.connection-message-button svg,
+.connection-options-button svg {
     width: 18px;
     height: 18px;
 }
@@ -1443,7 +1435,9 @@ button:disabled {
 @media screen and (max-width: 800px) {
     .app-shell {
         flex-direction: column;
+        height: auto;
         min-height: 100vh;
+        overflow: visible;
     }
 
     .auth-card {
@@ -1462,6 +1456,7 @@ button:disabled {
 
     .sidebar {
         width: 100%;
+        height: auto;
         border-right: none;
         border-bottom: 1px solid var(--color-border);
     }
