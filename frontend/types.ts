@@ -20,8 +20,7 @@ export interface StompPayload {
 
 export interface Conversation {
     id: number;
-    otherUserId: number;
-    otherUsername: string;
+    otherUser: UserSummary;
     lastMessageContent: string | null;
     lastMessageCreatedAt: string | null;
     lastMessageSenderId: number | null;

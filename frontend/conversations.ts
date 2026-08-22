@@ -1,4 +1,5 @@
 import {
+    changeDisplayName,
     createConversation,
     getCurrentUserConversations,
     getMessagesForConversation,
@@ -36,8 +37,7 @@ export async function startConversationWith(connectedUser: UserSummary): Promise
     if(!conversations.some(c => c.id === conversationId)){
         conversations.push({
             id: conversationId,
-            otherUserId: connectedUser.id,
-            otherUsername: connectedUser.username,
+            otherUser: connectedUser,
             lastMessageContent: null,
             lastMessageCreatedAt: null,
             lastMessageSenderId: null,
@@ -46,7 +46,7 @@ export async function startConversationWith(connectedUser: UserSummary): Promise
     }
 
     showConversationsView();
-    await selectConversation(conversationId, connectedUser.username);
+    await selectConversation(conversationId, connectedUser.displayName);
 }
 
 function renderConversations(): void {
@@ -68,14 +68,14 @@ function createConversationButton(conversation: Conversation): void{
 
     const avatarElement = document.createElement('div');
     avatarElement.classList.add('conversation-avatar');
-    avatarElement.textContent = conversation.otherUsername.charAt(0).toUpperCase() || '?';
+    avatarElement.textContent = conversation.otherUser.displayName.charAt(0).toUpperCase() || '?';
 
     const textContainer = document.createElement('div');
     textContainer.classList.add('conversation-text');
 
     const nameElement = document.createElement('div');
     nameElement.classList.add('conversation-name');
-    nameElement.textContent = conversation.otherUsername;
+    nameElement.textContent = conversation.otherUser.displayName;
 
     const attentionDotElement = document.createElement('span');
     attentionDotElement.classList.add('conversation-attention-dot');
@@ -113,12 +113,12 @@ function createConversationButton(conversation: Conversation): void{
     conversationElement.appendChild(textContainer);
 
     conversationElement.addEventListener('click', () => {
-        void selectConversation(conversation.id, conversation.otherUsername);
+        void selectConversation(conversation.id, conversation.otherUser.displayName);
     });
     conversationList.appendChild(conversationElement);
 }
 
-async function selectConversation(conversationId: number, otherUsername: string): Promise<void> {
+async function selectConversation(conversationId: number, otherDisplayName: string): Promise<void> {
     ++conversationGeneration;
     const actionGeneration = conversationGeneration;
 
@@ -130,7 +130,7 @@ async function selectConversation(conversationId: number, otherUsername: string)
 
     renderConversations();
     updateComposerState();
-    showConversationHeader(otherUsername);
+    showConversationHeader(otherDisplayName);
 
     try {
         const previousMessages = await getMessagesForConversation(selectedConversationId);
@@ -241,11 +241,12 @@ function showDefaultChatHeader(): void {
     chatHeaderTitle.textContent = "";
 }
 
-function showConversationHeader(username: string): void {
+function showConversationHeader(displayName: string): void {
     chatHeaderAvatar.classList.remove("hidden");
 
-    chatHeaderAvatar.textContent = username.charAt(0).toUpperCase();
-    chatHeaderTitle.textContent = username;
+    const headerName = displayName || "Unknown user";
+    chatHeaderAvatar.textContent = headerName.charAt(0).toUpperCase();
+    chatHeaderTitle.textContent = headerName;
 }
 
 
