@@ -1,4 +1,5 @@
 import { FlatList, Image, StyleSheet, Text } from "react-native";
+import { useRouter } from "expo-router";
 
 import { AppScreen } from "../../src/components/AppScreen";
 import { ConversationRow } from "../../src/components/ConversationRow";
@@ -8,6 +9,8 @@ import { colors, spacing, typography } from "../../src/theme";
 const ravynBrand = require("../../assets/RavynLogoAndFeatherIcon.png");
 
 export default function ChatsScreen() {
+  const router = useRouter();
+
   return (
     <AppScreen
       header={
@@ -26,7 +29,17 @@ export default function ChatsScreen() {
         ListEmptyComponent={
           <Text style={styles.emptyText}>Your conversations will appear here.</Text>
         }
-        renderItem={({ item }) => <ConversationRow conversation={item} />}
+        renderItem={({ item }) => (
+          <ConversationRow
+            conversation={item}
+            onPress={() =>
+              router.push({
+                pathname: "/conversations/[conversationId]",
+                params: { conversationId: item.id }
+              })
+            }
+          />
+        )}
         showsVerticalScrollIndicator={false}
       />
     </AppScreen>
