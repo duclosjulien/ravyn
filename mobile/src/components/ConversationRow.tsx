@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { colors, spacing, typography } from "../theme";
 import type { ConversationPreview } from "../types/appShell";
@@ -6,11 +6,17 @@ import { Avatar } from "./Avatar";
 
 interface ConversationRowProps {
   conversation: ConversationPreview;
+  onPress: () => void;
 }
 
-export function ConversationRow({ conversation }: ConversationRowProps) {
+export function ConversationRow({ conversation, onPress }: ConversationRowProps) {
   return (
-    <View style={styles.row}>
+    <Pressable
+      accessibilityLabel={`${conversation.displayName}, ${conversation.excerpt}, ${conversation.timestamp}`}
+      accessibilityRole="button"
+      onPress={onPress}
+      style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
+    >
       <Avatar initials={conversation.initials} />
       <View style={styles.copy}>
         <View style={styles.heading}>
@@ -23,7 +29,7 @@ export function ConversationRow({ conversation }: ConversationRowProps) {
           {conversation.excerpt}
         </Text>
       </View>
-    </View>
+    </Pressable>
   );
 }
 
@@ -36,6 +42,9 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     minHeight: 84,
     paddingVertical: spacing.md
+  },
+  rowPressed: {
+    opacity: 0.72
   },
   copy: {
     flex: 1

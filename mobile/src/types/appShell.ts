@@ -18,3 +18,16 @@ export interface ProfilePreview {
   username: string;
   initials: string;
 }
+
+export interface MessagePreview {
+  id: string;
+  direction: "incoming" | "outgoing";
+  content: string;
+  timestamp: string;
+}
+
+export interface ConversationDetail {
+  conversationId: string;
+  dateLabel: string;
+  messages: MessagePreview[];
+}
