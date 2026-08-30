@@ -1,0 +1,66 @@
+name: Build and deploy
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy to AWS
+    runs-on: ubuntu-24.04-arm
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
+        with:
+          persist-credentials: false
+
+      - name: Build Docker image
+        run: docker build --tag ravyn:${{ github.sha }} .
+
+      - name: Configure AWS Credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c #v6.2.3
+        with:
+            role-to-assume: arn:aws:iam::454015599810:role/ravyn-github-deploy
+            aws-region: ca-central-1
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@d539f0932e70871a027e9d5a9d8fc38589180a64 #v2.1.6
+
+      - name: Tag Docker image for ECR
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: docker tag ravyn:$IMAGE_TAG $REGISTRY/ravyn:$IMAGE_TAG
+
+      - name: Push Docker image to ECR
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: docker push $REGISTRY/ravyn:$IMAGE_TAG
+
+      - name: Render ECS task definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@138c24f321fdbdf7edee4a685519d253cae2cdea #v1.9.0
+        with:
+          task-definition-family: ravyn
+          container-name: ravyn
+          image: ${{ steps.login-ecr.outputs.registry }}/ravyn:${{ github.sha }}
+
+      - name: Deploy to Amazon ECS
+        uses: aws-actions/amazon-ecs-deploy-task-definition@c465972ecbd160473f22e683363b422a5412a3de #v2.6.3
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: ravyn-service
+          cluster: ravyn-cluster
+          wait-for-service-stability: true
