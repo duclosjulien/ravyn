@@ -2,6 +2,7 @@ package com.ravyn.chat.auth;
 
 import com.ravyn.chat.user.ChatUser;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -30,7 +31,11 @@ public class AuthSessionService {
         context.setAuthentication(authentication);
         SecurityContextHolder.setContext(context);
 
-        request.getSession(true)
-                .setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, context);
+        HttpSession session = request.getSession(true);
+        request.changeSessionId();
+        session.setAttribute(
+                HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+                context
+        );
     }
 }
