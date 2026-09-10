@@ -1,35 +1,100 @@
 # Ravyn
 
-Ravyn is a real-time messaging app focused on simple private conversations and a calmer communication experience.
+Ravyn is a full-stack real-time messaging app built around private one-to-one conversations. The web app uses Spring Boot, PostgreSQL, TypeScript, and WebSockets and is deployed on AWS.
 
-It is built with Spring Boot, PostgreSQL, TypeScript, and WebSockets.
+**Live app:** [ravynchat.com](https://ravynchat.com)
 
-The project is also a way for me to learn how full-stack software is designed properly: backend layers, DTOs, services, repositories, authentication, persistence, deployment, and real-time communication.
+## About
 
-The goal is to build a chat app that feels simple on the surface, while being thoughtfully structured underneath.
+The web app is kept relatively simple, while most of the project focuses on the architecture underneath it: service boundaries, DTOs, validation, database design, session management, and communication between the frontend and backend.
 
+The project is also starting to explore ideas around more intentional communication. The mobile client will take this further, particularly around notifications and how they are handled.
+
+## Features
+
+* Session-based registration and authentication
+* User connections with request and acceptance flows
+* Private one-to-one conversations between connected users
+* Persistent message history
+* Real-time message delivery over WebSockets
+* Conversation previews and unread indicators
+* Customizable display names
+
+## Architecture & tech stack
+
+Ravyn uses a layered Spring Boot backend. Controllers handle HTTP and WebSocket boundaries, services contain application logic, repositories handle persistence, and DTOs define the data exchanged with clients.
+
+The web frontend is written in TypeScript and served as static resources by Spring Boot. REST is used for authentication, connections, conversations, and message history, while STOMP over WebSockets handles real-time message delivery.
+
+### Backend
+
+* Java 21
+* Spring Boot 3
+* Spring Security
+* Spring Data JPA / Hibernate
+* WebSockets with STOMP and SockJS
+* PostgreSQL
+* Flyway
+
+### Web frontend
+
+* TypeScript
+* HTML / CSS
+* STOMP.js
+* SockJS
+
+### Mobile
+
+* React Native
+* Expo
+* TypeScript
+
+The mobile client is still in development and currently focuses on the application shell and UI.
+
+### Testing & tooling
+
+* JUnit
+* Mockito
+* Testcontainers
+* Maven
+* Docker / Docker Compose
+* GitHub Actions
+
+## Deployment
+
+Ravyn is deployed on AWS as a containerized Spring Boot application.
+
+The application runs on Amazon ECS with Fargate behind an Application Load Balancer. PostgreSQL runs separately on Amazon RDS, and sensitive runtime configuration is provided to the ECS task through AWS Systems Manager Parameter Store.
+
+Deployments are automated with GitHub Actions. A push to `main` builds an ARM64 Docker image, authenticates to AWS through GitHub OIDC, pushes the image to Amazon ECR, creates a new ECS task definition revision, and updates the running ECS service. The workflow then waits for the service to stabilize.
+
+The deployment uses:
+
+* **Amazon ECR** for Docker image storage
+* **Amazon ECS / Fargate** for running the application
+* **Amazon RDS** for PostgreSQL
+* **Application Load Balancer** for routing and health checks
+* **AWS Certificate Manager** for HTTPS
+* **Systems Manager Parameter Store** for sensitive runtime configuration
+* **AWS IAM and GitHub OIDC** for deployment authentication
+* **GitHub Actions** for continuous deployment
 
 ## Project status
 
-Ravyn is under active development and is not yet intended for production deployment.
+Ravyn is under active development and is currently deployed at [ravynchat.com](https://ravynchat.com).
 
-The current application supports session-based authentication, private one-to-one conversations, persistent message history, and real-time messaging through WebSockets.
+The web app is functional, but the project is still evolving. Current work is focused on refining the application and developing the mobile client.
 
+Longer-term work includes group conversations, more control over notifications, and stronger message privacy.
 
 ## Running Ravyn locally
 
-### Option 1: Docker Compose
+Ravyn can also be run locally with Docker Compose.
 
-Recommended for running the full app locally.
+### Requirements
 
-#### Requirements
-
-- Docker Desktop or Docker Engine
-- Docker Compose
-
-No local Java, Maven, or PostgreSQL installation is required.
-
-#### Setup
+* Docker Desktop or Docker Engine
+* Docker Compose
 
 Copy the example environment file:
 
@@ -37,143 +102,20 @@ Copy the example environment file:
 cp .env.example .env
 ```
 
-The `.env` file is used by Docker Compose to configure the local PostgreSQL container. Do not commit your real `.env` file.
-
-#### Start
+Start the application:
 
 ```bash
 docker compose up --build
 ```
 
-Open the app at:
+Ravyn will be available at:
 
 ```text
 http://localhost:8080
 ```
 
-#### Stop
+Stop the application with:
 
 ```bash
 docker compose down
 ```
-
-#### Reset the Docker database
-
-This removes the local Docker PostgreSQL volume. On the next startup, Flyway recreates the schema from the migration files.
-
-```bash
-docker compose down -v
-docker compose up --build
-```
-
-#### Smoke test
-
-After starting the app:
-
-1. Register a user.
-2. Log out.
-3. Register or log in as another user.
-4. Create a conversation.
-5. Send a message.
-6. Refresh the page and confirm the session and message history still work.
-
-### Option 2: Local development with IntelliJ
-
-Use this if you want to run the Spring Boot app directly from your machine.
-
-#### Requirements
-
-- Java 21
-- Node.js 24 LTS
-- Local PostgreSQL running with the `ravyn` database and matching credentials, or `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, and `SPRING_DATASOURCE_PASSWORD` set explicitly
-
-A separate Maven installation is not required because the Maven wrapper is included in the project.
-
-#### Build the frontend
-
-After a clean clone, install the frontend dependencies and generate the browser-ready JavaScript:
-
-```bash
-npm ci
-npm run build
-```
-
-#### Start
-
-```bash
-./mvnw spring-boot:run
-```
-
-Open the app at:
-
-```text
-http://localhost:8080
-```
-
-## Frontend build
-
-Ravyn's frontend is written in TypeScript and compiled into Spring Boot's static resources.
-
-### Requirements
-
-- Node.js 24 LTS
-
-If you use `nvm`, select the supported Node.js version with:
-
-```bash
-nvm use
-```
-
-Install the exact dependencies from `package-lock.json`:
-
-```bash
-npm ci
-```
-
-Check the TypeScript without generating JavaScript:
-
-```bash
-npm run typecheck
-```
-
-Create a clean frontend build:
-
-```bash
-npm run build
-```
-
-The build generates browser-ready files in:
-
-```text
-src/main/resources/static/js/
-```
-
-This directory contains generated files and is intentionally excluded from Git. Run the frontend build before starting the Spring Boot application after a clean clone.
-
-
-## Backend tests
-
-Ravyn's integration tests use Testcontainers to start a temporary PostgreSQL container. A separately configured local PostgreSQL database is not required.
-
-### Requirements
-
-- Java 21
-- Docker Desktop or Docker Engine running
-
-Run the backend test suite with:
-
-```bash
-./mvnw test
-```
-
-Testcontainers creates the PostgreSQL container for the test run and removes it afterward.
-
-## Pull request verification
-
-Pull requests targeting `dev` or `main` automatically run the following checks:
-
-- Type-check and build the TypeScript frontend
-- Run the backend test suite with Testcontainers
-- Build the complete Docker image
-
-All three checks must pass before the pull request can be merged.

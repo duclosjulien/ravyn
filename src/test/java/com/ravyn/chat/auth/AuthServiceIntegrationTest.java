@@ -5,18 +5,25 @@ import com.ravyn.chat.user.ChatUser;
 import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpSession;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @Testcontainers
+@AutoConfigureMockMvc
 class AuthServiceIntegrationTest {
 
     @Container
@@ -34,6 +41,12 @@ class AuthServiceIntegrationTest {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Test
     void registrationNormalizesUsernameAndInitializesDisplayName() {
@@ -60,5 +73,29 @@ class AuthServiceIntegrationTest {
                 ConstraintViolationException.class,
                 () -> authService.register("username", null, false)
         );
+    }
+
+    @Test
+    void loginRotatesSessionId() throws Exception {
+        String passwordHash = passwordEncoder.encode("testPassword");
+        ChatUser testUser = new ChatUser("testUser", passwordHash);
+        userRepository.save(testUser);
+
+        MockHttpSession session = new MockHttpSession();
+        String sessionId = session.getId();
+
+        mockMvc.perform(post("/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+        {
+          "username": "testUser",
+          "password": "testPassword"
+        }
+        """)
+                .session(session))
+                .andExpect(status().isOk());
+
+        String newSessionId = session.getId();
+        assertNotEquals(sessionId, newSessionId);
     }
 }
